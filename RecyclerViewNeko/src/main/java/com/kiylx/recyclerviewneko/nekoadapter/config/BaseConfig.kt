@@ -1,0 +1,117 @@
+package com.kiylx.recyclerviewneko.nekoadapter.config
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.view.ViewGroup
+import android.widget.Adapter
+import androidx.annotation.Nullable
+import androidx.recyclerview.widget.RecyclerView
+import com.kiylx.recyclerviewneko.nekoadapter.*
+import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager
+import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
+import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.viewholder.DelegatePair
+import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
+
+/**
+ * 视图类型解析
+ */
+interface ViewTypeParser<T> {
+    fun parse(data: T, pos: Int): Int
+}
+
+abstract class BaseConfig<T : Any>(
+    internal var context: Context,
+    var rv: RecyclerView,
+) {
+    lateinit var iNekoAdapter: RecyclerView.Adapter<BaseViewHolder>
+
+    var layoutManager: RecyclerView.LayoutManager = context.linear()
+    var mItemViewDelegateManager = ItemViewDelegateManager<T>()//管理itemview相关配置
+
+    /**
+     * 作用：根据数据和位置判断应该返回什么类型
+     *
+     * 如果此解析器为null，则使用[ItemViewDelegate.isForViewType]进行判断viewtype
+     */
+    var viewTypeParser: ViewTypeParser<T>? = null
+        set(value) {
+            field = value
+            mItemViewDelegateManager.viewTypeParser = value
+        }
+
+    var mDatas: MutableList<T> = mutableListOf()
+
+    //指定此匿名函数，可以手动创建viewholder
+    var createHolder: ((parent: ViewGroup, layoutId: Int) -> BaseViewHolder)? = null
+
+    var clickEnable = true    //itemview是否可点击
+    var longClickEnable = false    //itemview是否可长按
+    var itemClickListener: ItemClickListener? = null
+    var itemLongClickListener: ItemLongClickListener? = null
+
+    /**
+     * 使用单一种类的viewholder
+     * 添加单一种类的itemview
+     * 不能和另一个[addItemViews]同时使用
+     * 若使用此方法，可以达到单一类型ViewHolder
+     */
+    abstract fun addItemView(
+        layoutId: Int,
+        type: Int = mItemViewDelegateManager.itemViewDelegateCount,
+        isThisView: (data: T, position: Int) -> Boolean = { _, _ -> true },
+        dataConvert: (holder: BaseViewHolder, t: T, position: Int) -> Unit
+    )
+
+    /**
+     * 使用多种类型的viewholder
+     * 添加多种itemview
+     */
+    abstract fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>)
+
+    /**
+     * 判断是否使用了[ItemViewDelegateManager]
+     */
+    internal abstract fun useItemViewDelegateManager(): Boolean
+
+    /**
+     * 判断itemview的类型
+     */
+    internal abstract fun getItemViewType(position: Int): Int
+
+    /**
+     * 根据itemview类型，获取[ItemViewDelegate]
+     */
+    internal abstract fun getItemViewDelegate(viewType: Int): ItemViewDelegate<T>
+
+    /**
+     * 创建viewholder，如果指定了[createHolder],则使用[createHolder]创建viewholder
+     */
+    internal abstract fun createHolderInternal(parent: ViewGroup, layoutId: Int): BaseViewHolder
+
+    /**
+     * 将数据绑定到viewholder
+     */
+    internal abstract fun bindData(holder: BaseViewHolder, position: Int)
+
+    /**
+     * 刷新recyclerview
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    fun refreshData(datas: MutableList<T>) {
+        mDatas.clear()
+        mDatas.addAll(datas)
+        iNekoAdapter.notifyDataSetChanged()
+    }
+
+    /**
+     * 刷新recyclerview
+     * 仅限listadapter类型
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun submitList(datas: MutableList<T>, commitCallback: Runnable? = null) {
+        mDatas.clear()
+        mDatas.addAll(datas)
+        (iNekoAdapter as? NekoListAdapter<T>)?.submitList(datas, commitCallback)
+    }
+}
