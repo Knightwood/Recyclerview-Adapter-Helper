@@ -70,7 +70,7 @@ class MainActivity2 : AppCompatActivity() {
                     return if (data == "item") 1 else 2
                 }
             }
-            this.mDatas = d.toMutableList()//指定adapter的数据
+            mDatas = d.toMutableList()//指定adapter的数据
 
             //1. 多种viewtype可以使用[addItemViews]将多种viewholder添加进去
             addItemViews(item1, item2)
@@ -130,12 +130,14 @@ class MainActivity2 : AppCompatActivity() {
                         2
                 }
             }
-            this.mDatas = d.toMutableList()//指定adapter的数据
+            mDatas = d.toMutableList()//指定adapter的数据
             addItemViews(item1, item2)
         }.done()
         neko.mDatas[1] = "eee"
         //刷新数据
         neko.submitList(d)
+        //刷新数据
+        neko.nekoListAdapter?.submitList(null)
     }
 
 

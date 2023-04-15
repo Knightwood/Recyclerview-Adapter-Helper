@@ -1,28 +1,23 @@
 package com.kiylx.recyclerviewneko.nekoadapter
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
 import com.kiylx.recyclerviewneko.nekoadapter.config.createViewHolder
 import com.kiylx.recyclerviewneko.nekoadapter.config.dataSize
 import com.kiylx.recyclerviewneko.nekoadapter.config.parseItemViewType
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
-class NekoListAdapter<T : Any> : ListAdapter<T, BaseViewHolder>, INekoAdapter {
-    var config: BaseConfig<T>
+class NekoPagingAdapter<T : Any>(
+    var config: BaseConfig<T>,
+    diffCallback: DiffUtil.ItemCallback<T>,
+    mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
+) : PagingDataAdapter<T, BaseViewHolder>(diffCallback,mainDispatcher, workerDispatcher), INekoAdapter {
 
-    constructor(
-        config: BaseConfig<T>,
-        diffCallback: DiffUtil.ItemCallback<T>
-    ) : super(diffCallback) {
-        this.config = config
-    }
-
-    constructor(config: BaseConfig<T>, asyncConfig: AsyncDifferConfig<T>) : super(asyncConfig) {
-        this.config = config
-    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder =
         config.createViewHolder(parent, viewType)
 

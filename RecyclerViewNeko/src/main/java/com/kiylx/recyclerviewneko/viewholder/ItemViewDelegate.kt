@@ -11,6 +11,9 @@ abstract class ItemViewDelegate<T>(var type:Int,var layoutId: Int) {
      */
     open fun isForViewType(data: T, position: Int): Boolean = true
 
+    /**
+     * 将数据绑定到viewholder
+     */
     abstract fun convert(holder: BaseViewHolder, data: T, position: Int)
 }
 

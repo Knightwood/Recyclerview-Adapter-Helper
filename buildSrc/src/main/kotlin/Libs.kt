@@ -11,7 +11,9 @@ object AndroidX {
     //androidx.core.core:1.6.0; drawerlayout:1.1.1; fragment:1.2.5; lifecycle-runtime:2.0.0; recyclerview:1.0.0
     //viewpager2:1.0.0; transition:1.2.0 等库
     const val material = "com.google.android.material:material:1.7.0"
+    const val viewpager2="androidx.viewpager2:viewpager2:1.0.0"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.4"
+    const val paging3 ="androidx.paging:paging-runtime:3.0.1"
 
     object Core {
         //api了 core：1.8.0

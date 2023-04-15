@@ -20,6 +20,9 @@ interface ViewTypeParser<T> {
     fun parse(data: T, pos: Int): Int
 }
 
+/**
+ * adapter的配置，创建viewholder,判断viewtype等一系列的方法
+ */
 abstract class BaseConfig<T : Any>(
     internal var context: Context,
     var rv: RecyclerView,
@@ -70,35 +73,54 @@ abstract class BaseConfig<T : Any>(
     abstract fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>)
 
     /**
-     * 判断是否使用了[ItemViewDelegateManager]
+     * 判断是否使用了[com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager]
      */
-    internal abstract fun useItemViewDelegateManager(): Boolean
+    fun useItemViewDelegateManager(): Boolean {
+        return mItemViewDelegateManager.itemViewDelegateCount > 0
+    }
 
     /**
      * 判断itemview的类型
      */
-    internal abstract fun getItemViewType(position: Int): Int
+    open fun getItemViewType(position: Int): Int {
+        return mItemViewDelegateManager.getItemViewType(
+            mDatas[position],
+            position
+        )
+    }
 
     /**
      * 根据itemview类型，获取[ItemViewDelegate]
      */
-    internal abstract fun getItemViewDelegate(viewType: Int): ItemViewDelegate<T>
+    open fun getItemViewDelegate(viewType: Int): ItemViewDelegate<T> {
+        return mItemViewDelegateManager.getItemViewDelegate(viewType)!!;
+    }
 
     /**
      * 创建viewholder，如果指定了[createHolder],则使用[createHolder]创建viewholder
      */
-    internal abstract fun createHolderInternal(parent: ViewGroup, layoutId: Int): BaseViewHolder
+    open fun createHolderInternal(parent: ViewGroup, layoutId: Int): BaseViewHolder {
+        return createHolder?.let {
+            it(parent, layoutId)
+        } ?: BaseViewHolder.createViewHolder(
+            context,
+            parent,
+            layoutId
+        )
+    }
 
     /**
      * 将数据绑定到viewholder
      */
-    internal abstract fun bindData(holder: BaseViewHolder, position: Int)
+    open fun bindData(holder: BaseViewHolder, position: Int) {
+        mItemViewDelegateManager.convert(holder, mDatas[position] as T, holder.adapterPosition)
+    }
 
     /**
      * 刷新recyclerview
      */
     @SuppressLint("NotifyDataSetChanged")
-    fun refreshData(datas: MutableList<T>) {
+    open fun refreshData(datas: MutableList<T>) {
         mDatas.clear()
         mDatas.addAll(datas)
         iNekoAdapter.notifyDataSetChanged()
@@ -109,7 +131,7 @@ abstract class BaseConfig<T : Any>(
      * 仅限listadapter类型
      */
     @Suppress("UNCHECKED_CAST")
-    fun submitList(datas: MutableList<T>, commitCallback: Runnable? = null) {
+    open fun submitList(datas: MutableList<T>, commitCallback: Runnable? = null) {
         mDatas.clear()
         mDatas.addAll(datas)
         (iNekoAdapter as? NekoListAdapter<T>)?.submitList(datas, commitCallback)
