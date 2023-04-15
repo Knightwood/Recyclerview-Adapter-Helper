@@ -102,7 +102,7 @@ fun <T : Any, N : BaseConfig<T>> N.done(): N {
  * @param nekoConfigs 构建出来的多个adapter。注：传入的nekoConfigs不应调用BaseConfig的done方法
  * @param configBlock 配置[ConcatAdapter.Config]
  */
-fun <T : Any, N : BaseConfig<T>> N.concat(
+fun <T : Any, N : BaseConfig<T>> concat(
     vararg nekoConfigs: N,
     configBlock: ConcatAdapter.Config.Builder.() -> Unit,
     ): ConcatConfig<T, N> {
