@@ -54,23 +54,39 @@ abstract class BaseConfig<T : Any>(
     var itemLongClickListener: ItemLongClickListener? = null
 
     /**
-     * 使用单一种类的viewholder
-     * 添加单一种类的itemview
      * 不能和另一个[addItemViews]同时使用
      * 若使用此方法，可以达到单一类型ViewHolder
+     * 使用此方法时，[ViewTypeParser]将不可用
      */
-    abstract fun addItemView(
+   open fun addItemView(
         layoutId: Int,
-        type: Int = mItemViewDelegateManager.itemViewDelegateCount,
-        isThisView: (data: T, position: Int) -> Boolean = { _, _ -> true },
-        dataConvert: (holder: BaseViewHolder, t: T, position: Int) -> Unit
-    )
+        type: Int,
+        isThisView: (data: T, position: Int) -> Boolean,
+        dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
+    ) {
+        val itemview: ItemViewDelegate<T> = object : ItemViewDelegate<T>(type, layoutId) {
+            override fun convert(holder: BaseViewHolder, data: T, position: Int) {
+                dataConvert(holder, data, position)
+            }
+
+            override fun isForViewType(data: T, position: Int): Boolean {
+                return isThisView(data, position)
+            }
+
+        }
+        mItemViewDelegateManager.addDelegate(type, itemview)
+        viewTypeParser = null
+    }
 
     /**
-     * 使用多种类型的viewholder
-     * 添加多种itemview
+     * 添加多种itemview类型
      */
-    abstract fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>)
+   open fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>) {
+        //将itemview添加进管理器
+        itemViewDelegates.forEach {
+            mItemViewDelegateManager.addDelegate(it.type, it)
+        }
+    }
 
     /**
      * 判断是否使用了[com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager]
