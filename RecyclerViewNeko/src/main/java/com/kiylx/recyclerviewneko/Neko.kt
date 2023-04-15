@@ -34,7 +34,7 @@ import kotlinx.coroutines.Dispatchers
 fun <T : Any> Context.neko(
     recyclerView: RecyclerView,
     configBlock: DefaultConfig<T>.() -> Unit
-): BaseConfig<T> {
+): DefaultConfig<T> {
     val config = DefaultConfig<T>(this, recyclerView)
     val a = NekoAdapter(config)
     config.iNekoAdapter = a
@@ -84,7 +84,7 @@ fun <T : Any> Context.customNeko(
     recyclerView: RecyclerView,
     customAdapter: Adapter<BaseViewHolder>,
     configBlock: DefaultConfig<T>.() -> Unit
-): DefaultConfig<T> {
+): BaseConfig<T> {
     val config = DefaultConfig<T>(this, recyclerView)
     config.iNekoAdapter = customAdapter
     config.configBlock()
