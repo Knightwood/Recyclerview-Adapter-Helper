@@ -33,5 +33,5 @@ class NekoAdapter(//配置
  * 提供recyclerview和adapter的配置信息，viewholder创建方法，viewtype判断等
  */
 class NekoAdapterConfig<T : Any>(context: Context, rv: RecyclerView) : BaseConfig<T>(context, rv) {
-    var nekoAdapter: NekoAdapter? = null
+    lateinit var nekoAdapter: NekoAdapter
 }

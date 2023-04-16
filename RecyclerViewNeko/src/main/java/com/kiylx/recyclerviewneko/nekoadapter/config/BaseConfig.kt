@@ -21,13 +21,13 @@ fun interface ViewTypeParser<T> {
  * adapter的配置，创建viewholder,判断viewtype等一系列的方法
  */
 abstract class BaseConfig<T : Any>(
-    internal var context: Context,
+    protected var context: Context,
     var rv: RecyclerView,
 ) {
     lateinit var iNekoAdapter: RecyclerView.Adapter<BaseViewHolder>
 
     var layoutManager: RecyclerView.LayoutManager = context.linear()
-    var mItemViewDelegateManager = ItemViewDelegateManager<T>()//管理itemview相关配置
+    private var mItemViewDelegateManager = ItemViewDelegateManager<T>()//管理itemview相关配置
 
     /**
      * 作用：根据数据和位置判断应该返回什么类型
@@ -51,14 +51,34 @@ abstract class BaseConfig<T : Any>(
     var itemLongClickListener: ItemLongClickListener? = null
 
     /**
-     * 如果不指定type和isThisView,不能和另一个[addItemViews]同时使用
-     * 若使用此方法，可以达到单一类型ViewHolder
-     * 使用此方法时，[ViewTypeParser]将不可用
+     * 添加单个的itemViewDelegate，即仅有一种viewHolder
+     * 多次调用将报错
+     * @param dataConvert 将data绑定到此viewHolder
+     * @param layoutId viewHolder布局id
+     */
+    open fun addSingleItemView(
+        layoutId: Int,
+        dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
+    ) {
+        addItemView(
+            layoutId = layoutId,
+            type = 0,
+            isThisView = { _, _ -> true },
+            dataConvert = dataConvert
+        )
+    }
+
+    /**
+     * 添加多种itemview类型
+     * @param layoutId viewHolder布局id
+     * @param type 标识viewHolder的类型，即vieType
+     * @param isThisView 在多种viewHolder下，此方法用来识别某viewHolder是否应该显示data类型的数据，是的话，返回true
+     * @param dataConvert 将data绑定到此viewHolder
      */
     open fun addItemView(
         layoutId: Int,
-        type: Int = 0,
-        isThisView: (data: T, position: Int) -> Boolean = { _, _ -> true },
+        type: Int,
+        isThisView: (data: T, position: Int) -> Boolean,
         dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
     ) {
         val itemview: ItemViewDelegate<T> = object : ItemViewDelegate<T>(type, layoutId) {
@@ -72,7 +92,6 @@ abstract class BaseConfig<T : Any>(
 
         }
         mItemViewDelegateManager.addDelegate(type, itemview)
-        viewTypeParser = null
     }
 
     /**
@@ -88,14 +107,14 @@ abstract class BaseConfig<T : Any>(
     /**
      * 判断是否使用了[com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager]
      */
-    fun useItemViewDelegateManager(): Boolean {
+    internal fun useItemViewDelegateManager(): Boolean {
         return mItemViewDelegateManager.itemViewDelegateCount > 0
     }
 
     /**
      * 判断itemview的类型
      */
-    open fun getItemViewType(position: Int): Int {
+    internal fun getItemViewType(position: Int): Int {
         return mItemViewDelegateManager.getItemViewType(
             mDatas[position],
             position
@@ -105,14 +124,14 @@ abstract class BaseConfig<T : Any>(
     /**
      * 根据itemview类型，获取[ItemViewDelegate]
      */
-    open fun getItemViewDelegate(viewType: Int): ItemViewDelegate<T> {
+    internal open fun getItemViewDelegate(viewType: Int): ItemViewDelegate<T> {
         return mItemViewDelegateManager.getItemViewDelegate(viewType)!!;
     }
 
     /**
      * 创建viewholder，如果指定了[createHolder],则使用[createHolder]创建viewholder
      */
-    open fun createHolderInternal(parent: ViewGroup, layoutId: Int): BaseViewHolder {
+    internal fun createHolderInternal(parent: ViewGroup, layoutId: Int): BaseViewHolder {
         return createHolder?.let {
             it(parent, layoutId)
         } ?: BaseViewHolder.createViewHolder(
@@ -125,7 +144,7 @@ abstract class BaseConfig<T : Any>(
     /**
      * 将数据绑定到viewholder
      */
-    open fun bindData(holder: BaseViewHolder, position: Int) {
+    internal fun bindData(holder: BaseViewHolder, position: Int) {
         mItemViewDelegateManager.convert(
             holder,
             mDatas[position] as T,

@@ -51,7 +51,7 @@ dependencies {
     implementation(AndroidX.Core.core)
     implementation(AndroidX.appCompat)
     implementation(AndroidX.recyclerView)
-    implementation(AndroidX.paging3)
+    api(AndroidX.paging3)
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

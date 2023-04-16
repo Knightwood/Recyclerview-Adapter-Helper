@@ -15,7 +15,7 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
     /**
      * 传入的多个不同[N]，应该设置同样的LayoutManager换rv
      */
-    fun done() {
+    fun show() {
         concatAdapter = ConcatAdapter(config.build())
         configList.forEachIndexed { index, n ->
             concatAdapter.addAdapter(index, n.iNekoAdapter)

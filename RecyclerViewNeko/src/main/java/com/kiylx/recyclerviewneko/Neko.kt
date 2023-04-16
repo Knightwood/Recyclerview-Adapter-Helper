@@ -44,6 +44,7 @@ fun <T : Any> Context.neko(
 /**
  * 根据配置，生成NekoListAdapter
  * 若没有指定[asyncConfig]，则用[diffCallback]参数创建NekoListAdapter
+ * 若指定了[asyncConfig]，则[diffCallback]参数不起作用
  */
 fun <T : Any> Context.listNeko(
     recyclerView: RecyclerView,
@@ -111,7 +112,6 @@ fun <T : Any, N : BaseConfig<T>> concatNeko(
 ): ConcatConfig<T, N> {
     val c = ConcatConfig(configList = nekoConfigs)
     c.config.configBlock()
-    c.done()
     return c
 }
 

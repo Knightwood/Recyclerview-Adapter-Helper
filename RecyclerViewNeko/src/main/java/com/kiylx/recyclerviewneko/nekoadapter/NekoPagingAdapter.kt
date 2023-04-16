@@ -35,6 +35,6 @@ class NekoPagingAdapter<T : Any>(
  * 提供recyclerview和adapter的配置信息，viewholder创建方法，viewtype判断等
  */
 class NekoPagingAdapterConfig<T : Any>(context: Context, rv: RecyclerView) : BaseConfig<T>(context, rv) {
-    var nekoPagingAdapter: NekoPagingAdapter<T>? = null
+    lateinit var nekoPagingAdapter: NekoPagingAdapter<T>
 
 }

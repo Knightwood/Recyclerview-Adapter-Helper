@@ -7,7 +7,9 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.*
 import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
@@ -67,7 +69,7 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     /**
-     * 普通的adapter
+     * 普通的adapter，多种viewtype
      */
     fun nekoTest() {
         //预定义数据
@@ -77,8 +79,15 @@ class MainActivity2 : AppCompatActivity() {
         //两个viewholder类型
         val item1 = Delegate1()
         val item2 = Delegate2()
+
         //泛型指定了此recyclerview显示什么类型的数据
         val neko = neko<String>(rv) {
+            //内置默认LinearLayoutManager,可以在这里修改
+            //layoutManager=GridLayoutManager(this@MainActivity2,2) //替换默认的布局管理器
+            layoutManager.apply {
+                //修改布局管理器的配置
+            }
+
             //在有多种viewholder时，根据数据类型返回不同的viewtype
             //当不指定这个解析器时，就得重写ItemViewDelegate中的isForViewType方法来判断viewtype
             viewTypeParser = ViewTypeParser<String> { data, pos ->
@@ -87,20 +96,14 @@ class MainActivity2 : AppCompatActivity() {
 
             mDatas = d.toMutableList()//指定adapter的数据。也可以现在不指定数据，在后面的show方法中传入数据
 
-            //1. 多种viewtype可以使用[addItemViews]将多种viewholder添加进去
+            //多种viewtype可以使用[addItemViews]将多种viewholder添加进去
             addItemViews(item1, item2)
-
-            //2. 单一viewtype，使用[addItemView]方法添加viewholder
-            //这种单一viewholder, 用不上viewTypeParser
-            //注意： 不要与[addItemViews]混用
-//            addItemView(R.layout.item_3) { holder, t, position ->  //数据绑定
-//                holder.getView<TextView>(R.id.tv2)?.text = t.toString()
-//            }
 
             //给整个itemview设置点击事件
             itemClickListener = ItemClickListener { view, holder, position ->
                 Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
             }
+            //设置长按事件
             itemLongClickListener = ItemLongClickListener { view, holder, position ->
                 Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
                 true
@@ -113,37 +116,63 @@ class MainActivity2 : AppCompatActivity() {
         (neko.iNekoAdapter as NekoAdapter).notifyItemChanged(1)
         //刷新数据
         neko.refreshData(d)
+        //刷新数据
+        neko.nekoAdapter.notifyItemChanged(3)
     }
 
     /**
-     * listadapter
+     * 仅有一种viewHolder的示例
+     */
+    fun nekoSingleTest() {
+        //预定义数据
+        val d: MutableList<String> = mutableListOf()
+        d.addAll(listOf("a", "b", "c", "item"))
+
+        //泛型指定了此recyclerview显示什么类型的数据
+        val neko = neko<String>(rv) {
+            // .....
+            //仅有一种viewHolder,
+            //不需要指定viewTypeParser
+            //不需要重写ItemViewDelegate中的isForViewType方法来判断ViewType
+            //仅添加"viewholder"
+            addSingleItemView(R.layout.item_1) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+            }
+            // .....
+        }.show(d)//调用show方法完成recycleview的显示
+
+    }
+
+    /**
+     * listadapter，多种viewtype
      */
     fun listNekoTest() {
-
         val d: MutableList<String> = mutableListOf<String>()
         val item1 = Delegate1()
         val item2 = Delegate2()
+        val myDiffCallback = object : DiffUtil.ItemCallback<String>() {
+            //指定diffCallback
+            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                TODO("Not yet implemented")
+            }
+
+            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                TODO("Not yet implemented")
+            }
+        }
+
         val neko = listNeko<String>(
             recyclerView = rv,
-            diffCallback = object : DiffUtil.ItemCallback<String>() {            //指定diffCallback
-                override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                    TODO("Not yet implemented")
-                }
-
-                override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                    TODO("Not yet implemented")
-                }
-            }) {
-            //根据数据类型返回不同的viewtype
-            viewTypeParser = ViewTypeParser<String> { data, pos ->
-                if (data == "item")
-                    1
-                else
-                    2
-            }
-            mDatas = d.toMutableList()//指定adapter的数据
-            addItemViews(item1, item2)
+            // 若没有指定[asyncConfig]，则用[diffCallback]参数创建NekoListAdapter
+            // 若指定了[asyncConfig]，则[diffCallback]参数不起作用
+            //diffCallback和asyncConfig是listAdapter的构造函数参数，不明白去看下ListAdapter
+            diffCallback = myDiffCallback,
+            asyncConfig = AsyncDifferConfig.Builder<String>(myDiffCallback).build()
+            ) {
+                //这部分代码跟上面一样
         }.show()
+
+
         neko.mDatas[1] = "eee"
         //刷新数据
         neko.submitList(d)
@@ -155,7 +184,8 @@ class MainActivity2 : AppCompatActivity() {
      * pagingDataAdapter
      */
     fun pagingTest() {
-        paging3Neko(rv, object : DiffUtil.ItemCallback<String>() {
+      val pagingAdapter=  paging3Neko(rv, object : DiffUtil.ItemCallback<String>() {
+            //这里指定了数据是否相同的判断。不明白的再去学一遍pagingDataAdapter。
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
                 TODO("Not yet implemented")
             }
@@ -164,8 +194,10 @@ class MainActivity2 : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         }) {
-
+                //这里跟其他的几种情况一模一样，不再重复写
         }
+        //刷新数据
+        pagingAdapter.nekoPagingAdapter.notifyItemChanged(3)
     }
 
     /**
@@ -183,19 +215,25 @@ class MainActivity2 : AppCompatActivity() {
 
         val neko1 = neko<String>(rv) {
             mDatas = d1.toMutableList()//指定adapter的数据
-            addItemView(R.layout.item_1) { holder, data, position ->
+            //仅有一种viewHolder
+            addSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
         }
         val neko2 = neko<String>(rv) {
             mDatas = d2.toMutableList()//指定adapter的数据
-            addItemView(R.layout.item_2) { holder, data, position ->
+            //仅有一种viewHolder
+            addSingleItemView(R.layout.item_2) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv2)?.text = data.toString()
             }
         }
+        //将两个adapter合并，此方法可以传入更多的adapter进行合并
         concatNeko(neko1, neko2) {
             // todo 自定义配置
-        }
+        }.show()
+
+        //刷新数据
+        neko1.nekoAdapter.notifyItemChanged(2)
     }
 
 
