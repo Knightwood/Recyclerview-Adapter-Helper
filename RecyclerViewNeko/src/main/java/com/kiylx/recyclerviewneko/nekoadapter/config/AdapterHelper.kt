@@ -52,7 +52,7 @@ fun <T : Any> BaseConfig<T>.setLongListener(
     if (longClickEnable) {
         holder.getConvertView().setOnLongClickListener(View.OnLongClickListener { v ->
             return@OnLongClickListener itemLongClickListener?.let {
-                val pos = holder.adapterPosition
+                val pos = holder.bindingAdapterPosition
                 it.onItemLongClick(v, holder, pos)
                 true
             } ?: false
@@ -71,7 +71,7 @@ fun <T : Any> BaseConfig<T>.setClickListener(
     if (clickEnable) {
         holder.getConvertView().setOnClickListener(View.OnClickListener { v ->
             itemClickListener?.let {
-                val pos = holder.adapterPosition
+                val pos = holder.bindingAdapterPosition
                 it.onItemClick(v, holder, pos)
             }
         })

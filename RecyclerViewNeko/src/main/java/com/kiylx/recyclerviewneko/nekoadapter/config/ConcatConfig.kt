@@ -7,7 +7,7 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
     // 1. 定义Config
     val config = ConcatAdapter.Config.Builder()
         .setIsolateViewTypes(true)
-        .setStableIdMode(ConcatAdapter.Config.StableIdMode.SHARED_STABLE_IDS)
+        .setStableIdMode(ConcatAdapter.Config.StableIdMode.NO_STABLE_IDS)
 
     lateinit var concatAdapter: ConcatAdapter
 

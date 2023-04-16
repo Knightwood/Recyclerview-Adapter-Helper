@@ -51,14 +51,14 @@ abstract class BaseConfig<T : Any>(
     var itemLongClickListener: ItemLongClickListener? = null
 
     /**
-     * 不能和另一个[addItemViews]同时使用
+     * 如果不指定type和isThisView,不能和另一个[addItemViews]同时使用
      * 若使用此方法，可以达到单一类型ViewHolder
      * 使用此方法时，[ViewTypeParser]将不可用
      */
-   open fun addItemView(
+    open fun addItemView(
         layoutId: Int,
-        type: Int,
-        isThisView: (data: T, position: Int) -> Boolean,
+        type: Int = 0,
+        isThisView: (data: T, position: Int) -> Boolean = { _, _ -> true },
         dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
     ) {
         val itemview: ItemViewDelegate<T> = object : ItemViewDelegate<T>(type, layoutId) {
@@ -78,7 +78,7 @@ abstract class BaseConfig<T : Any>(
     /**
      * 添加多种itemview类型
      */
-   open fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>) {
+    open fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>) {
         //将itemview添加进管理器
         itemViewDelegates.forEach {
             mItemViewDelegateManager.addDelegate(it.type, it)
@@ -126,7 +126,11 @@ abstract class BaseConfig<T : Any>(
      * 将数据绑定到viewholder
      */
     open fun bindData(holder: BaseViewHolder, position: Int) {
-        mItemViewDelegateManager.convert(holder, mDatas[position] as T, holder.adapterPosition)
+        mItemViewDelegateManager.convert(
+            holder,
+            mDatas[position] as T,
+            holder.bindingAdapterPosition
+        )
     }
 
     /**

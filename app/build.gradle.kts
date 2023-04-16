@@ -42,7 +42,9 @@ dependencies {
     implementation(AndroidX.appCompat)
     implementation(AndroidX.material)
     implementation(AndroidX.constraintLayout)
-    implementation(project(":RecyclerViewNeko"))
+    implementation(project(":RecyclerViewNeko")){
+        exclude(group = "androidx.lifecycle", module = "lifecycle-viewmodel-ktx")
+    }
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
