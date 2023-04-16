@@ -63,7 +63,6 @@ abstract class BaseConfig<T : Any>(
         addItemView(
             layoutId = layoutId,
             type = 0,
-            isThisView = { _, _ -> true },
             dataConvert = dataConvert
         )
     }
@@ -78,7 +77,7 @@ abstract class BaseConfig<T : Any>(
     open fun addItemView(
         layoutId: Int,
         type: Int,
-        isThisView: (data: T, position: Int) -> Boolean,
+        isThisView: (data: T, position: Int) -> Boolean = { _, _ -> true },
         dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
     ) {
         val itemview: ItemViewDelegate<T> = object : ItemViewDelegate<T>(type, layoutId) {

@@ -9,8 +9,8 @@
 
   ```css
   dependencies {
-  	        implementation 'com.github.Knightwood:RecyclerViewNeko:Tag'
-  	}
+  	   implementation 'com.github.Knightwood:RecyclerViewNeko:Tag'
+  }
   ```
 
 ## 快速开始
@@ -59,16 +59,6 @@ class MainActivity2 : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         handler = Handler(Looper.getMainLooper())
         rv = findViewById<View>(R.id.rv) as RecyclerView
-    }
-
-    override fun onStart() {
-        super.onStart()
-        handler.postDelayed(Runnable {
-            //这里延迟5s是为了测试时避免出问题时闪退太快收集不到日志
-//            nekoTest()
-            concatTest()
-
-        }, 5000)
     }
 
     /**
@@ -129,6 +119,15 @@ class MainActivity2 : AppCompatActivity() {
 
             //多种viewtype可以使用[addItemViews]将多种viewholder添加进去
             addItemViews(item1, item2)
+            
+            //可以像上面批量添加或者像这样一个个添加
+            addItemView(R.layout.item_1, 1, isThisView = { _, _ ->
+                //像上面那样有viewTypeParser的话，isThisView参数可以不写
+                return@addItemView true
+            }) { holder, data, position ->
+                //数据绑定到viewholder
+            }
+            
 
             //给整个itemview设置点击事件
             itemClickListener = ItemClickListener { view, holder, position ->
