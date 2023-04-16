@@ -5,6 +5,68 @@
 
 # 使用
 
+* 版本 [![](TyporaRaw/README.assets/RecyclerViewNeko.svg+xml)](https://jitpack.io/#Knightwood/RecyclerViewNeko)
+
+  ```css
+  dependencies {
+  	        implementation 'com.github.Knightwood:RecyclerViewNeko:Tag'
+  	}
+  ```
+  
+* 简单示例方式
+
+```
+
+    inner class Delegate1 : ItemViewDelegate<String>(1, R.layout.item_1) {
+        /**
+         * 绑定数据到viewholder
+         */
+        override fun convert(holder: BaseViewHolder, data: String, position: Int) {
+            holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+        }
+    }
+
+    inner class Delegate2 : ItemViewDelegate<String>(2, R.layout.item_2) {
+        override fun convert(holder: BaseViewHolder, data: String, position: Int) {
+            holder.getView<TextView>(R.id.tv2)?.text = data.toString()
+		 }
+    }
+    
+    fun initRv(){
+     //预定义数据
+        val d: MutableList<String> = mutableListOf()
+        d.addAll(listOf("a", "b", "c", "item"))
+
+        //两个viewholder类型
+        val item1 = Delegate1()
+        val item2 = Delegate2()
+        //泛型指定了此recyclerview显示什么类型的数据
+        val neko = neko<String>(rv) {
+            //在有多种viewholder时，根据数据类型返回不同的viewtype
+            viewTypeParser = ViewTypeParser<String> { data, pos ->
+                if (data == "item") 1 else 2
+            }
+
+            //1. 多种viewtype可以使用[addItemViews]将多种viewholder添加进去
+            addItemViews(item1, item2)
+
+            //给整个itemview设置点击事件
+            itemClickListener = ItemClickListener { view, holder, position ->
+                Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
+            }
+
+
+        }.show(d)//调用show方法完成recycleview的显示,并传入数据显示
+
+        //刷新数据
+        neko.refreshData(d)
+    }
+    }
+```
+
+
+
+
 0. 调用neko方法，传入相应设置就可以显示列表
 
 ```
@@ -15,13 +77,15 @@ class Delegate1 : ItemViewDelegate<String>(viewtype, 布局id) {
             //数据绑定到viewholder
         }
     }
-2.组装recyclerview
+2.组装recyclerview并显示
 val rvNeko=xxxNeko<数据类型>(rv){
 		//配置
 		addItemViews()//添加itemviewDelegate
 		addItemView()//添加itemviewDelegate,但不能和上面的混用
 		
 }.show(datas) //就此完成recyclerview显示
+
+
 3.数据刷新,不同的XXXNeko将会给予不同的config实例，通过此实例获取相应的adapter用于数据刷新等
 rvNeko.相应adapter.数据刷新()
 
