@@ -5,7 +5,7 @@
 
 # 使用
 
-* 版本 [![](TyporaRaw/README.assets/RecyclerViewNeko.svg+xml)](https://jitpack.io/#Knightwood/RecyclerViewNeko)
+* 版本 [![](https://jitpack.io/v/Knightwood/RecyclerViewNeko.svg)](https://jitpack.io/#Knightwood/RecyclerViewNeko)
 
   ```css
   dependencies {
