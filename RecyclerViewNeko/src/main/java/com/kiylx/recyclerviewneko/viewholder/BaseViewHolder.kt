@@ -48,7 +48,7 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
      * @param viewId
      * @return
      */
-    fun <T : View?> getView(viewId: Int): T? {
+    fun <T : View> getView(viewId: Int): T? {
         var view = mViews[viewId]
         if (view == null) {
             view = mConvertView.findViewById(viewId)
@@ -70,13 +70,13 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
      * @param text
      * @return
      */
-    fun setText(viewId: Int, text: String?): BaseViewHolder? {
+    fun setText(viewId: Int, text: String?): BaseViewHolder {
         val tv = getView<TextView>(viewId)!!
         tv.text = text
         return this
     }
 
-    fun setImageResource(viewId: Int, resId: Int): BaseViewHolder? {
+    fun setImageResource(viewId: Int, resId: Int): BaseViewHolder {
         val view = getView<ImageView>(viewId)!!
         view.setImageResource(resId)
         return this

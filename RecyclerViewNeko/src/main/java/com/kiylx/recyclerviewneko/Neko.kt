@@ -6,9 +6,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
-import com.kiylx.recyclerviewneko.nekoadapter.NekoListAdapter
-import com.kiylx.recyclerviewneko.nekoadapter.NekoPagingAdapter
+import com.kiylx.recyclerviewneko.nekoadapter.*
 import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
 import com.kiylx.recyclerviewneko.nekoadapter.config.ConcatConfig
 import com.kiylx.recyclerviewneko.nekoadapter.config.DefaultConfig
@@ -33,9 +31,9 @@ import kotlinx.coroutines.Dispatchers
  */
 fun <T : Any> Context.neko(
     recyclerView: RecyclerView,
-    configBlock: DefaultConfig<T>.() -> Unit
-): DefaultConfig<T> {
-    val config = DefaultConfig<T>(this, recyclerView)
+    configBlock: NekoAdapterConfig<T>.() -> Unit
+): NekoAdapterConfig<T> {
+    val config = NekoAdapterConfig<T>(this, recyclerView)
     val a = NekoAdapter(config)
     config.iNekoAdapter = a
     config.nekoAdapter = a
@@ -51,9 +49,9 @@ fun <T : Any> Context.listNeko(
     recyclerView: RecyclerView,
     asyncConfig: AsyncDifferConfig<T>? = null,
     diffCallback: DiffUtil.ItemCallback<T>,
-    configBlock: DefaultConfig<T>.() -> Unit
-): DefaultConfig<T> {
-    val config = DefaultConfig<T>(this, recyclerView)
+    configBlock: NekoListAdapterConfig<T>.() -> Unit
+): NekoListAdapterConfig<T> {
+    val config = NekoListAdapterConfig<T>(this, recyclerView)
     val a = asyncConfig?.let { NekoListAdapter(config, it) }
         ?: NekoListAdapter(config, diffCallback)
     config.iNekoAdapter = a
@@ -70,9 +68,9 @@ fun <T : Any> Context.paging3Neko(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    configBlock: DefaultConfig<T>.() -> Unit
-): DefaultConfig<T> {
-    val config = DefaultConfig<T>(this, recyclerView)
+    configBlock: NekoPagingAdapterConfig<T>.() -> Unit
+): NekoPagingAdapterConfig<T> {
+    val config = NekoPagingAdapterConfig<T>(this, recyclerView)
     val a = NekoPagingAdapter(config, diffCallback, mainDispatcher, workerDispatcher)
     config.iNekoAdapter = a
     config.nekoPagingAdapter = a
@@ -80,18 +78,23 @@ fun <T : Any> Context.paging3Neko(
     return config
 }
 
-fun <T : Any> Context.customNeko(
+fun <T : Any, N : BaseConfig<T>> Context.customNeko(
     recyclerView: RecyclerView,
     customAdapter: Adapter<BaseViewHolder>,
-    configBlock: DefaultConfig<T>.() -> Unit
+    config: N? = null,
+    configBlock: BaseConfig<T>.() -> Unit
 ): BaseConfig<T> {
-    val config = DefaultConfig<T>(this, recyclerView)
-    config.iNekoAdapter = customAdapter
-    config.configBlock()
-    return config
+    val config2 = config ?: DefaultConfig<T>(this, recyclerView)
+    config2.iNekoAdapter = customAdapter
+    config2.configBlock()
+    return config2
 }
 
-fun <T : Any, N : BaseConfig<T>> N.done(): N {
+fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf()): N {
+    if (datas.isNotEmpty()) {
+        mDatas.clear()
+        mDatas.addAll(datas)
+    }
     rv.adapter = iNekoAdapter
     rv.layoutManager = layoutManager
     return this
@@ -105,7 +108,7 @@ fun <T : Any, N : BaseConfig<T>> N.done(): N {
 fun <T : Any, N : BaseConfig<T>> concat(
     vararg nekoConfigs: N,
     configBlock: ConcatAdapter.Config.Builder.() -> Unit,
-    ): ConcatConfig<T, N> {
+): ConcatConfig<T, N> {
     val c = ConcatConfig(configList = nekoConfigs)
     c.config.configBlock()
     c.done()

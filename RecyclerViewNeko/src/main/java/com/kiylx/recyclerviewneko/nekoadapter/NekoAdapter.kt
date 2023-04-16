@@ -1,5 +1,6 @@
 package com.kiylx.recyclerviewneko.nekoadapter
 
+import android.content.Context
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
@@ -26,4 +27,11 @@ class NekoAdapter(//配置
 
     override fun getItemViewType(position: Int): Int =config.parseItemViewType(position)
 
+}
+
+/**
+ * 提供recyclerview和adapter的配置信息，viewholder创建方法，viewtype判断等
+ */
+class NekoAdapterConfig<T : Any>(context: Context, rv: RecyclerView) : BaseConfig<T>(context, rv) {
+    var nekoAdapter: NekoAdapter? = null
 }

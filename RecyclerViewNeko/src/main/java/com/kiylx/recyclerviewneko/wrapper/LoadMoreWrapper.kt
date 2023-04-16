@@ -2,9 +2,11 @@ package com.kiylx.recyclerviewneko.wrapper
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.kiylx.recyclerviewneko.utils.SpanSizeCallback
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
@@ -56,12 +58,19 @@ class LoadMoreWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHol
         WrapperUtils.onAttachedToRecyclerView(
             mInnerAdapter,
             recyclerView,
-            WrapperUtils.SpanSizeCallback { layoutManager, oldLookup, position ->
-                if (isShowLoadMore(position)) {
-                    return@SpanSizeCallback layoutManager.spanCount
+            object :SpanSizeCallback{
+                override fun getSpanSize(
+                    layoutManager: GridLayoutManager,
+                    oldLookup: GridLayoutManager.SpanSizeLookup,
+                    position: Int
+                ): Int {
+                    if (isShowLoadMore(position)) {
+                        return layoutManager.spanCount
+                    }
+                   return oldLookup.getSpanSize(position) ?: 1
                 }
-                oldLookup?.getSpanSize(position) ?: 1
-            })
+            }
+         )
     }
 
     override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {

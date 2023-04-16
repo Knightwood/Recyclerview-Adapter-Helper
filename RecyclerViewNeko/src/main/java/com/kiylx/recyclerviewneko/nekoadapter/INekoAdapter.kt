@@ -29,13 +29,13 @@ object Lm {
 /**
  * 整个itemView的单击事件
  */
-interface ItemClickListener {
+fun interface ItemClickListener {
     fun onItemClick(view: View, holder: BaseViewHolder, position: Int)
 }
 
 /**
  * 整个itemView的长按事件
  */
-interface ItemLongClickListener {
+fun interface ItemLongClickListener {
     fun onItemLongClick(view: View, holder: BaseViewHolder, position: Int): Boolean
 }

@@ -9,14 +9,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.kiylx.recyclerviewneko.done
 import com.kiylx.recyclerviewneko.listNeko
 import com.kiylx.recyclerviewneko.neko
 import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.ItemLongClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
-import com.kiylx.recyclerviewneko.nekoadapter.NekoListAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
+import com.kiylx.recyclerviewneko.show
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 
@@ -65,10 +64,8 @@ class MainActivity2 : AppCompatActivity() {
         val item2 = Delegate2()
         val neko = neko<String>(rv) {
             //根据数据类型返回不同的viewtype
-            viewTypeParser = object : ViewTypeParser<String> {
-                override fun parse(data: String, pos: Int): Int {
-                    return if (data == "item") 1 else 2
-                }
+            viewTypeParser = ViewTypeParser<String> { data, pos ->
+                if (data == "item") 1 else 2
             }
             mDatas = d.toMutableList()//指定adapter的数据
 
@@ -83,20 +80,15 @@ class MainActivity2 : AppCompatActivity() {
 //            }
 
             //给整个itemview设置点击事件
-            itemClickListener=object :ItemClickListener{
-                override fun onItemClick(view: View, holder: BaseViewHolder, position: Int) {
+            itemClickListener= ItemClickListener { view, holder, position ->
+                Toast.makeText(applicationContext,mDatas[position],Toast.LENGTH_LONG).show()
+            }
+            itemLongClickListener= ItemLongClickListener { view, holder, position ->
                     Toast.makeText(applicationContext,mDatas[position],Toast.LENGTH_LONG).show()
+                    true
                 }
 
-            }
-            itemLongClickListener=object :ItemLongClickListener{
-                override fun onItemLongClick(view: View, holder: BaseViewHolder, position: Int): Boolean {
-                    Toast.makeText(applicationContext,mDatas[position],Toast.LENGTH_LONG).show()
-                    return true
-                }
-            }
-
-        }.done()
+        }.show()
 
         neko.mDatas[1] = "eee"
         //刷新数据
@@ -122,22 +114,20 @@ class MainActivity2 : AppCompatActivity() {
                 }
             }) {
             //根据数据类型返回不同的viewtype
-            viewTypeParser = object : ViewTypeParser<String> {
-                override fun parse(data: String, pos: Int): Int {
-                    return if (data == "item")
+            viewTypeParser = ViewTypeParser<String> { data, pos ->
+                    if (data == "item")
                         1
                     else
                         2
                 }
-            }
             mDatas = d.toMutableList()//指定adapter的数据
             addItemViews(item1, item2)
-        }.done()
+        }.show()
         neko.mDatas[1] = "eee"
         //刷新数据
         neko.submitList(d)
         //刷新数据
-        neko.nekoListAdapter?.submitList(null)
+        neko.nekoListAdapter.submitList(null)
     }
 
 

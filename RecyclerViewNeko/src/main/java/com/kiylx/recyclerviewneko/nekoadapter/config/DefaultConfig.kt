@@ -12,9 +12,4 @@ import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 /**
  * 提供recyclerview和adapter的配置信息，viewholder创建方法，viewtype判断等
  */
-class DefaultConfig<T : Any>(context: Context, rv: RecyclerView) : BaseConfig<T>(context, rv) {
-    var nekoAdapter: NekoAdapter? = null
-    var nekoListAdapter: NekoListAdapter<T>? = null
-    var nekoPagingAdapter: NekoPagingAdapter<T>? = null
-
-}
+open class DefaultConfig<T : Any>(context: Context, rv: RecyclerView) : BaseConfig<T>(context, rv)

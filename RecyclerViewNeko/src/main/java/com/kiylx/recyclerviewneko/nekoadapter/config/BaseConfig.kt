@@ -3,20 +3,17 @@ package com.kiylx.recyclerviewneko.nekoadapter.config
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.ViewGroup
-import android.widget.Adapter
-import androidx.annotation.Nullable
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.nekoadapter.*
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager
 import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
-import com.kiylx.recyclerviewneko.viewholder.DelegatePair
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 
 /**
  * 视图类型解析
  */
-interface ViewTypeParser<T> {
+fun interface ViewTypeParser<T> {
     fun parse(data: T, pos: Int): Int
 }
 
@@ -142,14 +139,4 @@ abstract class BaseConfig<T : Any>(
         iNekoAdapter.notifyDataSetChanged()
     }
 
-    /**
-     * 刷新recyclerview
-     * 仅限listadapter类型
-     */
-    @Suppress("UNCHECKED_CAST")
-    open fun submitList(datas: MutableList<T>, commitCallback: Runnable? = null) {
-        mDatas.clear()
-        mDatas.addAll(datas)
-        (iNekoAdapter as? NekoListAdapter<T>)?.submitList(datas, commitCallback)
-    }
 }

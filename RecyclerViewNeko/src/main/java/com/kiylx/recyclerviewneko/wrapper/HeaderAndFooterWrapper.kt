@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.collection.SparseArrayCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.kiylx.recyclerviewneko.utils.SpanSizeCallback
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
@@ -54,7 +55,7 @@ class HeaderAndFooterWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<
         WrapperUtils.onAttachedToRecyclerView(
             mInnerAdapter,
             recyclerView,
-            WrapperUtils.SpanSizeCallback { layoutManager, oldLookup, position ->
+            SpanSizeCallback { layoutManager, oldLookup, position ->
                 val viewType = getItemViewType(position)
                 if (mHeaderViews[viewType] != null) {
                     return@SpanSizeCallback layoutManager.spanCount

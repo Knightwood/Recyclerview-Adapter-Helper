@@ -1,54 +1,46 @@
-package com.kiylx.recyclerviewneko.utils;
+package com.kiylx.recyclerviewneko.utils
 
-import android.view.ViewGroup;
-
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 /**
  * Created by zhy on 16/6/28.
  */
-public class WrapperUtils
-{
-    public interface SpanSizeCallback
-    {
-        int getSpanSize(GridLayoutManager layoutManager , GridLayoutManager.SpanSizeLookup oldLookup, int position);
-    }
-
-    public static void onAttachedToRecyclerView(RecyclerView.Adapter innerAdapter, RecyclerView recyclerView, final SpanSizeCallback callback)
-    {
-        innerAdapter.onAttachedToRecyclerView(recyclerView);
-
-        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (layoutManager instanceof GridLayoutManager)
-        {
-            final GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-            final GridLayoutManager.SpanSizeLookup spanSizeLookup = gridLayoutManager.getSpanSizeLookup();
-
-            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup()
-            {
-                @Override
-                public int getSpanSize(int position)
-                {
-                    return callback.getSpanSize(gridLayoutManager, spanSizeLookup, position);
+object WrapperUtils {
+    fun onAttachedToRecyclerView(
+        innerAdapter: RecyclerView.Adapter<out ViewHolder>,
+        recyclerView: RecyclerView,
+        callback: SpanSizeCallback
+    ) {
+        innerAdapter.onAttachedToRecyclerView(recyclerView)
+        val layoutManager = recyclerView.layoutManager
+        if (layoutManager is GridLayoutManager) {
+            val spanSizeLookup = layoutManager.spanSizeLookup
+            layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return callback.getSpanSize(layoutManager, spanSizeLookup, position)
                 }
-            });
-            gridLayoutManager.setSpanCount(gridLayoutManager.getSpanCount());
+            }
+            layoutManager.spanCount = layoutManager.spanCount
         }
     }
 
-    public static void setFullSpan(RecyclerView.ViewHolder holder)
-    {
-        ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
-
-        if (lp != null
-                && lp instanceof StaggeredGridLayoutManager.LayoutParams)
-        {
-
-            StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) lp;
-
-            p.setFullSpan(true);
+    fun setFullSpan(holder: RecyclerView.ViewHolder) {
+        val lp = holder.itemView.layoutParams
+        if (lp != null && lp is StaggeredGridLayoutManager.LayoutParams) {
+            lp.isFullSpan = true
         }
     }
+
+
+}
+
+fun interface SpanSizeCallback {
+    fun getSpanSize(
+        layoutManager: GridLayoutManager,
+        oldLookup: GridLayoutManager.SpanSizeLookup,
+        position: Int
+    ): Int
 }

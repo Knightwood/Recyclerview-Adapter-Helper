@@ -44,10 +44,7 @@ class ItemViewDelegateManager<T>() {
         return this
     }
 
-    fun removeDelegate(delegate: ItemViewDelegate<T>?): ItemViewDelegateManager<T> {
-        if (delegate == null) {
-            throw NullPointerException("ItemViewDelegate is null")
-        }
+    fun removeDelegate(delegate: ItemViewDelegate<T>): ItemViewDelegateManager<T> {
         val indexToRemove = delegates.indexOfValue(delegate)
         if (indexToRemove >= 0) {
             delegates.removeAt(indexToRemove)

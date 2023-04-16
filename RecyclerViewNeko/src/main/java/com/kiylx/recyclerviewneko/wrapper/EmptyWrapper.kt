@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.kiylx.recyclerviewneko.utils.SpanSizeCallback
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
@@ -36,14 +37,14 @@ class EmptyWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHolder
         WrapperUtils.onAttachedToRecyclerView(
             mInnerAdapter,
             recyclerView,
-            object : WrapperUtils.SpanSizeCallback {
+            object : SpanSizeCallback {
                 override fun getSpanSize(
-                    gridLayoutManager: GridLayoutManager,
+                    layoutManager: GridLayoutManager,
                     oldLookup: SpanSizeLookup,
                     position: Int
                 ): Int {
                     return if (isEmpty) {
-                        gridLayoutManager.spanCount
+                        layoutManager.spanCount
                     } else oldLookup.getSpanSize(position) ?: 1
                 }
             })
