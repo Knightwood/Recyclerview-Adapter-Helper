@@ -2,28 +2,23 @@ package com.kiylx.recyclerviewneko.wrapper
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.kiylx.recyclerviewneko.utils.SpanSizeCallback
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
 /**
  * Created by zhy on 16/6/23.
  */
-class EmptyWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHolder>) :
-    RecyclerView.Adapter<ViewHolder>() {
+class EmptyWrapper(private val mInnerAdapter: RecyclerView.Adapter<BaseViewHolder>) :
+    RecyclerView.Adapter<BaseViewHolder>() {
     private var mEmptyView: View? = null
     private var mEmptyLayoutId = 0
     private val isEmpty: Boolean
-        private get() = (mEmptyView != null || mEmptyLayoutId != 0) && mInnerAdapter.itemCount == 0
+        get() = (mEmptyView != null || mEmptyLayoutId != 0) && mInnerAdapter.itemCount == 0
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         if (isEmpty) {
-            val holder: BaseViewHolder
-            holder = if (mEmptyView != null) {
+            val holder: BaseViewHolder = if (mEmptyView != null) {
                 BaseViewHolder.createViewHolder(parent.context, mEmptyView!!)
             } else {
                 BaseViewHolder.createViewHolder(parent.context, parent, mEmptyLayoutId)
@@ -36,21 +31,15 @@ class EmptyWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHolder
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         WrapperUtils.onAttachedToRecyclerView(
             mInnerAdapter,
-            recyclerView,
-            object : SpanSizeCallback {
-                override fun getSpanSize(
-                    layoutManager: GridLayoutManager,
-                    oldLookup: SpanSizeLookup,
-                    position: Int
-                ): Int {
-                    return if (isEmpty) {
-                        layoutManager.spanCount
-                    } else oldLookup.getSpanSize(position) ?: 1
-                }
-            })
+            recyclerView
+        ) { layoutManager, oldLookup, position ->
+            if (isEmpty) {
+                layoutManager.spanCount
+            } else oldLookup.getSpanSize(position) ?: 1
+        }
     }
 
-    override fun onViewAttachedToWindow(holder: ViewHolder) {
+    override fun onViewAttachedToWindow(holder: BaseViewHolder) {
         mInnerAdapter.onViewAttachedToWindow(holder)
         if (isEmpty) {
             WrapperUtils.setFullSpan(holder)
@@ -63,7 +52,7 @@ class EmptyWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHolder
         } else mInnerAdapter.getItemViewType(position)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (isEmpty) {
             return
         }
@@ -74,7 +63,7 @@ class EmptyWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHolder
         return if (isEmpty) 1 else mInnerAdapter.itemCount
     }
 
-    fun setEmptyView(emptyView: View?) {
+    fun setEmptyView(emptyView: View) {
         mEmptyView = emptyView
     }
 

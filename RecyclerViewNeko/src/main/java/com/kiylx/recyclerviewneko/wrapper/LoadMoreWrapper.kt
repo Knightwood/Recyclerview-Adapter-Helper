@@ -4,7 +4,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.kiylx.recyclerviewneko.utils.SpanSizeCallback
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
@@ -13,8 +12,8 @@ import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 /**
  * Created by zhy on 16/6/23.
  */
-class LoadMoreWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHolder>) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class LoadMoreWrapper(private val mInnerAdapter: RecyclerView.Adapter<BaseViewHolder>) :
+    RecyclerView.Adapter<BaseViewHolder>() {
     private var mLoadMoreView: View? = null
     private var mLoadMoreLayoutId = 0
     private fun hasLoadMore(): Boolean {
@@ -31,7 +30,7 @@ class LoadMoreWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHol
         } else mInnerAdapter.getItemViewType(position)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         if (viewType == ITEM_TYPE_LOAD_MORE) {
             val holder: BaseViewHolder
             holder = if (mLoadMoreView != null) {
@@ -44,7 +43,7 @@ class LoadMoreWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHol
         return mInnerAdapter.onCreateViewHolder(parent, viewType)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (isShowLoadMore(position)) {
             if (mOnLoadMoreListener != null) {
                 mOnLoadMoreListener!!.onLoadMoreRequested()
@@ -73,14 +72,14 @@ class LoadMoreWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHol
          )
     }
 
-    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+    override fun onViewAttachedToWindow(holder: BaseViewHolder) {
         mInnerAdapter.onViewAttachedToWindow(holder)
         if (isShowLoadMore(holder.layoutPosition)) {
             setFullSpan(holder)
         }
     }
 
-    private fun setFullSpan(holder: RecyclerView.ViewHolder) {
+    private fun setFullSpan(holder: BaseViewHolder) {
         val lp = holder.itemView.layoutParams
         if (lp != null
             && lp is StaggeredGridLayoutManager.LayoutParams
@@ -98,19 +97,19 @@ class LoadMoreWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHol
     }
 
     private var mOnLoadMoreListener: OnLoadMoreListener? = null
-    fun setOnLoadMoreListener(loadMoreListener: OnLoadMoreListener?): LoadMoreWrapper<*> {
+    fun setOnLoadMoreListener(loadMoreListener: OnLoadMoreListener?): LoadMoreWrapper {
         if (loadMoreListener != null) {
             mOnLoadMoreListener = loadMoreListener
         }
         return this
     }
 
-    fun setLoadMoreView(loadMoreView: View?): LoadMoreWrapper<*> {
+    fun setLoadMoreView(loadMoreView: View): LoadMoreWrapper {
         mLoadMoreView = loadMoreView
         return this
     }
 
-    fun setLoadMoreView(layoutId: Int): LoadMoreWrapper<*> {
+    fun setLoadMoreView(layoutId: Int): LoadMoreWrapper {
         mLoadMoreLayoutId = layoutId
         return this
     }

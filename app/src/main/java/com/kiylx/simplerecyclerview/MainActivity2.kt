@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.*
 import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
@@ -98,13 +97,14 @@ class MainActivity2 : AppCompatActivity() {
 
             //多种viewtype可以使用[addItemViews]将多种viewholder添加进去
             addItemViews(item1, item2)
+
             //向上面批量添加或者像这样一个个添加
-            addItemView(R.layout.item_1, 1, isThisView = { _, _ ->
-                //像上面那样有viewTypeParser的话，isThisView参数可以不写
-                return@addItemView true
-            }) { holder, data, position ->
-                //数据绑定到viewholder
-            }
+//            addItemView(R.layout.item_1, 1, isThisView = { _, _ ->
+//                像上面那样有viewTypeParser的话，isThisView参数可以不写
+//                return@addItemView true
+//            }) { holder, data, position ->
+//                数据绑定到viewholder
+//            }
 
             //给整个itemview设置点击事件
             itemClickListener = ItemClickListener { view, holder, position ->
@@ -236,6 +236,41 @@ class MainActivity2 : AppCompatActivity() {
         }
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
         concatNeko(neko1, neko2) {
+            // todo 自定义配置
+        }.show()
+
+        //刷新数据
+        neko1.nekoAdapter.notifyItemChanged(2)
+    }
+    /**
+     * concatAdapter
+     */
+    fun wrapperTest() {
+
+        //预定义数据
+        val d1: MutableList<String> = mutableListOf()
+        d1.addAll(listOf("a", "b", "c", "item"))
+
+        //预定义数据
+        val d2: MutableList<String> = mutableListOf()
+        d2.addAll(listOf("a", "b", "c", "item"))
+
+        val neko1 = neko<String>(rv) {
+            mDatas = d1.toMutableList()//指定adapter的数据
+            //仅有一种viewHolder
+            addSingleItemView(R.layout.item_1) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+            }
+        }
+        val neko2 = neko<String>(rv) {
+            mDatas = d2.toMutableList()//指定adapter的数据
+            //仅有一种viewHolder
+            addSingleItemView(R.layout.item_2) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv2)?.text = data.toString()
+            }
+        }
+        //将两个adapter合并，此方法可以传入更多的adapter进行合并
+       val concat= concatNeko(neko1, neko2) {
             // todo 自定义配置
         }.show()
 

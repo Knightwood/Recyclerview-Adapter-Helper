@@ -1,8 +1,11 @@
 package com.kiylx.recyclerviewneko.nekoadapter.config
 
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.kiylx.recyclerviewneko.wrapper
 
 class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
+    var rv: RecyclerView? = null
 
     // 1. 定义Config
     val config = ConcatAdapter.Config.Builder()
@@ -15,14 +18,20 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
     /**
      * 传入的多个不同[N]，应该设置同样的LayoutManager换rv
      */
-    fun show() {
+    fun show(): ConcatConfig<T, N> {
         concatAdapter = ConcatAdapter(config.build())
         configList.forEachIndexed { index, n ->
             concatAdapter.addAdapter(index, n.iNekoAdapter)
         }
+        rv = configList[0].rv
         configList[0].apply {
             rv.adapter = concatAdapter
             rv.layoutManager = layoutManager
         }
+        return this
+    }
+
+    fun wrapper(): WrapperConfig {
+        return WrapperConfig<T, N>(this).apply { recyclerView = this@ConcatConfig.rv }
     }
 }

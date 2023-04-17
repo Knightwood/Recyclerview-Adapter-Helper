@@ -21,7 +21,7 @@ fun interface ViewTypeParser<T> {
  * adapter的配置，创建viewholder,判断viewtype等一系列的方法
  */
 abstract class BaseConfig<T : Any>(
-    protected var context: Context,
+    internal var context: Context,
     var rv: RecyclerView,
 ) {
     lateinit var iNekoAdapter: RecyclerView.Adapter<BaseViewHolder>

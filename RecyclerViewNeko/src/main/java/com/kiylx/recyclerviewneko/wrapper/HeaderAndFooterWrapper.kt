@@ -4,7 +4,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.collection.SparseArrayCompat
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.kiylx.recyclerviewneko.utils.SpanSizeCallback
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
@@ -12,11 +11,13 @@ import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 /**
  * Created by zhy on 16/6/23.
  */
-class HeaderAndFooterWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<ViewHolder>) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val mHeaderViews = SparseArrayCompat<View?>()
-    private val mFootViews = SparseArrayCompat<View?>()
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+class HeaderAndFooterWrapper(private val mInnerAdapter: RecyclerView.Adapter<BaseViewHolder>) :
+    RecyclerView.Adapter<BaseViewHolder>() {
+    
+    private val mHeaderViews = SparseArrayCompat<View>()
+    private val mFootViews = SparseArrayCompat<View>()
+    
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         if (mHeaderViews[viewType] != null) {
             return BaseViewHolder.createViewHolder(parent.context, mHeaderViews[viewType]!!)
         } else if (mFootViews[viewType] != null) {
@@ -35,9 +36,9 @@ class HeaderAndFooterWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<
     }
 
     private val realItemCount: Int
-        private get() = mInnerAdapter.itemCount
+        get() = mInnerAdapter.itemCount
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (isHeaderViewPos(position)) {
             return
         }
@@ -62,11 +63,11 @@ class HeaderAndFooterWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<
                 } else if (mFootViews[viewType] != null) {
                     return@SpanSizeCallback layoutManager.spanCount
                 }
-                oldLookup?.getSpanSize(position) ?: 1
+                oldLookup.getSpanSize(position) ?: 1
             })
     }
 
-    fun onViewAttachedToWindow(holder: BaseViewHolder) {
+    override fun onViewAttachedToWindow(holder: BaseViewHolder) {
         mInnerAdapter.onViewAttachedToWindow(holder)
         val position = holder.layoutPosition
         if (isHeaderViewPos(position) || isFooterViewPos(position)) {
@@ -82,11 +83,11 @@ class HeaderAndFooterWrapper<T>(private val mInnerAdapter: RecyclerView.Adapter<
         return position >= headersCount + realItemCount
     }
 
-    fun addHeaderView(view: View?) {
+    fun addHeaderView(view: View) {
         mHeaderViews.put(mHeaderViews.size() + BASE_ITEM_TYPE_HEADER, view)
     }
 
-    fun addFootView(view: View?) {
+    fun addFootView(view: View) {
         mFootViews.put(mFootViews.size() + BASE_ITEM_TYPE_FOOTER, view)
     }
 

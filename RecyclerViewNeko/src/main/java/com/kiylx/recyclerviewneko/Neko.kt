@@ -1,18 +1,20 @@
 package com.kiylx.recyclerviewneko
 
 import android.content.Context
+import android.view.View
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.kiylx.recyclerviewneko.nekoadapter.*
-import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.ConcatConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.DefaultConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.*
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
-import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.wrapper.EmptyWrapper
+import com.kiylx.recyclerviewneko.wrapper.HeaderAndFooterWrapper
+import com.kiylx.recyclerviewneko.wrapper.LoadMoreWrapper
+import com.kiylx.recyclerviewneko.wrapper.WrapperTypes.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -108,12 +110,47 @@ fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf())
  */
 fun <T : Any, N : BaseConfig<T>> concatNeko(
     vararg nekoConfigs: N,
-    configBlock: ConcatAdapter.Config.Builder.() -> Unit ={},
+    configBlock: ConcatAdapter.Config.Builder.() -> Unit = {},
 ): ConcatConfig<T, N> {
     val c = ConcatConfig(configList = nekoConfigs)
     c.config.configBlock()
     return c
 }
+
+fun <T : Any, N : BaseConfig<T>> N.wrapper(): WrapperConfig {
+    return WrapperConfig(this).apply { recyclerView = this@wrapper.rv }
+}
+
+fun WrapperConfig.empty(emptyLayoutId: Int): WrapperConfig {
+    val emptyWrapper = EmptyWrapper(lastWrappedAdapter)
+    emptyWrapper.setEmptyView(emptyLayoutId)
+    this.wrapperMap[Empty] = emptyWrapper
+    return this
+}
+
+fun WrapperConfig .loadMore(loadmoreLayoutId: Int): WrapperConfig {
+    val loadMoreWrapper = LoadMoreWrapper(lastWrappedAdapter)
+    loadMoreWrapper.setLoadMoreView(loadmoreLayoutId)
+    this.wrapperMap[LoadMore] = loadMoreWrapper
+    return this
+}
+
+fun  WrapperConfig.headerFooter(
+    header: View,
+    footer: View
+): WrapperConfig {
+    val headerAndFooterWrapper = HeaderAndFooterWrapper(lastWrappedAdapter)
+    headerAndFooterWrapper.addHeaderView(header)
+    headerAndFooterWrapper.addFootView(footer)
+    this.wrapperMap[HeaderAndFooter] = headerAndFooterWrapper
+    return this
+}
+
+fun WrapperConfig.done() {
+    recyclerView?.adapter = lastWrappedAdapter
+        ?: throw Exception("没有布局")
+}
+
 
 /*
 # 如何获取ViewHolder的position
