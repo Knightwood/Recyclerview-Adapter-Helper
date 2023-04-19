@@ -86,8 +86,17 @@ inline fun <T : Any> NekoPagingAdapterConfig<T>.withHeader(block: PagingStatusCo
     tmp.block()
     val header = NekoPagingStatusAdapter(tmp)
     this.nekoPagingAdapter.withLoadStateHeader(header)
-    this.statusConfig=tmp
+    this.statusConfig = tmp
     return this
+}
+
+/**
+ * 给普通rv添加stateHeader和stateFooter
+ */
+inline fun <T : Any, N : BaseConfig<T>> N.withLoadStatus(
+    block: LoadStatusConfig<T, N>.() -> Unit
+): LoadStatusConfig<T, N> {
+    return LoadStatusConfig(this).apply(block)
 }
 
 /**
@@ -96,9 +105,9 @@ inline fun <T : Any> NekoPagingAdapterConfig<T>.withHeader(block: PagingStatusCo
 inline fun <T : Any> NekoPagingAdapterConfig<T>.withFooter(block: PagingStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
     val tmp = PagingStatusConfig()
     tmp.block()
-    val header = NekoPagingStatusAdapter(tmp)
-    this.nekoPagingAdapter.withLoadStateFooter(header)
-    this.statusConfig=tmp
+    val footer = NekoPagingStatusAdapter(tmp)
+    this.nekoPagingAdapter.withLoadStateFooter(footer)
+    this.statusConfig = tmp
     return this
 }
 

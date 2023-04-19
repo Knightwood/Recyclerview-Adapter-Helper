@@ -182,6 +182,15 @@ class MainActivity2 : AppCompatActivity() {
             //这部分代码跟上面一样
         }.show()
 
+        //添加StateHeader
+        neko.withLoadStatus {
+            withHeader {
+                addItemDelegate(LoadState.Loading,R.layout.item_2){holder->
+
+                }
+            }
+
+        }.done()
 
         neko.mDatas[1] = "eee"
         //刷新数据
