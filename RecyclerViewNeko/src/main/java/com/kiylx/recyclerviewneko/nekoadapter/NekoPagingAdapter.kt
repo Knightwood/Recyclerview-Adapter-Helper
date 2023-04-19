@@ -18,7 +18,8 @@ class NekoPagingAdapter<T : Any>(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
-) : PagingDataAdapter<T, BaseViewHolder>(diffCallback,mainDispatcher, workerDispatcher), INekoAdapter {
+) : PagingDataAdapter<T, BaseViewHolder>(diffCallback, mainDispatcher, workerDispatcher),
+    INekoAdapter {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder =
         config.createViewHolder(parent, viewType)
@@ -28,13 +29,16 @@ class NekoPagingAdapter<T : Any>(
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) =
         config.bindData(holder, position)
 
-    override fun getItemViewType(position: Int): Int =config.parseItemViewType(position)
+    override fun getItemViewType(position: Int): Int = config.parseItemViewType(position)
 
 }
+
 /**
  * 提供recyclerview和adapter的配置信息，viewholder创建方法，viewtype判断等
  */
-class NekoPagingAdapterConfig<T : Any>(context: Context, rv: RecyclerView) : BaseConfig<T>(context, rv) {
+class NekoPagingAdapterConfig<T : Any>(context: Context, rv: RecyclerView) :
+    BaseConfig<T>(context, rv) {
+    var statusConfig: PagingStatusConfig? = null
     lateinit var nekoPagingAdapter: NekoPagingAdapter<T>
 
 }

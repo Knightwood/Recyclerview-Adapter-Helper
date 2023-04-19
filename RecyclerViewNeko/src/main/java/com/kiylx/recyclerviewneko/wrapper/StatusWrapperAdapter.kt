@@ -2,7 +2,7 @@ package com.kiylx.recyclerviewneko.wrapper
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kiylx.recyclerviewneko.nekoadapter.config.WrapperConfig
+import com.kiylx.recyclerviewneko.wrapper.config.StateWrapperConfig
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.wrapper.base.StateTypes
@@ -10,7 +10,7 @@ import com.kiylx.recyclerviewneko.wrapper.base.StateTypes
 /**
  * empty，error，loading,content等状态转换
  */
-class StatusWrapperAdapter(private val wrapperConfig: WrapperConfig) :
+class StatusWrapperAdapter(private val wrapperConfig: StateWrapperConfig) :
     RecyclerView.Adapter<BaseViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {

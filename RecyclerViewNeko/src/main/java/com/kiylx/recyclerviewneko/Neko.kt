@@ -11,6 +11,7 @@ import com.kiylx.recyclerviewneko.nekoadapter.config.*
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.config.StateWrapperConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -27,7 +28,7 @@ import kotlinx.coroutines.Dispatchers
  * * 若使用了方式二,则方式一不起作用。
  *
  */
-fun <T : Any> Context.neko(
+inline fun <T : Any> Context.neko(
     recyclerView: RecyclerView,
     configBlock: NekoAdapterConfig<T>.() -> Unit
 ): NekoAdapterConfig<T> {
@@ -44,7 +45,7 @@ fun <T : Any> Context.neko(
  * 若没有指定[asyncConfig]，则用[diffCallback]参数创建NekoListAdapter
  * 若指定了[asyncConfig]，则[diffCallback]参数不起作用
  */
-fun <T : Any> Context.listNeko(
+inline fun <T : Any> Context.listNeko(
     recyclerView: RecyclerView,
     asyncConfig: AsyncDifferConfig<T>? = null,
     diffCallback: DiffUtil.ItemCallback<T>,
@@ -62,7 +63,7 @@ fun <T : Any> Context.listNeko(
 /**
  * 根据配置，生成NekoPagingAdapter
  */
-fun <T : Any> Context.paging3Neko(
+inline fun <T : Any> Context.paging3Neko(
     recyclerView: RecyclerView,
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -77,7 +78,31 @@ fun <T : Any> Context.paging3Neko(
     return config
 }
 
-fun <T : Any, N : BaseConfig<T>> Context.customNeko(
+/**
+ * 给pagingAdapter添加状态加载状态item
+ */
+inline fun <T : Any> NekoPagingAdapterConfig<T>.withHeader(block: PagingStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
+    val tmp = PagingStatusConfig()
+    tmp.block()
+    val header = NekoPagingStatusAdapter(tmp)
+    this.nekoPagingAdapter.withLoadStateHeader(header)
+    this.statusConfig=tmp
+    return this
+}
+
+/**
+ * 给pagingAdapter添加状态加载状态item
+ */
+inline fun <T : Any> NekoPagingAdapterConfig<T>.withFooter(block: PagingStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
+    val tmp = PagingStatusConfig()
+    tmp.block()
+    val header = NekoPagingStatusAdapter(tmp)
+    this.nekoPagingAdapter.withLoadStateFooter(header)
+    this.statusConfig=tmp
+    return this
+}
+
+inline fun <T : Any, N : BaseConfig<T>> Context.customNeko(
     recyclerView: RecyclerView,
     customAdapter: Adapter<BaseViewHolder>,
     config: N? = null,
@@ -104,7 +129,7 @@ fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf())
  * @param nekoConfigs 构建出来的多个adapter。注：传入的nekoConfigs不应调用BaseConfig的done方法
  * @param configBlock 配置[ConcatAdapter.Config]
  */
-fun <T : Any, N : BaseConfig<T>> concatNeko(
+inline fun <T : Any, N : BaseConfig<T>> concatNeko(
     vararg nekoConfigs: N,
     configBlock: ConcatAdapter.Config.Builder.() -> Unit = {},
 ): ConcatConfig<T, N> {
@@ -113,15 +138,22 @@ fun <T : Any, N : BaseConfig<T>> concatNeko(
     return c
 }
 
-fun <T : Any, N : BaseConfig<T>> N.wrapper(): WrapperConfig {
-    val wrapperConfig = WrapperConfig(this)
+/**
+ * 调用此方法将已有的adapter包装成带状态页的adapter
+ */
+inline infix fun <T : Any, N : BaseConfig<T>> N.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+    val wrapperConfig = StateWrapperConfig(this)
     val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
+    wrapperConfig.block()
     return wrapperConfig
 }
 
-fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.wrapper(block: WrapperConfig.() -> Unit): WrapperConfig {
-    val wrapperConfig = WrapperConfig(this)
+/**
+ * 调用此方法将已有的adapter包装成带状态页的adapter
+ */
+inline infix fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+    val wrapperConfig = StateWrapperConfig(this)
     val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
     wrapperConfig.block()

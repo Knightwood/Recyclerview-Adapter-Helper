@@ -8,11 +8,10 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.kiylx.recyclerviewneko.*
 import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.ItemLongClickListener
@@ -20,7 +19,6 @@ import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
-import kotlinx.coroutines.launch
 
 
 class MainActivity2 : AppCompatActivity() {
@@ -208,6 +206,18 @@ class MainActivity2 : AppCompatActivity() {
         }) {
             //这里跟其他的几种情况一模一样，不再重复写
         }
+        //给pagingAdapter添加header和footer
+        pagingAdapter.withHeader {
+            addItemDelegate(LoadState.Loading,R.layout.item_1){holder->
+
+            }
+        }
+        pagingAdapter.withFooter {
+            addItemDelegate(LoadState.Loading,R.layout.item_2){holder->
+
+            }
+        }
+
         //刷新数据
         pagingAdapter.nekoPagingAdapter.notifyItemChanged(3)
     }
@@ -282,7 +292,7 @@ class MainActivity2 : AppCompatActivity() {
             // todo 自定义配置
         }.show()
 
-        val w =concat.wrapper{
+        val w =concat wrapperStatus{
             //例如设置空布局
             setEmpty(R.layout.empty) {
                 it.setOnClickListener {

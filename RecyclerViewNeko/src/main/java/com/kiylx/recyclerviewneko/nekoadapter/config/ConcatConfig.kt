@@ -3,9 +3,6 @@ package com.kiylx.recyclerviewneko.nekoadapter.config
 import android.content.Context
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
-import com.kiylx.recyclerviewneko.wrapper
-import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
 
 class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
     var rv: RecyclerView? = null
