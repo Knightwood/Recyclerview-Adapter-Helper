@@ -282,9 +282,12 @@ class MainActivity2 : AppCompatActivity() {
             // todo 自定义配置
         }.show()
 
-        val w =concat.wrapper().setEmpty(R.layout.empty) {
-            it.setOnClickListener {
-                Log.d(tag, "被点击")
+        val w =concat.wrapper{
+            //例如设置空布局
+            setEmpty(R.layout.empty) {
+                it.setOnClickListener {
+                    Log.d(tag, "被点击")
+                }
             }
         }
 

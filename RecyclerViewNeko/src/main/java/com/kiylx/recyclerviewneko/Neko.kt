@@ -1,7 +1,6 @@
 package com.kiylx.recyclerviewneko
 
 import android.content.Context
-import android.view.View
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -11,11 +10,7 @@ import com.kiylx.recyclerviewneko.nekoadapter.*
 import com.kiylx.recyclerviewneko.nekoadapter.config.*
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
-import com.kiylx.recyclerviewneko.wrapper.EmptyWrapper
-import com.kiylx.recyclerviewneko.wrapper.HeaderAndFooterWrapper
-import com.kiylx.recyclerviewneko.wrapper.LoadMoreWrapper
 import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
-import com.kiylx.recyclerviewneko.wrapper.WrapperTypes.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -125,47 +120,13 @@ fun <T : Any, N : BaseConfig<T>> N.wrapper(): WrapperConfig {
     return wrapperConfig
 }
 
-fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.wrapper(): WrapperConfig {
+fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.wrapper(block: WrapperConfig.() -> Unit): WrapperConfig {
     val wrapperConfig = WrapperConfig(this)
     val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
+    wrapperConfig.block()
     return wrapperConfig
 }
-
-/*
-
-
-fun WrapperConfig.empty(emptyLayoutId: Int): WrapperConfig {
-    val emptyWrapper = EmptyWrapper(lastWrappedAdapter)
-    emptyWrapper.setEmptyView(emptyLayoutId)
-    this[Empty] = emptyWrapper
-    return this
-}
-
-fun WrapperConfig.loadMore(loadmoreLayoutId: Int,loadMoreListener: LoadMoreWrapper.OnLoadMoreListener): WrapperConfig {
-    val loadMoreWrapper = LoadMoreWrapper(lastWrappedAdapter)
-    loadMoreWrapper.setOnLoadMoreListener(loadMoreListener = loadMoreListener)
-    loadMoreWrapper.setLoadMoreView(loadmoreLayoutId)
-    this[LoadMore] = loadMoreWrapper
-    return this
-}
-
-fun WrapperConfig.headerFooter(
-    header: View,
-    footer: View
-): WrapperConfig {
-    val headerAndFooterWrapper = HeaderAndFooterWrapper(lastWrappedAdapter)
-    headerAndFooterWrapper.addHeaderView(header)
-    headerAndFooterWrapper.addFootView(footer)
-    this[HeaderAndFooter] = headerAndFooterWrapper
-    return this
-}
-
-fun WrapperConfig.done(): WrapperConfig {
-    recyclerView?.let { it.adapter = lastWrappedAdapter }
-        ?: throw Exception("没有布局")
-    return this
-}*/
 
 
 /*

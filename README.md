@@ -266,6 +266,60 @@ class MainActivity2 : AppCompatActivity() {
         neko1.nekoAdapter.notifyItemChanged(2)
     }
 
+ /**
+     * concatAdapter
+     */
+    fun wrapperTest() {
+        //预定义数据
+        val d1: MutableList<String> = mutableListOf()
+        d1.addAll(listOf("a", "b", "c", "item"))
+
+        //预定义数据
+        val d2: MutableList<String> = mutableListOf()
+        d2.addAll(listOf("a", "b", "c", "item"))
+
+        val neko1 = neko<String>(rv) {
+            mDatas = d1.toMutableList()//指定adapter的数据
+            //仅有一种viewHolder
+            addSingleItemView(R.layout.item_1) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+            }
+        }
+        val neko2 = neko<String>(rv) {
+            mDatas = d2.toMutableList()//指定adapter的数据
+            //仅有一种viewHolder
+            addSingleItemView(R.layout.item_2) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv2)?.text = data.toString()
+            }
+        }
+
+        //将两个adapter合并，此方法可以传入更多的adapter进行合并
+        val concat = concatNeko(neko1, neko2) {
+            // todo 自定义配置
+        }.show()
+
+        //对现有的recyclerview添加状态页
+        val w =concat.wrapper{
+            //例如设置空布局
+            setEmpty(R.layout.empty) {
+                it.setOnClickListener {
+                    Log.d(tag, "被点击")
+                }
+            }
+        }
+        //1s后显示空布局
+        handler.postDelayed(Runnable {
+            w.showEmpty()
+        }, 1000)
+        //2s后由空布局转换到内容
+        handler.postDelayed(Runnable {
+            w.showContent()
+        }, 2000)
+
+        neko1.mDatas[1] = "olskdfbsf"
+        neko1.nekoAdapter.notifyItemChanged(1)
+
+    }
 
 }
 ```
