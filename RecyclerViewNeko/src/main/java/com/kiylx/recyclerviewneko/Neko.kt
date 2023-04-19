@@ -14,6 +14,7 @@ import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.wrapper.EmptyWrapper
 import com.kiylx.recyclerviewneko.wrapper.HeaderAndFooterWrapper
 import com.kiylx.recyclerviewneko.wrapper.LoadMoreWrapper
+import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
 import com.kiylx.recyclerviewneko.wrapper.WrapperTypes.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -118,12 +119,19 @@ fun <T : Any, N : BaseConfig<T>> concatNeko(
 }
 
 fun <T : Any, N : BaseConfig<T>> N.wrapper(): WrapperConfig {
-    return WrapperConfig(this)
+    val wrapperConfig = WrapperConfig(this)
+    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
+    wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
+    return wrapperConfig
 }
 
-fun WrapperConfig.done(){
-    this.recyclerView.adapter=this.wrappedAdapter
+fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.wrapper(): WrapperConfig {
+    val wrapperConfig = WrapperConfig(this)
+    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
+    wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
+    return wrapperConfig
 }
+
 /*
 
 

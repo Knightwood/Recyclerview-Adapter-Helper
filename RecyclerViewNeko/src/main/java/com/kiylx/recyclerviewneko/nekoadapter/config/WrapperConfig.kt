@@ -38,56 +38,63 @@ interface IWrapper {
 class WrapperConfig(val context: Context) : IWrapper {
     lateinit var recyclerView: RecyclerView
     lateinit var stateWrapperAdapter: StatusWrapperAdapter
-    private val wrappedViewArr: SparseArrayCompat<WrapperView> = SparseArrayCompat()
+    private val statusViewArr: SparseArrayCompat<WrapperView> = SparseArrayCompat()
 
     init {
         //添加全局设置的默认值
         val viewSparseArray = GlobalWrapperConfig.wrappedViewArr
         for (i in viewSparseArray.size() - 1 downTo 0) {
             val wrapperView = viewSparseArray.valueAt(i)
-            wrappedViewArr[wrapperView.type] = wrapperView
+            statusViewArr[wrapperView.type] = wrapperView
         }
     }
 
     /**
      * 被包装起来的adapter
      */
-    lateinit var wrappedAdapter: Adapter<BaseViewHolder>
+    lateinit var beWrappedAdapter: Adapter<BaseViewHolder>
 
     /**
      * 根据此数据，生成不同的状态页
      */
-    var mDatas: MutableList<StateTypes> = mutableListOf()
+    var mDatas: MutableList<StateTypes> = mutableListOf(StateTypes.Content)
 
     override fun setEmpty(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        wrappedViewArr[StateTypes.Empty] = WrapperView(layoutId, block)
+        statusViewArr[StateTypes.Empty] = WrapperView(layoutId, block)
         return this
     }
 
     override fun setLoading(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        wrappedViewArr[StateTypes.Loading] = WrapperView(layoutId, block)
+        statusViewArr[StateTypes.Loading] = WrapperView(layoutId, block)
         return this
     }
 
     override fun setError(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        wrappedViewArr[StateTypes.Error] = WrapperView(layoutId, block)
+        statusViewArr[StateTypes.Error] = WrapperView(layoutId, block)
         return this
     }
 
     fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return if (mDatas[0] == StateTypes.Content) {
-            wrappedAdapter.createViewHolder(parent, viewType)
+            beWrappedAdapter.createViewHolder(parent, viewType)
         } else {
             BaseViewHolder.createViewHolder(
                 context, parent,
-                wrappedViewArr[viewType]!!.layoutId
+                statusViewArr[viewType]!!.layoutId
             )
         }
     }
 
     fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
-        wrappedViewArr[mDatas[0]]?.statePageViewHolder?.convert(holder.getConvertView())
-            ?: throw Exception("找不到view")
+        val type = mDatas[0]
+        if (type == StateTypes.Content) {
+            beWrappedAdapter.onBindViewHolder(holder, position)
+        } else {
+            val data = statusViewArr[type]
+            data?.statePageViewHolder?.convert(holder.getConvertView())
+                ?: throw Exception("找不到view")
+        }
+
     }
 
     fun getItemCount(): Int = 1
@@ -95,14 +102,14 @@ class WrapperConfig(val context: Context) : IWrapper {
     companion object {
         operator fun <T : Any> invoke(config: BaseConfig<T>): WrapperConfig {
             return WrapperConfig(config.context).apply {
-                wrappedAdapter = config.iNekoAdapter
+                beWrappedAdapter = config.iNekoAdapter
                 recyclerView = config.rv
             }
         }
 
         operator fun <T : Any, N : BaseConfig<T>> invoke(config: ConcatConfig<T, N>): WrapperConfig {
             return WrapperConfig(config.context).apply {
-                wrappedAdapter = config.concatAdapter as Adapter<BaseViewHolder>
+                beWrappedAdapter = config.concatAdapter as Adapter<BaseViewHolder>
                 recyclerView = config.rv!!
             }
         }
@@ -110,26 +117,34 @@ class WrapperConfig(val context: Context) : IWrapper {
 
 
     override fun showLoading(): IWrapper {
+        recyclerView.adapter=stateWrapperAdapter
         mDatas = mutableListOf(StateTypes.Loading)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
     }
 
     override fun showEmpty(): IWrapper {
+        recyclerView.adapter=stateWrapperAdapter
         mDatas = mutableListOf(StateTypes.Empty)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
     }
 
     override fun showContent(): IWrapper {
+        recyclerView.adapter=beWrappedAdapter
         mDatas = mutableListOf(StateTypes.Content)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
     }
 
     override fun showError(): IWrapper {
+        recyclerView.adapter=stateWrapperAdapter
         mDatas = mutableListOf(StateTypes.Error)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
+    }
+
+    fun getItemViewType(position: Int): Int {
+        return mDatas[0].i
     }
 }

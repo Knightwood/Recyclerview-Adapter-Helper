@@ -12,7 +12,7 @@ object GlobalWrapperConfig {
     val wrappedViewArr: SparseArrayCompat<WrapperView> = SparseArrayCompat()
 
     init {
-        //todo 添加默认的状态页
+        //todo 内置添加默认的状态页
     }
 
     /**
