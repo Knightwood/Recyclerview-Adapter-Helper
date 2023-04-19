@@ -11,6 +11,11 @@ class ItemViewDelegateManager<T>() {
 
     var delegates: SparseArrayCompat<ItemViewDelegate<T>> =
         SparseArrayCompat<ItemViewDelegate<T>>()
+
+    //内部使用，用于添加状态页
+    var innerDelegates: SparseArrayCompat<ItemViewDelegate<T>> =
+        SparseArrayCompat<ItemViewDelegate<T>>()
+
     val itemViewDelegateCount: Int
         get() = delegates.size()
 

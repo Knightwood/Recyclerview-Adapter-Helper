@@ -118,38 +118,46 @@ fun <T : Any, N : BaseConfig<T>> concatNeko(
 }
 
 fun <T : Any, N : BaseConfig<T>> N.wrapper(): WrapperConfig {
-    return WrapperConfig(this).apply { recyclerView = this@wrapper.rv }
+    return WrapperConfig(this)
 }
+
+fun WrapperConfig.done(){
+    this.recyclerView.adapter=this.wrappedAdapter
+}
+/*
+
 
 fun WrapperConfig.empty(emptyLayoutId: Int): WrapperConfig {
     val emptyWrapper = EmptyWrapper(lastWrappedAdapter)
     emptyWrapper.setEmptyView(emptyLayoutId)
-    this.wrapperMap[Empty] = emptyWrapper
+    this[Empty] = emptyWrapper
     return this
 }
 
-fun WrapperConfig .loadMore(loadmoreLayoutId: Int): WrapperConfig {
+fun WrapperConfig.loadMore(loadmoreLayoutId: Int,loadMoreListener: LoadMoreWrapper.OnLoadMoreListener): WrapperConfig {
     val loadMoreWrapper = LoadMoreWrapper(lastWrappedAdapter)
+    loadMoreWrapper.setOnLoadMoreListener(loadMoreListener = loadMoreListener)
     loadMoreWrapper.setLoadMoreView(loadmoreLayoutId)
-    this.wrapperMap[LoadMore] = loadMoreWrapper
+    this[LoadMore] = loadMoreWrapper
     return this
 }
 
-fun  WrapperConfig.headerFooter(
+fun WrapperConfig.headerFooter(
     header: View,
     footer: View
 ): WrapperConfig {
     val headerAndFooterWrapper = HeaderAndFooterWrapper(lastWrappedAdapter)
     headerAndFooterWrapper.addHeaderView(header)
     headerAndFooterWrapper.addFootView(footer)
-    this.wrapperMap[HeaderAndFooter] = headerAndFooterWrapper
+    this[HeaderAndFooter] = headerAndFooterWrapper
     return this
 }
 
-fun WrapperConfig.done() {
-    recyclerView?.adapter = lastWrappedAdapter
+fun WrapperConfig.done(): WrapperConfig {
+    recyclerView?.let { it.adapter = lastWrappedAdapter }
         ?: throw Exception("没有布局")
-}
+    return this
+}*/
 
 
 /*

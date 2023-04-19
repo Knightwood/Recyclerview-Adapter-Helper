@@ -6,3 +6,4 @@ package com.kiylx.recyclerviewneko.wrapper
 enum class WrapperTypes {
     Empty, HeaderAndFooter, LoadMore
 }
+

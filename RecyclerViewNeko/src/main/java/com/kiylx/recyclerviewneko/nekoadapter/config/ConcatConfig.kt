@@ -1,11 +1,13 @@
 package com.kiylx.recyclerviewneko.nekoadapter.config
 
+import android.content.Context
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kiylx.recyclerviewneko.wrapper
+import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
 class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
     var rv: RecyclerView? = null
+    var context: Context=configList[0].context
 
     // 1. 定义Config
     val config = ConcatAdapter.Config.Builder()
@@ -32,6 +34,6 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
     }
 
     fun wrapper(): WrapperConfig {
-        return WrapperConfig<T, N>(this).apply { recyclerView = this@ConcatConfig.rv }
+        return WrapperConfig<T, N>(this)
     }
 }

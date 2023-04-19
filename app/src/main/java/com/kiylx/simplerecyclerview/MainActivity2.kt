@@ -3,13 +3,16 @@ package com.kiylx.simplerecyclerview
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.kiylx.recyclerviewneko.*
 import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.ItemLongClickListener
@@ -17,6 +20,7 @@ import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
+import kotlinx.coroutines.launch
 
 
 class MainActivity2 : AppCompatActivity() {
@@ -35,8 +39,9 @@ class MainActivity2 : AppCompatActivity() {
             //这里延迟5s是为了测试时避免出问题时闪退太快收集不到日志
 //            nekoTest()
             concatTest()
+            //wrapperTest()
 
-        }, 5000)
+        }, 3000)
     }
 
     /**
@@ -160,11 +165,11 @@ class MainActivity2 : AppCompatActivity() {
         val myDiffCallback = object : DiffUtil.ItemCallback<String>() {
             //指定diffCallback
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                TODO("Not yet implemented")
+                return oldItem == newItem
             }
 
             override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                TODO("Not yet implemented")
+                return oldItem == newItem
             }
         }
 
@@ -234,26 +239,36 @@ class MainActivity2 : AppCompatActivity() {
                 holder.getView<TextView>(R.id.tv2)?.text = data.toString()
             }
         }
+        neko1.iNekoAdapter.registerAdapterDataObserver(object : AdapterDataObserver() {
+            override fun onChanged() {
+                super.onChanged()
+            }
+
+            override fun onStateRestorationPolicyChanged() {
+                super.onStateRestorationPolicyChanged()
+            }
+        })
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
-        concatNeko(neko1, neko2) {
+        val concat = concatNeko(neko1, neko2) {
             // todo 自定义配置
         }.show()
 
+        neko1.mDatas[2] = "ertt"
         //刷新数据
         neko1.nekoAdapter.notifyItemChanged(2)
     }
+
     /**
      * concatAdapter
      */
     fun wrapperTest() {
-
         //预定义数据
         val d1: MutableList<String> = mutableListOf()
-        d1.addAll(listOf("a", "b", "c", "item"))
+        //d1.addAll(listOf("a", "b", "c", "item"))
 
         //预定义数据
         val d2: MutableList<String> = mutableListOf()
-        d2.addAll(listOf("a", "b", "c", "item"))
+        //d2.addAll(listOf("a", "b", "c", "item"))
 
         val neko1 = neko<String>(rv) {
             mDatas = d1.toMutableList()//指定adapter的数据
@@ -261,21 +276,15 @@ class MainActivity2 : AppCompatActivity() {
             addSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
-        }
-        val neko2 = neko<String>(rv) {
-            mDatas = d2.toMutableList()//指定adapter的数据
-            //仅有一种viewHolder
-            addSingleItemView(R.layout.item_2) { holder, data, position ->
-                holder.getView<TextView>(R.id.tv2)?.text = data.toString()
-            }
-        }
-        //将两个adapter合并，此方法可以传入更多的adapter进行合并
-       val concat= concatNeko(neko1, neko2) {
-            // todo 自定义配置
         }.show()
 
-        //刷新数据
-        neko1.nekoAdapter.notifyItemChanged(2)
+        /* val w = neko1.wrapper().empty(R.layout.empty).done()
+         handler.postDelayed(Runnable {
+             Toast.makeText(applicationContext, "上拉加载", Toast.LENGTH_SHORT).show()
+             d1.addAll(listOf("a", "b", "c", "item"))
+             neko1.nekoAdapter.notifyDataSetChanged()
+             w.lastWrappedAdapter.notifyDataSetChanged()
+         }, 1000)*/
     }
 
 

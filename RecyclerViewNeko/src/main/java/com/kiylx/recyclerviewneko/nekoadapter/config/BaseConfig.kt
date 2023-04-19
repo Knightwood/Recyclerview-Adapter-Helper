@@ -3,12 +3,17 @@ package com.kiylx.recyclerviewneko.nekoadapter.config
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.kiylx.recyclerviewneko.nekoadapter.*
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager
 import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
+import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
 
 /**
  * 视图类型解析
@@ -23,7 +28,12 @@ fun interface ViewTypeParser<T> {
 abstract class BaseConfig<T : Any>(
     internal var context: Context,
     var rv: RecyclerView,
-) {
+) : LifecycleEventObserver {
+    /**
+     * 使用concatAdapter连接多个adapter，同时用[StatusWrapperAdapter]添加状态页时是否要监听数据变更
+     * 标记为true的，将会监听数据变更决定状态页变更
+     */
+    var canObserveDataChange = true
     lateinit var iNekoAdapter: RecyclerView.Adapter<BaseViewHolder>
 
     var layoutManager: RecyclerView.LayoutManager = context.linear()
@@ -41,7 +51,6 @@ abstract class BaseConfig<T : Any>(
         }
 
     var mDatas: MutableList<T> = mutableListOf()
-
     //指定此匿名函数，可以手动创建viewholder
     var createHolder: ((parent: ViewGroup, layoutId: Int) -> BaseViewHolder)? = null
 
@@ -67,6 +76,23 @@ abstract class BaseConfig<T : Any>(
         )
     }
 
+    /**
+     * 监听数据变化
+     */
+    open fun observeDataLists(observer: AdapterDataObserver) {
+        rv.adapter?.registerAdapterDataObserver(observer)
+    }
+
+    /**
+     * 取消监听数据变化
+     */
+    open fun unObserveDataLists(observer: AdapterDataObserver) {
+        rv.adapter?.unregisterAdapterDataObserver(observer)
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+
+    }
     /**
      * 添加多种itemview类型
      * @param layoutId viewHolder布局id

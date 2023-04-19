@@ -46,7 +46,7 @@ class LoadMoreWrapper(private val mInnerAdapter: RecyclerView.Adapter<BaseViewHo
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (isShowLoadMore(position)) {
             if (mOnLoadMoreListener != null) {
-                mOnLoadMoreListener!!.onLoadMoreRequested()
+                mOnLoadMoreListener!!.onLoadMoreRequested(this)
             }
             return
         }
@@ -92,15 +92,13 @@ class LoadMoreWrapper(private val mInnerAdapter: RecyclerView.Adapter<BaseViewHo
         return mInnerAdapter.itemCount + if (hasLoadMore()) 1 else 0
     }
 
-    interface OnLoadMoreListener {
-        fun onLoadMoreRequested()
+    fun interface OnLoadMoreListener {
+        fun onLoadMoreRequested(loadMoreWrapper: LoadMoreWrapper)
     }
 
     private var mOnLoadMoreListener: OnLoadMoreListener? = null
-    fun setOnLoadMoreListener(loadMoreListener: OnLoadMoreListener?): LoadMoreWrapper {
-        if (loadMoreListener != null) {
-            mOnLoadMoreListener = loadMoreListener
-        }
+    fun setOnLoadMoreListener(loadMoreListener: OnLoadMoreListener): LoadMoreWrapper {
+        mOnLoadMoreListener = loadMoreListener
         return this
     }
 
