@@ -10,12 +10,18 @@ import com.kiylx.recyclerviewneko.nekoadapter.*
 import com.kiylx.recyclerviewneko.nekoadapter.config.*
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
-import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
-import com.kiylx.recyclerviewneko.wrapper.config.StateWrapperConfig
+import com.kiylx.recyclerviewneko.wrapper.loadstate.NekoAdapterLoadStatusWrapperUtil
+import com.kiylx.recyclerviewneko.wrapper.loadstate.NekoPaging3LoadStatusAdapter
+import com.kiylx.recyclerviewneko.wrapper.loadstate.Paging3LoadStatusConfig
+import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
 
+
+//<editor-fold desc="Adapter,ListAdapter">
+//<editor-fold desc="创建Adapter,ListAdapter">
 /**
  * # 根据配置，生成recyclerview
  * ## 一、添加viewholder
@@ -61,6 +67,78 @@ inline fun <T : Any> Context.listNeko(
 }
 
 /**
+ * 普通adapter
+ * 完成rv的创建
+ */
+fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf()): N {
+    if (datas.isNotEmpty()) {
+        mDatas.clear()
+        mDatas.addAll(datas)
+    }
+    rv.adapter = iNekoAdapter
+    rv.layoutManager = layoutManager
+    return this
+}
+//</editor-fold>
+//<editor-fold desc="给Adapter,ListAdapter,Paging3Adapter添加状态页回调">
+
+/**
+ * 调用此方法将已有的adapter包装成带状态页的adapter
+ */
+inline infix fun <T : Any, N : BaseConfig<T>> N.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+    val wrapperConfig = StateWrapperConfig(this)
+    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
+    wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
+    wrapperConfig.block()
+    return wrapperConfig
+}
+
+
+//</editor-fold>
+//<editor-fold desc="给Adapter,ListAdapter添加header和footer">
+
+/**
+ * 给普通rv添加stateHeader和stateFooter
+ */
+inline fun <T : Any, N : BaseConfig<T>> N.withLoadStatus(
+    block: NekoAdapterLoadStatusWrapperUtil.() -> Unit
+): NekoAdapterLoadStatusWrapperUtil {
+    return NekoAdapterLoadStatusWrapperUtil(this.rv,this.iNekoAdapter).apply(block)
+}
+//</editor-fold>
+
+//</editor-fold>
+
+
+
+//<editor-fold desc="PagingAdapter">
+//<editor-fold desc="给PagingAdapter添加header和footer">
+/**
+ * 给pagingAdapter添加状态加载状态item
+ */
+inline fun <T : Any> NekoPagingAdapterConfig<T>.withHeader(block: Paging3LoadStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
+    val tmp = Paging3LoadStatusConfig()
+    tmp.block()
+    val header = NekoPaging3LoadStatusAdapter(tmp)
+    this.nekoPagingAdapter.withLoadStateHeader(header)
+    this.statusConfig = tmp
+    return this
+}
+/**
+ * 给pagingAdapter添加状态加载状态item
+ */
+inline fun <T : Any> NekoPagingAdapterConfig<T>.withFooter(block: Paging3LoadStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
+    val tmp = Paging3LoadStatusConfig()
+    tmp.block()
+    val footer = NekoPaging3LoadStatusAdapter(tmp)
+    this.nekoPagingAdapter.withLoadStateFooter(footer)
+    this.statusConfig = tmp
+    return this
+}
+//</editor-fold>
+//<editor-fold desc="创建PagingAdapter">
+
+/**
  * 根据配置，生成NekoPagingAdapter
  */
 inline fun <T : Any> Context.paging3Neko(
@@ -78,38 +156,13 @@ inline fun <T : Any> Context.paging3Neko(
     return config
 }
 
-/**
- * 给pagingAdapter添加状态加载状态item
- */
-inline fun <T : Any> NekoPagingAdapterConfig<T>.withHeader(block: PagingStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
-    val tmp = PagingStatusConfig()
-    tmp.block()
-    val header = NekoPagingStatusAdapter(tmp)
-    this.nekoPagingAdapter.withLoadStateHeader(header)
-    this.statusConfig = tmp
-    return this
-}
 
-/**
- * 给普通rv添加stateHeader和stateFooter
- */
-inline fun <T : Any, N : BaseConfig<T>> N.withLoadStatus(
-    block: LoadStatusConfig<T, N>.() -> Unit
-): LoadStatusConfig<T, N> {
-    return LoadStatusConfig(this).apply(block)
-}
+//</editor-fold>
+//</editor-fold>
 
-/**
- * 给pagingAdapter添加状态加载状态item
- */
-inline fun <T : Any> NekoPagingAdapterConfig<T>.withFooter(block: PagingStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
-    val tmp = PagingStatusConfig()
-    tmp.block()
-    val footer = NekoPagingStatusAdapter(tmp)
-    this.nekoPagingAdapter.withLoadStateFooter(footer)
-    this.statusConfig = tmp
-    return this
-}
+
+
+//<editor-fold desc="自定义">
 
 inline fun <T : Any, N : BaseConfig<T>> Context.customNeko(
     recyclerView: RecyclerView,
@@ -122,17 +175,12 @@ inline fun <T : Any, N : BaseConfig<T>> Context.customNeko(
     config2.configBlock()
     return config2
 }
+//</editor-fold>
 
-fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf()): N {
-    if (datas.isNotEmpty()) {
-        mDatas.clear()
-        mDatas.addAll(datas)
-    }
-    rv.adapter = iNekoAdapter
-    rv.layoutManager = layoutManager
-    return this
-}
+//<editor-fold desc="ConcatAdapter">
 
+
+//<editor-fold desc="concat连接Adapter">
 /**
  * 传入多个adapter,将会按照次序连接。
  * @param nekoConfigs 构建出来的多个adapter。注：传入的nekoConfigs不应调用BaseConfig的done方法
@@ -146,17 +194,9 @@ inline fun <T : Any, N : BaseConfig<T>> concatNeko(
     c.config.configBlock()
     return c
 }
+//</editor-fold>
 
-/**
- * 调用此方法将已有的adapter包装成带状态页的adapter
- */
-inline infix fun <T : Any, N : BaseConfig<T>> N.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
-    val wrapperConfig = StateWrapperConfig(this)
-    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
-    wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
-    wrapperConfig.block()
-    return wrapperConfig
-}
+//<editor-fold desc="给concatAdapter添加状态页回调">
 
 /**
  * 调用此方法将已有的adapter包装成带状态页的adapter
@@ -168,6 +208,18 @@ inline infix fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.wrapperStatus(b
     wrapperConfig.block()
     return wrapperConfig
 }
+//</editor-fold>
+//<editor-fold desc="给concatAdapter添加header,footer">
+inline infix fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.withLoadStatus(
+    block: NekoAdapterLoadStatusWrapperUtil.() -> Unit
+): NekoAdapterLoadStatusWrapperUtil{
+    return NekoAdapterLoadStatusWrapperUtil(this.rv!!,this.concatAdapter as Adapter<BaseViewHolder>).apply(block)
+}
+//</editor-fold>
+//</editor-fold>
+
+
+
 
 
 /*

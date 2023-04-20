@@ -10,6 +10,7 @@ import com.kiylx.recyclerviewneko.nekoadapter.config.createViewHolder
 import com.kiylx.recyclerviewneko.nekoadapter.config.dataSize
 import com.kiylx.recyclerviewneko.nekoadapter.config.parseItemViewType
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.wrapper.loadstate.Paging3LoadStatusConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -38,7 +39,8 @@ class NekoPagingAdapter<T : Any>(
  */
 class NekoPagingAdapterConfig<T : Any>(context: Context, rv: RecyclerView) :
     BaseConfig<T>(context, rv) {
-    var statusConfig: PagingStatusConfig? = null
+    //如果给pagingDataAdapter添加header和footer，则这里不为null
+    var statusConfig: Paging3LoadStatusConfig? = null
     lateinit var nekoPagingAdapter: NekoPagingAdapter<T>
 
 }

@@ -37,8 +37,8 @@ class MainActivity2 : AppCompatActivity() {
             //这里延迟5s是为了测试时避免出问题时闪退太快收集不到日志
 //            nekoTest()
 //            concatTest()
-            wrapperTest()
-
+//            wrapperTest()
+            loadStateTest()
         }, 3000)
     }
 
@@ -145,7 +145,7 @@ class MainActivity2 : AppCompatActivity() {
             //不需要指定viewTypeParser
             //不需要重写ItemViewDelegate中的isForViewType方法来判断ViewType
             //仅添加"viewholder"
-            addSingleItemView(R.layout.item_1) { holder, data, position ->
+            setSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
             // .....
@@ -185,7 +185,7 @@ class MainActivity2 : AppCompatActivity() {
         //添加StateHeader
         neko.withLoadStatus {
             withHeader {
-                addItemDelegate(LoadState.Loading,R.layout.item_2){holder->
+                setItemDelegate(R.layout.item_2) { holder, ls ->
 
                 }
             }
@@ -217,12 +217,12 @@ class MainActivity2 : AppCompatActivity() {
         }
         //给pagingAdapter添加header和footer
         pagingAdapter.withHeader {
-            addItemDelegate(LoadState.Loading,R.layout.item_1){holder->
+            addItemDelegate(LoadState.Loading, R.layout.item_1) { holder, ls ->
 
             }
         }
         pagingAdapter.withFooter {
-            addItemDelegate(LoadState.Loading,R.layout.item_2){holder->
+            addItemDelegate(LoadState.Loading, R.layout.item_2) { holder, ls ->
 
             }
         }
@@ -247,14 +247,14 @@ class MainActivity2 : AppCompatActivity() {
         val neko1 = neko<String>(rv) {
             mDatas = d1.toMutableList()//指定adapter的数据
             //仅有一种viewHolder
-            addSingleItemView(R.layout.item_1) { holder, data, position ->
+            setSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
         }
         val neko2 = neko<String>(rv) {
             mDatas = d2.toMutableList()//指定adapter的数据
             //仅有一种viewHolder
-            addSingleItemView(R.layout.item_2) { holder, data, position ->
+            setSingleItemView(R.layout.item_2) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv2)?.text = data.toString()
             }
         }
@@ -284,14 +284,14 @@ class MainActivity2 : AppCompatActivity() {
         val neko1 = neko<String>(rv) {
             mDatas = d1.toMutableList()//指定adapter的数据
             //仅有一种viewHolder
-            addSingleItemView(R.layout.item_1) { holder, data, position ->
+            setSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
         }
         val neko2 = neko<String>(rv) {
             mDatas = d2.toMutableList()//指定adapter的数据
             //仅有一种viewHolder
-            addSingleItemView(R.layout.item_2) { holder, data, position ->
+            setSingleItemView(R.layout.item_2) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv2)?.text = data.toString()
             }
         }
@@ -301,7 +301,7 @@ class MainActivity2 : AppCompatActivity() {
             // todo 自定义配置
         }.show()
 
-        val w =concat wrapperStatus{
+        val w = concat wrapperStatus {
             //例如设置空布局
             setEmpty(R.layout.empty) {
                 it.setOnClickListener {
@@ -317,6 +317,51 @@ class MainActivity2 : AppCompatActivity() {
         handler.postDelayed(Runnable {
             w.showContent()
         }, 2000)
+
+        neko1.mDatas[1] = "olskdfbsf"
+        neko1.nekoAdapter.notifyItemChanged(1)
+
+    }
+
+    /**
+     * header和footer
+     */
+    fun loadStateTest() {
+        //预定义数据
+        val d1: MutableList<String> = mutableListOf()
+        d1.addAll(listOf("a", "b", "c", "item","d","e","r","ee","a", "b", "c","dd"))
+
+        //预定义数据
+        val d2: MutableList<String> = mutableListOf()
+        d2.addAll(listOf("a", "b", "c", "item"))
+
+        val neko1 = neko<String>(rv) {
+            mDatas = d1.toMutableList()//指定adapter的数据
+            //仅有一种viewHolder
+            setSingleItemView(R.layout.item_1) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+            }
+        }.show()
+
+        //给rv添加上header和footer，
+        neko1.withLoadStatus {
+            //配置footer
+            withFooter {
+                //footer配置成一个跟loadstate没关联的itemview
+                setItemDelegate(com.kiylx.libx.R.layout.footer_item) { header, loadstate ->
+                    //itemview绑定
+                }
+            }
+            //当滑动到底部时
+            whenScrollToEnd {
+                //改变footer的状态
+                footerState(LoadState.Loading)
+                handler.postDelayed(Runnable {
+                    footerState(LoadState.NotLoading(true))
+                }, 1000)
+            }
+            done()
+        }
 
         neko1.mDatas[1] = "olskdfbsf"
         neko1.nekoAdapter.notifyItemChanged(1)

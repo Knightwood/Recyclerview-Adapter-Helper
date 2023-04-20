@@ -1,4 +1,4 @@
-package com.kiylx.recyclerviewneko.wrapper.config
+package com.kiylx.recyclerviewneko.wrapper.pagestate.config
 
 import android.content.Context
 import android.view.ViewGroup
@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
 import com.kiylx.recyclerviewneko.nekoadapter.config.ConcatConfig
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
-import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
-import com.kiylx.recyclerviewneko.wrapper.base.*
+import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.pagestate.base.*
 
 /**
  * 在aplication中配置全局设置

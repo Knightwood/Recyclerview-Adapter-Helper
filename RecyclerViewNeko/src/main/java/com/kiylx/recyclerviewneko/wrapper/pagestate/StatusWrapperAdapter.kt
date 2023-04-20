@@ -1,11 +1,11 @@
-package com.kiylx.recyclerviewneko.wrapper
+package com.kiylx.recyclerviewneko.wrapper.pagestate
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kiylx.recyclerviewneko.wrapper.config.StateWrapperConfig
+import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
-import com.kiylx.recyclerviewneko.wrapper.base.StateTypes
+import com.kiylx.recyclerviewneko.wrapper.pagestate.base.StateTypes
 
 /**
  * empty，error，loading,content等状态转换

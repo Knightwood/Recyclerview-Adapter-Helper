@@ -1,85 +1,96 @@
 package com.kiylx.recyclerviewneko.utils
 
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 /**
- * 监听是否滑动到底部
+ * 监听是否滑动到底部和顶部
  */
-fun RecyclerView.addOnScrollListener(block: (isEnd: Boolean) -> Unit) {
+fun RecyclerView.addOnScrollListener(
+    block1: (isEnd: Boolean) -> Unit,
+    block2: (isTop: Boolean) -> Unit
+) {
     this.addOnScrollListener(object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            block(isSlideToBottom(recyclerView))
+            block1(recyclerView.isSlideToBottom())
+            block2(recyclerView.isSlideToTop())
         }
     })
 }
 
-private fun isSlideToBottom(rv: RecyclerView): Boolean {
-    return rv.computeVerticalScrollExtent() + rv.computeVerticalScrollOffset() >= rv.computeVerticalScrollRange()
+/**
+ * @return true:手指向右滑动，列表向右移动，到达左侧的“底部”
+ */
+fun RecyclerView.isSlideToLeft(): Boolean {
+    return !canScrollHorizontally(-1)
 }
 
-interface BottomListener {
-    /**
-     * 滑动到底部时回调
-     */
-    fun onScrollToBottom()
+/**
+ * @return true:手指向左滑动，列表向左移动，右侧到达“底部”
+ */
+fun RecyclerView.isSlideToRight(): Boolean {
+    return !canScrollHorizontally(1)
 }
+
+/**
+ * true:到达底部
+ */
+fun RecyclerView.isSlideToBottom(): Boolean {
+    return !canScrollVertically(1)
+}
+
+/**
+ * true：到达顶部
+ */
+fun RecyclerView.isSlideToTop(): Boolean {
+    return !canScrollVertically(-1)
+}
+
 
 /**
  * 实现了RecyclerView滚动到底部监听的OnScrollListener
  */
-open class RecyclerViewScrollListener : RecyclerView.OnScrollListener(),
-    BottomListener {
-    // 最后几个完全可见项的位置（瀑布式布局会出现这种情况）
-    private var lastCompletelyVisiblePositions: IntArray?=null
-
-    // 最后一个完全可见项的位置
-    private var lastCompletelyVisibleItemPosition = 0
+abstract class RecyclerViewScrollListener : RecyclerView.OnScrollListener() {
+    /**
+     * dx > 0 时为手指向左滚动,列表滚动显示右面的内容
+     * dx < 0 时为手指向右滚动,列表滚动显示左面的内容
+     * dy > 0 时为手指向上滚动,列表滚动显示下面的内容
+     * dy < 0 时为手指向下滚动,列表滚动显示上面的内容
+     */
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-        val layoutManager = recyclerView.layoutManager
-        // 找到最后一个完全可见项的位置
-        if (layoutManager is StaggeredGridLayoutManager) {
-            val manager: StaggeredGridLayoutManager = layoutManager
-            if (lastCompletelyVisiblePositions == null) {
-                lastCompletelyVisiblePositions = IntArray(manager.spanCount)
-            }
-            manager.findLastCompletelyVisibleItemPositions(lastCompletelyVisiblePositions)
-            lastCompletelyVisibleItemPosition = getMaxPosition(lastCompletelyVisiblePositions!!)
-        } else if (layoutManager is GridLayoutManager) {
-            lastCompletelyVisibleItemPosition =
-                layoutManager.findLastCompletelyVisibleItemPosition()
-        } else if (layoutManager is LinearLayoutManager) {
-            lastCompletelyVisibleItemPosition =
-                layoutManager.findLastCompletelyVisibleItemPosition()
-        } else {
-            throw RuntimeException("Unsupported LayoutManager.")
-        }
-    }
 
-    private fun getMaxPosition(positions: IntArray): Int {
-        var max = positions[0]
-        for (i in 1 until positions.size) {
-            if (positions[i] > max) {
-                max = positions[i]
-            }
-        }
-        return max
     }
 
     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-        val layoutManager = recyclerView.layoutManager
-        // 通过比对 最后完全可见项位置 和 总条目数，来判断是否滑动到底部
-        val visibleItemCount = layoutManager!!.childCount
-        val totalItemCount = layoutManager.itemCount
+        super.onScrollStateChanged(recyclerView, newState)
         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-            if (visibleItemCount > 0 && lastCompletelyVisibleItemPosition >= totalItemCount - 1) {
-                onScrollToBottom()
-            }
+                if (recyclerView.isSlideToBottom()) {
+                    onScrollToDataEnd()
+                }
+
+                if (recyclerView.isSlideToTop()) {
+                    onScrollToDataStart()
+                }
+
+//                if (recyclerView.isSlideToRight()) {
+//                    onScrollToDataEnd()
+//                }
+//
+//                if (recyclerView.isSlideToLeft()) {
+//                    onScrollToDataStart()
+//                }
+
         }
     }
 
-    override fun onScrollToBottom() {}
+    /**
+     * 滑动到数据列表的最后一项
+     */
+    abstract fun onScrollToDataEnd()
+
+    /**
+     * 滑动到数据列表的开始
+     */
+    abstract fun onScrollToDataStart()
 }

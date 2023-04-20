@@ -1,4 +1,4 @@
-package com.kiylx.recyclerviewneko.wrapper.base
+package com.kiylx.recyclerviewneko.wrapper.pagestate.base
 
 class WrapperView constructor(
     val layoutId: Int,

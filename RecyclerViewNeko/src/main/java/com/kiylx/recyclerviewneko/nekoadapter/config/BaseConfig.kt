@@ -13,7 +13,7 @@ import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager
 import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
-import com.kiylx.recyclerviewneko.wrapper.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
 
 /**
  * 视图类型解析
@@ -65,7 +65,7 @@ abstract class BaseConfig<T : Any>(
      * @param dataConvert 将data绑定到此viewHolder
      * @param layoutId viewHolder布局id
      */
-    open fun addSingleItemView(
+    open fun setSingleItemView(
         layoutId: Int,
         dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
     ) {
