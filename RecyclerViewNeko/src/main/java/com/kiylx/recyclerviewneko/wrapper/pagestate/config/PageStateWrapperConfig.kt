@@ -8,8 +8,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.kiylx.recyclerviewneko.nekoadapter.config.IConfig
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
-import com.kiylx.recyclerviewneko.wrapper.anim.ItemAnimator
-import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.pagestate.PageStateWrapperAdapter
 import com.kiylx.recyclerviewneko.wrapper.pagestate.base.*
 
 /**
@@ -17,7 +16,7 @@ import com.kiylx.recyclerviewneko.wrapper.pagestate.base.*
  */
 fun test() {
     GlobalWrapperConfig.configStateView {
-        this[StateTypes.Empty] = WrapperView(9) {
+        this[PageStateTypes.Empty] = WrapperView(9) {
 
         }
     }
@@ -57,7 +56,7 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     /**
      * 包装[beWrappedAdapter]的adapter
      */
-    lateinit var stateWrapperAdapter: StatusWrapperAdapter
+    lateinit var stateWrapperAdapter: PageStateWrapperAdapter
 
     /**
      * 被包装起来的adapter
@@ -67,20 +66,20 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     /**
      * 根据此数据，生成不同的状态页
      */
-    internal var mDatas: MutableList<StateTypes> = mutableListOf(StateTypes.Empty)
+    internal var mDatas: MutableList<PageStateTypes> = mutableListOf(PageStateTypes.Empty)
 
     override fun setEmpty(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        statusViewArr[StateTypes.Empty] = WrapperView(layoutId, block)
+        statusViewArr[PageStateTypes.Empty] = WrapperView(layoutId, block)
         return this
     }
 
     override fun setLoading(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        statusViewArr[StateTypes.Loading] = WrapperView(layoutId, block)
+        statusViewArr[PageStateTypes.Loading] = WrapperView(layoutId, block)
         return this
     }
 
     override fun setError(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        statusViewArr[StateTypes.Error] = WrapperView(layoutId, block)
+        statusViewArr[PageStateTypes.Error] = WrapperView(layoutId, block)
         return this
     }
 
@@ -126,14 +125,14 @@ class StateWrapperConfig(val context: Context) : IWrapper {
 
     override fun showLoading(): IWrapper {
         recyclerView.adapter = stateWrapperAdapter
-        mDatas = mutableListOf(StateTypes.Loading)
+        mDatas = mutableListOf(PageStateTypes.Loading)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
     }
 
     override fun showEmpty(): IWrapper {
         recyclerView.adapter = stateWrapperAdapter
-        mDatas = mutableListOf(StateTypes.Empty)
+        mDatas = mutableListOf(PageStateTypes.Empty)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
     }
@@ -145,7 +144,7 @@ class StateWrapperConfig(val context: Context) : IWrapper {
 
     override fun showError(): IWrapper {
         recyclerView.adapter = stateWrapperAdapter
-        mDatas = mutableListOf(StateTypes.Error)
+        mDatas = mutableListOf(PageStateTypes.Error)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
     }

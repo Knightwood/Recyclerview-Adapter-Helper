@@ -16,7 +16,7 @@ import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.wrapper.anim.AlphaInAnimation
 import com.kiylx.recyclerviewneko.wrapper.anim.ItemAnimator
-import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.pagestate.PageStateWrapperAdapter
 
 /**
  * 视图类型解析
@@ -87,7 +87,7 @@ abstract class BaseConfig<T : Any>(
     rv: RecyclerView,
 ) :IConfig(context, rv) ,LifecycleEventObserver {
     /**
-     * 使用concatAdapter连接多个adapter，同时用[StatusWrapperAdapter]添加状态页时是否要监听数据变更
+     * 使用concatAdapter连接多个adapter，同时用[PageStateWrapperAdapter]添加状态页时是否要监听数据变更
      * 标记为true的，将会监听数据变更决定状态页变更
      */
     var canObserveDataChange = true

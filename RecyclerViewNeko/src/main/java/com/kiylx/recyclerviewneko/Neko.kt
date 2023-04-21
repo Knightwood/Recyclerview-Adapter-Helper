@@ -13,7 +13,7 @@ import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.wrapper.loadstate.NekoAdapterLoadStatusWrapperUtil
 import com.kiylx.recyclerviewneko.wrapper.loadstate.NekoPaging3LoadStatusAdapter
 import com.kiylx.recyclerviewneko.wrapper.loadstate.Paging3LoadStatusConfig
-import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.pagestate.PageStateWrapperAdapter
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -87,7 +87,7 @@ fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf())
  */
 inline infix fun IConfig.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
     val wrapperConfig = StateWrapperConfig(this)
-    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
+    val stateWrappedAdapter = PageStateWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
     wrapperConfig.block()
     return wrapperConfig
@@ -97,7 +97,7 @@ inline infix fun IConfig.wrapperStatus(block: StateWrapperConfig.() -> Unit): St
  */
 inline fun NekoAdapterLoadStatusWrapperUtil.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
     val wrapperConfig = StateWrapperConfig(concatAdapter,context,rv)
-    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
+    val stateWrappedAdapter = PageStateWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
     wrapperConfig.block()
     this.pageWrapper=wrapperConfig//把外层的状态页配置引用赋予内层的添加了header和footer的adapter，用于内部改变header或footer时自动刷新rv
@@ -201,10 +201,10 @@ inline fun <T : Any, N : BaseConfig<T>> Context.customNeko(
  */
 inline fun <T : Any, N : BaseConfig<T>> Context.concatNeko(
     vararg nekoConfigs: N,
-    configBlock: ConcatAdapter.Config.Builder.() -> Unit = {},
+    configBlock: ConcatConfig<T, N>.() -> Unit = {},
 ): ConcatConfig<T, N> {
     val c = ConcatConfig(configList = nekoConfigs,this,nekoConfigs[0].rv)
-    c.config.configBlock()
+    c.configBlock()
     return c
 }
 //</editor-fold>

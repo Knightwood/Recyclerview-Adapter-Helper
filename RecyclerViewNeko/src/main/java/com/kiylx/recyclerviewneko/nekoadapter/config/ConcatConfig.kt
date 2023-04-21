@@ -3,6 +3,7 @@ package com.kiylx.recyclerviewneko.nekoadapter.config
 import android.content.Context
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.kiylx.recyclerviewneko.wrapper.anim.ItemAnimator
 
 class ConcatConfig<T : Any, N : BaseConfig<T>>(
     val configList: Array<out N>,
@@ -11,18 +12,36 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(
 ) : IConfig(context, rv) {
 
     // 1. 定义Config
-    val config = ConcatAdapter.Config.Builder()
+    private val concatConfigBuilder = ConcatAdapter.Config.Builder()
         .setIsolateViewTypes(true)
         .setStableIdMode(ConcatAdapter.Config.StableIdMode.NO_STABLE_IDS)
 
     lateinit var concatAdapter: ConcatAdapter
+
+    /**
+     * 调整concatConfig
+     */
+    fun changeConcatConfig(block: ConcatAdapter.Config.Builder.() -> Unit): ConcatConfig<T, N> {
+        concatConfigBuilder.block()
+        return this
+    }
+
+    /**
+     * 给每个子adapter设置动画
+     */
+    fun setAnim(anim: ItemAnimator): ConcatConfig<T, N> {
+        configList.forEach {
+            it.itemAnimation = anim
+        }
+        return this
+    }
 
     // 2. 使用ConcatAdapter将Adapter组合起来。
     /**
      * 传入的多个不同[N]，应该设置同样的LayoutManager换rv
      */
     fun done(): ConcatConfig<T, N> {
-        concatAdapter = ConcatAdapter(config.build())
+        concatAdapter = ConcatAdapter(concatConfigBuilder.build())
         iNekoAdapter = concatAdapter
         configList.forEachIndexed { index, n ->
             concatAdapter.addAdapter(index, n.iNekoAdapter)
@@ -40,7 +59,7 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(
         return this
     }
 
-    fun doneAndShow(){
+    fun doneAndShow() {
         done()
         show()
     }

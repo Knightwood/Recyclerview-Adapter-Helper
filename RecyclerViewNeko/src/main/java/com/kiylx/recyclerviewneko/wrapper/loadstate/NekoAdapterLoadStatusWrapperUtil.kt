@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.kiylx.recyclerviewneko.utils.RecyclerViewScrollListener
-import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 
 /**

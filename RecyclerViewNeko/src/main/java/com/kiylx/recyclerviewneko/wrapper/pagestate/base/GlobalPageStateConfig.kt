@@ -25,13 +25,13 @@ object GlobalWrapperConfig {
 }
 
 /**
- * 如果某[StateTypes]类型的值已存在，则进行替换
+ * 如果某[PageStateTypes]类型的值已存在，则进行替换
  */
-operator fun SparseArrayCompat<WrapperView>.set(stateTypes: StateTypes, wrapperView: WrapperView) {
-    wrapperView.type=stateTypes
-    put(stateTypes.i, wrapperView)
+operator fun SparseArrayCompat<WrapperView>.set(pageStateTypes: PageStateTypes, wrapperView: WrapperView) {
+    wrapperView.type=pageStateTypes
+    put(pageStateTypes.i, wrapperView)
 }
 
-operator fun SparseArrayCompat<WrapperView>.get(stateTypes: StateTypes): WrapperView? {
-   return get(stateTypes.i)
+operator fun SparseArrayCompat<WrapperView>.get(pageStateTypes: PageStateTypes): WrapperView? {
+   return get(pageStateTypes.i)
 }

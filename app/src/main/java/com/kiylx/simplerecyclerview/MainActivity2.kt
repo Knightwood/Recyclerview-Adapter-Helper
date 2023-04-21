@@ -348,8 +348,8 @@ class MainActivity2 : AppCompatActivity() {
             setSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
-            //设置动画，对于concat连接的adapter,需要分别设置动画，给concatadapter设置动画无效
-            itemAnimation = SlideInLeftAnimation()
+            //设置动画，对于concat连接的adapter,可以分别设置不同的动画。
+//            itemAnimation = SlideInLeftAnimation()
         }
         val neko2 = neko<String>(rv) {
             mDatas = d2.toMutableList()//指定adapter的数据
@@ -360,10 +360,12 @@ class MainActivity2 : AppCompatActivity() {
         }
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
         val concat = concatNeko(neko1, neko2) {
-            // todo 自定义配置
+            // 自定义配置
+            //统一给所有adapter设置动画
+            setAnim(SlideInLeftAnimation())
         }.done()
 
-        var statePage: StateWrapperConfig?=null
+        var statePage: StateWrapperConfig? = null
 
         //给rv添加上header和footer，
         val loadStateWrapper = concat.withLoadStatus {
@@ -395,7 +397,7 @@ class MainActivity2 : AppCompatActivity() {
             }
             doneAndShow()
         }
-       statePage = loadStateWrapper.wrapperStatus {
+        statePage = loadStateWrapper.wrapperStatus {
             //例如设置空布局
             setEmpty(R.layout.empty) {
                 it.setOnClickListener {
@@ -406,13 +408,17 @@ class MainActivity2 : AppCompatActivity() {
         }
         statePage.doneAndShow()
 
+        statePage.showContent()
         handler.postDelayed(Runnable {
             statePage.showEmpty()
-        }, 1000)
 
-        handler.postDelayed(Runnable {
-            statePage.showContent()
+            handler.postDelayed(Runnable {
+                statePage.showContent()
+            }, 1000)
+
         }, 2000)
+
+
         neko1.mDatas[1] = "olskdfbsf"
         neko1.nekoAdapter.notifyItemChanged(1)
 
