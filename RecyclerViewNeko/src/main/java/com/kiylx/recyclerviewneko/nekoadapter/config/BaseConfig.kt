@@ -22,19 +22,25 @@ fun interface ViewTypeParser<T> {
     fun parse(data: T, pos: Int): Int
 }
 
+abstract class IConfig(
+    var context: Context,
+    var rv: RecyclerView,
+) {
+    lateinit var iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
+}
+
 /**
  * adapter的配置，创建viewholder,判断viewtype等一系列的方法
  */
 abstract class BaseConfig<T : Any>(
-    internal var context: Context,
-    var rv: RecyclerView,
-) : LifecycleEventObserver {
+    context: Context,
+    rv: RecyclerView,
+) :IConfig(context, rv) ,LifecycleEventObserver {
     /**
      * 使用concatAdapter连接多个adapter，同时用[StatusWrapperAdapter]添加状态页时是否要监听数据变更
      * 标记为true的，将会监听数据变更决定状态页变更
      */
     var canObserveDataChange = true
-    lateinit var iNekoAdapter: RecyclerView.Adapter<BaseViewHolder>
 
     var layoutManager: RecyclerView.LayoutManager = context.linear()
     private var mItemViewDelegateManager = ItemViewDelegateManager<T>()//管理itemview相关配置
@@ -51,6 +57,7 @@ abstract class BaseConfig<T : Any>(
         }
 
     var mDatas: MutableList<T> = mutableListOf()
+
     //指定此匿名函数，可以手动创建viewholder
     var createHolder: ((parent: ViewGroup, layoutId: Int) -> BaseViewHolder)? = null
 
@@ -93,6 +100,7 @@ abstract class BaseConfig<T : Any>(
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
 
     }
+
     /**
      * 添加多种itemview类型
      * @param layoutId viewHolder布局id

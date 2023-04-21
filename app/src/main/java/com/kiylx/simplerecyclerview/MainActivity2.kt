@@ -5,13 +5,16 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ItemAnimator
 import com.kiylx.recyclerviewneko.*
 import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.ItemLongClickListener
@@ -19,6 +22,8 @@ import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
+import com.kiylx.recyclerviewneko.wrapper.anim.SlideInLeftAnimation
+import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 
 
 class MainActivity2 : AppCompatActivity() {
@@ -40,6 +45,7 @@ class MainActivity2 : AppCompatActivity() {
 //            wrapperTest()
             loadStateTest()
         }, 3000)
+
     }
 
     /**
@@ -299,7 +305,7 @@ class MainActivity2 : AppCompatActivity() {
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
         val concat = concatNeko(neko1, neko2) {
             // todo 自定义配置
-        }.show()
+        }.done()
 
         val w = concat wrapperStatus {
             //例如设置空布局
@@ -308,6 +314,7 @@ class MainActivity2 : AppCompatActivity() {
                     Log.d(tag, "被点击")
                 }
             }
+            doneAndShow()
         }
 
         handler.postDelayed(Runnable {
@@ -329,8 +336,8 @@ class MainActivity2 : AppCompatActivity() {
     fun loadStateTest() {
         //预定义数据
         val d1: MutableList<String> = mutableListOf()
-        d1.addAll(listOf("a", "b", "c", "item","d","e","r","ee","a", "b", "c","dd"))
-
+        d1.addAll(listOf("a", "b", "c", "item", "d", "e", "r", "ee", "a", "b", "c", "dd"))
+//        d1.addAll(listOf("a", "b", "c", "item"))
         //预定义数据
         val d2: MutableList<String> = mutableListOf()
         d2.addAll(listOf("a", "b", "c", "item"))
@@ -341,28 +348,79 @@ class MainActivity2 : AppCompatActivity() {
             setSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
-        }.show()
+        }
+        val neko2 = neko<String>(rv) {
+            mDatas = d2.toMutableList()//指定adapter的数据
+            //仅有一种viewHolder
+            setSingleItemView(R.layout.item_2) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv2)?.text = data.toString()
+            }
+        }
+        //将两个adapter合并，此方法可以传入更多的adapter进行合并
+        val concat = concatNeko(neko1, neko2) {
+            // todo 自定义配置
+        }.done()
+        var statePage: StateWrapperConfig?=null
 
         //给rv添加上header和footer，
-        neko1.withLoadStatus {
+        val loadStateWrapper = concat.withLoadStatus {
             //配置footer
             withFooter {
                 //footer配置成一个跟loadstate没关联的itemview
                 setItemDelegate(com.kiylx.libx.R.layout.footer_item) { header, loadstate ->
                     //itemview绑定
+                    val m = header.getView<Button>(com.kiylx.libx.R.id.retry_button)!!
+                    Log.d(tag, "可见性：${m.visibility}")
                 }
             }
             //当滑动到底部时
             whenScrollToEnd {
+                //Log.d(tag, "fuckk")
                 //改变footer的状态
                 footerState(LoadState.Loading)
+                //状态改变，通知更新视图
+                //在没有被页面状态adapter包裹时，最外层是带者header和footer的contentAdapter(loadStateWrapper)，
+                //此时改变footer的状态，即改变了数据集，因此可以让footer显示出来
+                //但是，在被页面状态的adapter包裹后，最外层adapter变成了包裹内容布局的页面状态adapter，
+                //此时仅改变footer状态，并没有改变最外层adapter的数据集，因此没有变化，需要手动通知更新
+                //因此，如果添加了header和footer，没有再继续包装上页面状态adapter或其他adapter，就不用手动调用通知rv刷新
+                //statePage?.refresh() //手动刷新
+                //我将外层的状态页引用交给了内层的header和footer的adapter配置，因此可以自动刷新rv了，不用再手动调用了
+
                 handler.postDelayed(Runnable {
-                    footerState(LoadState.NotLoading(true))
-                }, 1000)
+                    footerState(LoadState.NotLoading(false))
+                }, 3000)
+            }
+            //当数据不够一屏，滑动时
+            whenNotFull {
+
+            }
+            //当滑动到顶时
+            whenScrollToTop {
+
             }
             done()
+            show()
         }
+       statePage = loadStateWrapper.wrapperStatus {
+            //例如设置空布局
+            setEmpty(R.layout.empty) {
+                it.setOnClickListener {
+                    Log.d(tag, "被点击")
+                }
+            }
+            itemAnimation = SlideInLeftAnimation()
 
+        }
+        statePage.doneAndShow()
+//
+//        handler.postDelayed(Runnable {
+//            statePage.showEmpty()
+//        }, 1000)
+//
+//        handler.postDelayed(Runnable {
+//            statePage.showContent()
+//        }, 2000)
         neko1.mDatas[1] = "olskdfbsf"
         neko1.nekoAdapter.notifyItemChanged(1)
 

@@ -5,9 +5,10 @@ import android.view.ViewGroup
 import androidx.collection.SparseArrayCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.ConcatConfig
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.kiylx.recyclerviewneko.nekoadapter.config.IConfig
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.wrapper.anim.ItemAnimator
 import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
 import com.kiylx.recyclerviewneko.wrapper.pagestate.base.*
 
@@ -38,8 +39,7 @@ interface IWrapper {
 }
 
 class StateWrapperConfig(val context: Context) : IWrapper {
-    lateinit var recyclerView: RecyclerView
-    lateinit var stateWrapperAdapter: StatusWrapperAdapter//状态页展示
+
     private val statusViewArr: SparseArrayCompat<WrapperView> = SparseArrayCompat()
 
     init {
@@ -52,9 +52,42 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     }
 
     /**
+     * Whether enable animation.
+     * 是否打开动画
+     */
+    var animationEnable: Boolean = false
+
+    /**
+     * Whether the animation executed only the first time.
+     * 动画是否仅第一次执行
+     */
+    var isAnimationFirstOnly = false
+
+    /**
+     * Set custom animation.
+     * 设置自定义动画
+     */
+    var itemAnimation: ItemAnimator? = null
+        set(value) {
+            animationEnable = true
+            field = value
+
+//            recyclerView.adapter = stateWrapperAdapter
+//            mDatas = mutableListOf(StateTypes.Anim)
+//            stateWrapperAdapter.notifyItemChanged(0)
+        }
+
+    lateinit var recyclerView: RecyclerView
+
+    /**
+     * 包装[beWrappedAdapter]的adapter
+     */
+    lateinit var stateWrapperAdapter: StatusWrapperAdapter
+
+    /**
      * 被包装起来的adapter
      */
-    lateinit var beWrappedAdapter: Adapter<BaseViewHolder>
+    lateinit var beWrappedAdapter: Adapter<ViewHolder>
 
     /**
      * 根据此数据，生成不同的状态页
@@ -76,7 +109,7 @@ class StateWrapperConfig(val context: Context) : IWrapper {
         return this
     }
 
-    internal fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+    internal fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return if (mDatas[0] == StateTypes.Content) {
             beWrappedAdapter.createViewHolder(parent, viewType)
         } else {
@@ -87,32 +120,43 @@ class StateWrapperConfig(val context: Context) : IWrapper {
         }
     }
 
-    internal fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
+    internal fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val type = mDatas[0]
         if (type == StateTypes.Content) {
             beWrappedAdapter.onBindViewHolder(holder, position)
         } else {
             val data = statusViewArr[type]
-            data?.statePageViewHolder?.convert(holder.getConvertView())
+            data?.statePageViewHolder?.convert(holder.itemView)
                 ?: throw Exception("找不到view")
         }
 
     }
 
-    internal fun getItemCount(): Int = 1
+    internal fun getItemCount(): Int {
+        val type = mDatas[0]
+        if (type == StateTypes.Content) {
+            return beWrappedAdapter.itemCount
+        } else {
+            return 1
+        }
+    }
 
     companion object {
-        operator fun <T : Any> invoke(config: BaseConfig<T>): StateWrapperConfig {
+        operator fun invoke(config: IConfig): StateWrapperConfig {
             return StateWrapperConfig(config.context).apply {
-                beWrappedAdapter = config.iNekoAdapter
+                beWrappedAdapter = config.iNekoAdapter as Adapter<ViewHolder>
                 recyclerView = config.rv
             }
         }
 
-        operator fun <T : Any, N : BaseConfig<T>> invoke(config: ConcatConfig<T, N>): StateWrapperConfig {
-            return StateWrapperConfig(config.context).apply {
-                beWrappedAdapter = config.concatAdapter as Adapter<BaseViewHolder>
-                recyclerView = config.rv!!
+        operator fun invoke(
+            contentAdapter: Adapter<ViewHolder>,
+            context: Context,
+            rv: RecyclerView
+        ): StateWrapperConfig {
+            return StateWrapperConfig(context).apply {
+                beWrappedAdapter = contentAdapter
+                recyclerView = rv
             }
         }
     }
@@ -133,7 +177,8 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     }
 
     override fun showContent(): IWrapper {
-        recyclerView.adapter = beWrappedAdapter
+//        recyclerView.adapter = beWrappedAdapter
+        recyclerView.adapter = stateWrapperAdapter
         mDatas = mutableListOf(StateTypes.Content)
         stateWrapperAdapter.notifyItemChanged(0)
         return this
@@ -146,7 +191,21 @@ class StateWrapperConfig(val context: Context) : IWrapper {
         return this
     }
 
-    fun getItemViewType(position: Int): Int {
+    internal fun getChildItemViewType(position: Int): Int {
+        if (mDatas[0] == StateTypes.Content) {
+            return beWrappedAdapter.getItemViewType(position)
+        }
         return mDatas[0].i
+    }
+
+    /**
+     * 当包裹的adapter数据集发生变化，使用此方法刷新rv以更新页面
+     */
+    fun refresh() {
+        stateWrapperAdapter.notifyItemChanged(0)
+    }
+
+    fun doneAndShow() {
+        recyclerView.adapter = stateWrapperAdapter
     }
 }

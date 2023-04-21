@@ -1,14 +1,14 @@
 package com.kiylx.recyclerviewneko.wrapper.loadstate
 
+import android.content.Context
 import android.util.Log
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
-import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
 import com.kiylx.recyclerviewneko.utils.RecyclerViewScrollListener
-import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
+import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 
 /**
  * 生成header和footer（其实就是持有一个itemview的LoadStateAdapter），
@@ -16,8 +16,14 @@ import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
  */
 class NekoAdapterLoadStatusWrapperUtil(
     val rv: RecyclerView,
-    val adapter: Adapter<BaseViewHolder>//需要添加footer或header的原始adapter
+    //需要添加footer或header的原始adapter
+    val adapter: Adapter<out RecyclerView.ViewHolder>,
+    val context: Context
 ) {
+    /**
+     * 若是添加了状态页布局，则把引用交到这里以在改变header或footer状态时自动刷新rv
+     */
+    var pageWrapper: StateWrapperConfig? = null
     var header: NekoPaging3LoadStatusAdapter? = null
     var footer: NekoPaging3LoadStatusAdapter? = null
 
@@ -25,6 +31,7 @@ class NekoAdapterLoadStatusWrapperUtil(
     lateinit var concatAdapter: ConcatAdapter
     var whenEnd: (() -> Unit)? = null
     var whenTop: (() -> Unit)? = null
+    var whenNotFull: (() -> Unit)? = null
 
     /**
      * 给pagingAdapter添加状态加载状态item
@@ -51,7 +58,7 @@ class NekoAdapterLoadStatusWrapperUtil(
     /**
      * 完成包装，且监听recyclerview的滑动，在滑动到底部时，触发[whenEnd]的回调
      */
-    fun done() {
+    fun done(): NekoAdapterLoadStatusWrapperUtil {
         if (this::concatAdapter.isInitialized) {
             throw Exception("已经初始化完成")
         } else {
@@ -62,30 +69,43 @@ class NekoAdapterLoadStatusWrapperUtil(
                 .build()
             header?.let { it1 ->
                 footer?.let { it2 ->
-                    concatAdapter = ConcatAdapter(config, header, adapter, footer)
+                    concatAdapter = ConcatAdapter(config, it1, adapter, it2)
                 } ?: let {
-                    concatAdapter = ConcatAdapter(config, header, adapter)
+                    concatAdapter = ConcatAdapter(config, it1, adapter)
                 }
             } ?: let {
                 footer?.let { it2 ->
-                    concatAdapter = ConcatAdapter(config, adapter, footer)
+                    concatAdapter = ConcatAdapter(config, adapter, it2)
                 } ?: let {
                     throw Exception("header and footer does not exist!!")
                 }
             }
-            rv.adapter = concatAdapter
-            rv.addOnScrollListener(object : RecyclerViewScrollListener() {
+            rv.addOnScrollListener(object : RecyclerViewScrollListener(rv) {
                 override fun onScrollToDataEnd() {
                     Log.d("tag", "scroll to onScrollToDataEnd")
                     whenEnd?.invoke()
                 }
 
                 override fun onScrollToDataStart() {
-                    Log.d("tag", "scroll to onScrollToDataStart")
+//                    Log.d("tag", "scroll to onScrollToDataStart")
                     whenTop?.invoke()
+                }
+
+                override fun onDataNotFull() {
+                    whenNotFull?.invoke()
                 }
             })
         }
+        return this
+    }
+
+    fun show() {
+        rv.adapter = concatAdapter
+    }
+
+    fun doneAndShow() {
+        done()
+        show()
     }
 
     /**
@@ -103,17 +123,27 @@ class NekoAdapterLoadStatusWrapperUtil(
     }
 
     /**
+     * 当数据不满一屏，手指滑动时触发
+     */
+    fun whenNotFull(block: () -> Unit) {
+        this.whenNotFull = block
+    }
+
+    /**
      * 通过此方法改变header的itemview状态
      */
     fun headerState(loadState: LoadState) {
         header?.loadState = loadState
+        pageWrapper?.refresh()
     }
 
     /**
      * 通过此方法改变footer的itemview状态
      */
     fun footerState(loadState: LoadState) {
-        footer?.loadState = loadState
+        footer?.let {
+            it.loadState = loadState
+        } ?: throw Exception("footer does not exist")
+        pageWrapper?.refresh()
     }
-
 }

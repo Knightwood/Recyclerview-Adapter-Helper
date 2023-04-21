@@ -85,11 +85,22 @@ fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf())
 /**
  * 调用此方法将已有的adapter包装成带状态页的adapter
  */
-inline infix fun <T : Any, N : BaseConfig<T>> N.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+inline infix fun IConfig.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
     val wrapperConfig = StateWrapperConfig(this)
     val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
     wrapperConfig.block()
+    return wrapperConfig
+}
+/**
+ * 包装状态页
+ */
+inline fun NekoAdapterLoadStatusWrapperUtil.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+    val wrapperConfig = StateWrapperConfig(concatAdapter,context,rv)
+    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
+    wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
+    wrapperConfig.block()
+    this.pageWrapper=wrapperConfig//把外层的状态页配置引用赋予内层的添加了header和footer的adapter，用于内部改变header或footer时自动刷新rv
     return wrapperConfig
 }
 
@@ -98,13 +109,15 @@ inline infix fun <T : Any, N : BaseConfig<T>> N.wrapperStatus(block: StateWrappe
 //<editor-fold desc="给Adapter,ListAdapter添加header和footer">
 
 /**
- * 给普通rv添加stateHeader和stateFooter
+ * 给rv添加stateHeader和stateFooter
  */
-inline fun <T : Any, N : BaseConfig<T>> N.withLoadStatus(
+inline fun IConfig.withLoadStatus(
     block: NekoAdapterLoadStatusWrapperUtil.() -> Unit
 ): NekoAdapterLoadStatusWrapperUtil {
-    return NekoAdapterLoadStatusWrapperUtil(this.rv,this.iNekoAdapter).apply(block)
+    return NekoAdapterLoadStatusWrapperUtil(this.rv,this.iNekoAdapter,context).apply(block)
 }
+
+
 //</editor-fold>
 
 //</editor-fold>
@@ -186,36 +199,16 @@ inline fun <T : Any, N : BaseConfig<T>> Context.customNeko(
  * @param nekoConfigs 构建出来的多个adapter。注：传入的nekoConfigs不应调用BaseConfig的done方法
  * @param configBlock 配置[ConcatAdapter.Config]
  */
-inline fun <T : Any, N : BaseConfig<T>> concatNeko(
+inline fun <T : Any, N : BaseConfig<T>> Context.concatNeko(
     vararg nekoConfigs: N,
     configBlock: ConcatAdapter.Config.Builder.() -> Unit = {},
 ): ConcatConfig<T, N> {
-    val c = ConcatConfig(configList = nekoConfigs)
+    val c = ConcatConfig(configList = nekoConfigs,this,nekoConfigs[0].rv)
     c.config.configBlock()
     return c
 }
 //</editor-fold>
 
-//<editor-fold desc="给concatAdapter添加状态页回调">
-
-/**
- * 调用此方法将已有的adapter包装成带状态页的adapter
- */
-inline infix fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
-    val wrapperConfig = StateWrapperConfig(this)
-    val stateWrappedAdapter = StatusWrapperAdapter(wrapperConfig)
-    wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
-    wrapperConfig.block()
-    return wrapperConfig
-}
-//</editor-fold>
-//<editor-fold desc="给concatAdapter添加header,footer">
-inline infix fun <T : Any, N : BaseConfig<T>> ConcatConfig<T, N>.withLoadStatus(
-    block: NekoAdapterLoadStatusWrapperUtil.() -> Unit
-): NekoAdapterLoadStatusWrapperUtil{
-    return NekoAdapterLoadStatusWrapperUtil(this.rv!!,this.concatAdapter as Adapter<BaseViewHolder>).apply(block)
-}
-//</editor-fold>
 //</editor-fold>
 
 

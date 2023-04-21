@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
-    var rv: RecyclerView? = null
-    var context: Context=configList[0].context
+class ConcatConfig<T : Any, N : BaseConfig<T>>(
+    val configList: Array<out N>,
+    context: Context,
+    rv: RecyclerView,
+) : IConfig(context, rv) {
 
     // 1. 定义Config
     val config = ConcatAdapter.Config.Builder()
@@ -19,16 +21,27 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(val configList: Array<out N>) {
     /**
      * 传入的多个不同[N]，应该设置同样的LayoutManager换rv
      */
-    fun show(): ConcatConfig<T, N> {
+    fun done(): ConcatConfig<T, N> {
         concatAdapter = ConcatAdapter(config.build())
+        iNekoAdapter = concatAdapter
         configList.forEachIndexed { index, n ->
             concatAdapter.addAdapter(index, n.iNekoAdapter)
         }
-        rv = configList[0].rv
         configList[0].apply {
-            rv.adapter = concatAdapter
             rv.layoutManager = layoutManager
         }
         return this
+    }
+
+    fun show(): ConcatConfig<T, N> {
+        configList[0].apply {
+            rv.adapter = concatAdapter
+        }
+        return this
+    }
+
+    fun doneAndShow(){
+        done()
+        show()
     }
 }

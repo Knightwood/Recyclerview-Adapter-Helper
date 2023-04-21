@@ -1,5 +1,6 @@
 package com.kiylx.recyclerviewneko.wrapper.loadstate
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.LoadState
@@ -43,6 +44,7 @@ class Paging3LoadStatusConfig() {
         } else {
             innerDelegates
         }
+        Log.d("Paging3LoadStateAdapter","onBindViewHolder方法被调用")
         itemViewWrapper?.itemViewDelegate?.convert(holder, loadState) ?:throw Exception("没有与状态相关的itemview且没有默认itemview")
     }
 
@@ -50,6 +52,7 @@ class Paging3LoadStatusConfig() {
      * 如果有添加根loadState关联的视图，
      */
     internal fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): BaseViewHolder {
+        Log.d("Paging3LoadStateAdapter","onCreateViewHolder方法被调用")
         val itemViewWrapper: Paging3LoadStatusItemViewWrapper? = if (useType) {
             stateHashMap[loadState] ?: innerDelegates
         } else {
