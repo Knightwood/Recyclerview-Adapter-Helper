@@ -134,7 +134,6 @@ class NekoAdapterLoadStatusWrapperUtil(
      */
     fun headerState(loadState: LoadState) {
         header?.loadState = loadState
-        pageWrapper?.refresh()
     }
 
     /**
@@ -144,6 +143,5 @@ class NekoAdapterLoadStatusWrapperUtil(
         footer?.let {
             it.loadState = loadState
         } ?: throw Exception("footer does not exist")
-        pageWrapper?.refresh()
     }
 }

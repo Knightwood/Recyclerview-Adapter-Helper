@@ -1,5 +1,6 @@
 package com.kiylx.recyclerviewneko.nekoadapter.config
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.ViewGroup
@@ -13,6 +14,8 @@ import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager
 import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
+import com.kiylx.recyclerviewneko.wrapper.anim.AlphaInAnimation
+import com.kiylx.recyclerviewneko.wrapper.anim.ItemAnimator
 import com.kiylx.recyclerviewneko.wrapper.pagestate.StatusWrapperAdapter
 
 /**
@@ -27,6 +30,53 @@ abstract class IConfig(
     var rv: RecyclerView,
 ) {
     lateinit var iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
+
+
+    /**
+     * Whether enable animation.
+     * 是否打开动画
+     */
+    var animationEnable: Boolean = false
+
+    /**
+     * Whether the animation executed only the first time.
+     * 动画是否仅第一次执行
+     */
+    var isAnimationFirstOnly = false
+
+    /**
+     * Set custom animation.
+     * 设置自定义动画
+     */
+    var itemAnimation: ItemAnimator? = null
+        set(value) {
+            animationEnable = true
+            field = value
+        }
+
+    fun runAnim(holder: RecyclerView.ViewHolder) {
+        if (animationEnable) {
+            if (!isAnimationFirstOnly) {
+                val animation: ItemAnimator = itemAnimation ?: AlphaInAnimation()
+                animation.animator(holder.itemView).apply {
+                    startItemAnimator(this, holder)
+                }
+            }
+        }
+    }
+
+    /**
+     * start executing animation
+     * override this method to execute more actions
+     * 开始执行动画方法
+     * 可以重写此方法，实行更多行为
+     *
+     * @param anim
+     * @param holder
+     */
+    fun startItemAnimator(anim: Animator, holder: RecyclerView.ViewHolder) {
+        anim.start()
+    }
 }
 
 /**

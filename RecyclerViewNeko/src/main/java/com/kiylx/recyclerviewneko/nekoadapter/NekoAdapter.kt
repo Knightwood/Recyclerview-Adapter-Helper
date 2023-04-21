@@ -7,7 +7,9 @@ import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
 import com.kiylx.recyclerviewneko.nekoadapter.config.createViewHolder
 import com.kiylx.recyclerviewneko.nekoadapter.config.dataSize
 import com.kiylx.recyclerviewneko.nekoadapter.config.parseItemViewType
+import com.kiylx.recyclerviewneko.utils.WrapperUtils
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.wrapper.pagestate.base.StateTypes
 
 
 /**
@@ -25,8 +27,10 @@ class NekoAdapter(//配置
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) =
         config.bindData(holder, position)
 
-    override fun getItemViewType(position: Int): Int =config.parseItemViewType(position)
-
+    override fun getItemViewType(position: Int): Int = config.parseItemViewType(position)
+    override fun onViewAttachedToWindow(holder: BaseViewHolder) {
+        config.runAnim(holder)
+    }
 }
 
 /**

@@ -25,13 +25,9 @@ object GlobalWrapperConfig {
 }
 
 /**
- * 只能添加非[StateTypes.Content]类型的[WrapperView]
  * 如果某[StateTypes]类型的值已存在，则进行替换
  */
 operator fun SparseArrayCompat<WrapperView>.set(stateTypes: StateTypes, wrapperView: WrapperView) {
-    if (stateTypes == StateTypes.Content) {
-        return
-    }
     wrapperView.type=stateTypes
     put(stateTypes.i, wrapperView)
 }

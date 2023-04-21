@@ -51,31 +51,6 @@ class StateWrapperConfig(val context: Context) : IWrapper {
         }
     }
 
-    /**
-     * Whether enable animation.
-     * 是否打开动画
-     */
-    var animationEnable: Boolean = false
-
-    /**
-     * Whether the animation executed only the first time.
-     * 动画是否仅第一次执行
-     */
-    var isAnimationFirstOnly = false
-
-    /**
-     * Set custom animation.
-     * 设置自定义动画
-     */
-    var itemAnimation: ItemAnimator? = null
-        set(value) {
-            animationEnable = true
-            field = value
-
-//            recyclerView.adapter = stateWrapperAdapter
-//            mDatas = mutableListOf(StateTypes.Anim)
-//            stateWrapperAdapter.notifyItemChanged(0)
-        }
 
     lateinit var recyclerView: RecyclerView
 
@@ -92,7 +67,7 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     /**
      * 根据此数据，生成不同的状态页
      */
-    internal var mDatas: MutableList<StateTypes> = mutableListOf(StateTypes.Content)
+    internal var mDatas: MutableList<StateTypes> = mutableListOf(StateTypes.Empty)
 
     override fun setEmpty(layoutId: Int, block: StatePageViewHolder): IWrapper {
         statusViewArr[StateTypes.Empty] = WrapperView(layoutId, block)
@@ -110,35 +85,22 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     }
 
     internal fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return if (mDatas[0] == StateTypes.Content) {
-            beWrappedAdapter.createViewHolder(parent, viewType)
-        } else {
-            BaseViewHolder.createViewHolder(
-                context, parent,
-                statusViewArr[viewType]!!.layoutId
-            )
-        }
+        return BaseViewHolder.createViewHolder(
+            context, parent,
+            statusViewArr[viewType]!!.layoutId
+        )
     }
 
     internal fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val type = mDatas[0]
-        if (type == StateTypes.Content) {
-            beWrappedAdapter.onBindViewHolder(holder, position)
-        } else {
+
             val data = statusViewArr[type]
             data?.statePageViewHolder?.convert(holder.itemView)
                 ?: throw Exception("找不到view")
-        }
-
     }
 
     internal fun getItemCount(): Int {
-        val type = mDatas[0]
-        if (type == StateTypes.Content) {
-            return beWrappedAdapter.itemCount
-        } else {
-            return 1
-        }
+        return 1
     }
 
     companion object {
@@ -177,10 +139,7 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     }
 
     override fun showContent(): IWrapper {
-//        recyclerView.adapter = beWrappedAdapter
-        recyclerView.adapter = stateWrapperAdapter
-        mDatas = mutableListOf(StateTypes.Content)
-        stateWrapperAdapter.notifyItemChanged(0)
+        recyclerView.adapter = beWrappedAdapter
         return this
     }
 
@@ -192,9 +151,6 @@ class StateWrapperConfig(val context: Context) : IWrapper {
     }
 
     internal fun getChildItemViewType(position: Int): Int {
-        if (mDatas[0] == StateTypes.Content) {
-            return beWrappedAdapter.getItemViewType(position)
-        }
         return mDatas[0].i
     }
 
