@@ -11,10 +11,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.AsyncDifferConfig
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ItemAnimator
 import com.kiylx.recyclerviewneko.*
 import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.ItemLongClickListener
@@ -307,7 +305,7 @@ class MainActivity2 : AppCompatActivity() {
             // todo 自定义配置
         }.done()
 
-        val w = concat wrapperStatus {
+        val w = concat withPageState {
             //例如设置空布局
             setEmpty(R.layout.empty) {
                 it.setOnClickListener {
@@ -397,7 +395,7 @@ class MainActivity2 : AppCompatActivity() {
             }
             doneAndShow()
         }
-        statePage = loadStateWrapper.wrapperStatus {
+        statePage = loadStateWrapper.withPageState {
             //例如设置空布局
             setEmpty(R.layout.empty) {
                 it.setOnClickListener {

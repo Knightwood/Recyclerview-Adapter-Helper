@@ -85,7 +85,7 @@ fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf())
 /**
  * 调用此方法将已有的adapter包装成带状态页的adapter
  */
-inline infix fun IConfig.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+inline infix fun IConfig.withPageState(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
     val wrapperConfig = StateWrapperConfig(this)
     val stateWrappedAdapter = PageStateWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
@@ -95,7 +95,7 @@ inline infix fun IConfig.wrapperStatus(block: StateWrapperConfig.() -> Unit): St
 /**
  * 包装状态页
  */
-inline fun NekoAdapterLoadStatusWrapperUtil.wrapperStatus(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+inline fun NekoAdapterLoadStatusWrapperUtil.withPageState(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
     val wrapperConfig = StateWrapperConfig(concatAdapter,context,rv)
     val stateWrappedAdapter = PageStateWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
