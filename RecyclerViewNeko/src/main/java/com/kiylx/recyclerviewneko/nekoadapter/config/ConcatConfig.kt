@@ -40,7 +40,7 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(
     /**
      * 传入的多个不同[N]，应该设置同样的LayoutManager换rv
      */
-    fun done(): ConcatConfig<T, N> {
+    fun completeConfig(): ConcatConfig<T, N> {
         concatAdapter = ConcatAdapter(concatConfigBuilder.build())
         iNekoAdapter = concatAdapter
         configList.forEachIndexed { index, n ->
@@ -52,15 +52,13 @@ class ConcatConfig<T : Any, N : BaseConfig<T>>(
         return this
     }
 
-    fun show(): ConcatConfig<T, N> {
+    /**
+     * 为rv设置adapter
+     */
+    fun done(): ConcatConfig<T, N> {
         configList[0].apply {
             rv.adapter = concatAdapter
         }
         return this
-    }
-
-    fun doneAndShow() {
-        done()
-        show()
     }
 }

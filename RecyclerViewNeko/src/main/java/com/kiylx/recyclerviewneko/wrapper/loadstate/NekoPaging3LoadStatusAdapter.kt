@@ -21,6 +21,15 @@ class NekoPaging3LoadStatusAdapter(var config: Paging3LoadStatusConfig) :
         return config.onCreateViewHolder(parent, loadState)
     }
 
+    /**
+     * 内部自动切换状态
+     */
+   internal fun autoLoadStateChange(newLoadState: LoadState){
+        if (config.autoLoading){
+            loadState=newLoadState
+        }
+    }
+
 }
 
 /**
@@ -28,6 +37,18 @@ class NekoPaging3LoadStatusAdapter(var config: Paging3LoadStatusConfig) :
  * 此类带承担着添加不同的itemview的职责
  */
 class Paging3LoadStatusConfig() {
+    /**
+     * 如果值大于0.则在触发[LoadState.Loading]状态后，
+     * 延迟[autoClose]毫秒后触发[LoadState.NotLoading]
+     */
+    var autoClose=-1
+
+    /**
+     * true时自动触发[LoadState.Loading]状态
+     * false时手动切换[LoadState]状态
+     */
+    var autoLoading=false
+
     private val stateHashMap: HashMap<LoadState, Paging3LoadStatusItemViewWrapper> = hashMapOf()
 
     //内部使用，用于添加状态页

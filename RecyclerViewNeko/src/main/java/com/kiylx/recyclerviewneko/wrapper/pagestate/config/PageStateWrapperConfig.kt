@@ -35,6 +35,7 @@ interface IWrapper {
     fun showEmpty(): IWrapper
     fun showContent(): IWrapper
     fun showError(): IWrapper
+    fun showStatePage(): IWrapper
 }
 
 class StateWrapperConfig(val context: Context) : IWrapper {
@@ -153,14 +154,8 @@ class StateWrapperConfig(val context: Context) : IWrapper {
         return mDatas[0].i
     }
 
-    /**
-     * 当包裹的adapter数据集发生变化，使用此方法刷新rv以更新页面
-     */
-    fun refresh() {
-        stateWrapperAdapter.notifyItemChanged(0)
-    }
-
-    fun doneAndShow() {
+    override fun showStatePage(): IWrapper {
         recyclerView.adapter = stateWrapperAdapter
+        return this
     }
 }

@@ -25,13 +25,7 @@ fun interface ViewTypeParser<T> {
     fun parse(data: T, pos: Int): Int
 }
 
-abstract class IConfig(
-    var context: Context,
-    var rv: RecyclerView,
-) {
-    lateinit var iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
-
-
+class AnimConfig {
     /**
      * Whether enable animation.
      * 是否打开动画
@@ -54,7 +48,10 @@ abstract class IConfig(
             field = value
         }
 
-    fun runAnim(holder: RecyclerView.ViewHolder) {
+    /**
+     * 执行动画
+     */
+    internal fun runAnim(holder: RecyclerView.ViewHolder) {
         if (animationEnable) {
             if (!isAnimationFirstOnly) {
                 val animation: ItemAnimator = itemAnimation ?: AlphaInAnimation()
@@ -66,17 +63,30 @@ abstract class IConfig(
     }
 
     /**
+     * 自定义动画开始的配置
+     */
+    var startAnimBlock: ((anim: Animator, holder: RecyclerView.ViewHolder) -> Unit)? = null
+
+    /**
      * start executing animation
      * override this method to execute more actions
      * 开始执行动画方法
-     * 可以重写此方法，实行更多行为
+     * 可以配置[startAnimBlock],实行更多行为
      *
      * @param anim
      * @param holder
      */
-    fun startItemAnimator(anim: Animator, holder: RecyclerView.ViewHolder) {
-        anim.start()
+    private fun startItemAnimator(anim: Animator, holder: RecyclerView.ViewHolder) {
+        startAnimBlock?.invoke(anim, holder) ?: anim.start()
     }
+
+}
+
+abstract class IConfig(
+    var context: Context,
+    var rv: RecyclerView,
+) {
+    lateinit var iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
 }
 
 /**
@@ -85,7 +95,10 @@ abstract class IConfig(
 abstract class BaseConfig<T : Any>(
     context: Context,
     rv: RecyclerView,
-) :IConfig(context, rv) ,LifecycleEventObserver {
+) : IConfig(context, rv), LifecycleEventObserver {
+    //动画配置
+    protected val animConfig: AnimConfig by lazy { AnimConfig() }
+
     /**
      * 使用concatAdapter连接多个adapter，同时用[PageStateWrapperAdapter]添加状态页时是否要监听数据变更
      * 标记为true的，将会监听数据变更决定状态页变更
@@ -245,4 +258,30 @@ abstract class BaseConfig<T : Any>(
         iNekoAdapter.notifyDataSetChanged()
     }
 
+
+    /**
+     * 更改动画配置，设置动画等
+     */
+    fun configAnim(block: AnimConfig.() -> Unit) {
+        animConfig.block()
+    }
+
+    /**
+     * 设置自定义动画，使用默认的动画配置
+     * 若调用[configAnim]方法，可以直接在block中设置动画，这种情况下没必要一定在这里设置动画
+     */
+    var itemAnimation: ItemAnimator?
+        set(value) {
+            animConfig.itemAnimation = value
+        }
+        get() {
+            return animConfig.itemAnimation
+        }
+
+    /**
+     * adapter调用此方法开始动画的播放
+     */
+    internal fun runAnim(holder: RecyclerView.ViewHolder) {
+        animConfig.runAnim(holder)
+    }
 }

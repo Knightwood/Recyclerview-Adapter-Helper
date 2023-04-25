@@ -19,12 +19,8 @@ class NekoAdapterLoadStatusWrapperUtil(
     val adapter: Adapter<out RecyclerView.ViewHolder>,
     val context: Context
 ) {
-    /**
-     * 若是添加了状态页布局，则把引用交到这里以在改变header或footer状态时自动刷新rv
-     */
-    var pageWrapper: StateWrapperConfig? = null
-    var header: NekoPaging3LoadStatusAdapter? = null
-    var footer: NekoPaging3LoadStatusAdapter? = null
+    internal var header: NekoPaging3LoadStatusAdapter? = null
+    internal var footer: NekoPaging3LoadStatusAdapter? = null
 
     //给普通adapter通过使用concatAdapter的方式添加header和footer
     lateinit var concatAdapter: ConcatAdapter
@@ -56,8 +52,9 @@ class NekoAdapterLoadStatusWrapperUtil(
 
     /**
      * 完成包装，且监听recyclerview的滑动，在滑动到底部时，触发[whenEnd]的回调
+     *
      */
-    fun done(): NekoAdapterLoadStatusWrapperUtil {
+    fun completeConfig(): NekoAdapterLoadStatusWrapperUtil {
         if (this::concatAdapter.isInitialized) {
             throw Exception("已经初始化完成")
         } else {
@@ -98,14 +95,14 @@ class NekoAdapterLoadStatusWrapperUtil(
         return this
     }
 
-    fun show() {
+    /**
+     * 为rv设置adapter
+     */
+    fun done(): NekoAdapterLoadStatusWrapperUtil {
         rv.adapter = concatAdapter
+        return this
     }
 
-    fun doneAndShow() {
-        done()
-        show()
-    }
 
     /**
      * 设置当滑动到底部时的回调监听
@@ -118,6 +115,7 @@ class NekoAdapterLoadStatusWrapperUtil(
      * 设置当滑动到顶部时的回调监听
      */
     fun whenScrollToTop(block: () -> Unit) {
+
         this.whenTop = block
     }
 
@@ -132,7 +130,9 @@ class NekoAdapterLoadStatusWrapperUtil(
      * 通过此方法改变header的itemview状态
      */
     fun headerState(loadState: LoadState) {
-        header?.loadState = loadState
+        header?.let {
+            it.loadState = loadState
+        } ?: throw Exception("header does not exist")
     }
 
     /**

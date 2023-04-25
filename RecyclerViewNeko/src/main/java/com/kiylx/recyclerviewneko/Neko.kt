@@ -19,7 +19,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
 
-
 //<editor-fold desc="Adapter,ListAdapter">
 //<editor-fold desc="创建Adapter,ListAdapter">
 /**
@@ -43,6 +42,7 @@ inline fun <T : Any> Context.neko(
     config.iNekoAdapter = a
     config.nekoAdapter = a
     config.configBlock()
+    recyclerView.layoutManager = config.layoutManager
     return config
 }
 
@@ -63,6 +63,7 @@ inline fun <T : Any> Context.listNeko(
     config.iNekoAdapter = a
     config.nekoListAdapter = a
     config.configBlock()
+    recyclerView.layoutManager = config.layoutManager
     return config
 }
 
@@ -76,7 +77,6 @@ fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf())
         mDatas.addAll(datas)
     }
     rv.adapter = iNekoAdapter
-    rv.layoutManager = layoutManager
     return this
 }
 //</editor-fold>
@@ -92,15 +92,15 @@ inline infix fun IConfig.withPageState(block: StateWrapperConfig.() -> Unit): St
     wrapperConfig.block()
     return wrapperConfig
 }
+
 /**
  * 包装状态页
  */
 inline fun NekoAdapterLoadStatusWrapperUtil.withPageState(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
-    val wrapperConfig = StateWrapperConfig(concatAdapter,context,rv)
+    val wrapperConfig = StateWrapperConfig(concatAdapter, context, rv)
     val stateWrappedAdapter = PageStateWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
     wrapperConfig.block()
-    this.pageWrapper=wrapperConfig//把外层的状态页配置引用赋予内层的添加了header和footer的adapter，用于内部改变header或footer时自动刷新rv
     return wrapperConfig
 }
 
@@ -114,14 +114,15 @@ inline fun NekoAdapterLoadStatusWrapperUtil.withPageState(block: StateWrapperCon
 inline fun IConfig.withLoadStatus(
     block: NekoAdapterLoadStatusWrapperUtil.() -> Unit
 ): NekoAdapterLoadStatusWrapperUtil {
-    return NekoAdapterLoadStatusWrapperUtil(this.rv,this.iNekoAdapter,context).apply(block)
+    return NekoAdapterLoadStatusWrapperUtil(this.rv, this.iNekoAdapter, context)
+        .apply(block)
+        .completeConfig()
 }
 
 
 //</editor-fold>
 
 //</editor-fold>
-
 
 
 //<editor-fold desc="PagingAdapter">
@@ -133,10 +134,10 @@ inline fun <T : Any> NekoPagingAdapterConfig<T>.withHeader(block: Paging3LoadSta
     val tmp = Paging3LoadStatusConfig()
     tmp.block()
     val header = NekoPaging3LoadStatusAdapter(tmp)
-    this.nekoPagingAdapter.withLoadStateHeader(header)
-    this.statusConfig = tmp
+    this.header = header
     return this
 }
+
 /**
  * 给pagingAdapter添加状态加载状态item
  */
@@ -144,8 +145,7 @@ inline fun <T : Any> NekoPagingAdapterConfig<T>.withFooter(block: Paging3LoadSta
     val tmp = Paging3LoadStatusConfig()
     tmp.block()
     val footer = NekoPaging3LoadStatusAdapter(tmp)
-    this.nekoPagingAdapter.withLoadStateFooter(footer)
-    this.statusConfig = tmp
+    this.footer = footer
     return this
 }
 //</editor-fold>
@@ -166,13 +166,13 @@ inline fun <T : Any> Context.paging3Neko(
     config.iNekoAdapter = a
     config.nekoPagingAdapter = a
     config.configBlock()
+    recyclerView.layoutManager = config.layoutManager
     return config
 }
 
 
 //</editor-fold>
 //</editor-fold>
-
 
 
 //<editor-fold desc="自定义">
@@ -186,6 +186,7 @@ inline fun <T : Any, N : BaseConfig<T>> Context.customNeko(
     val config2 = config ?: DefaultConfig<T>(this, recyclerView)
     config2.iNekoAdapter = customAdapter
     config2.configBlock()
+    recyclerView.layoutManager = config2.layoutManager
     return config2
 }
 //</editor-fold>
@@ -203,16 +204,14 @@ inline fun <T : Any, N : BaseConfig<T>> Context.concatNeko(
     vararg nekoConfigs: N,
     configBlock: ConcatConfig<T, N>.() -> Unit = {},
 ): ConcatConfig<T, N> {
-    val c = ConcatConfig(configList = nekoConfigs,this,nekoConfigs[0].rv)
+    val c = ConcatConfig(configList = nekoConfigs, this, nekoConfigs[0].rv)
     c.configBlock()
+    c.completeConfig()
     return c
 }
 //</editor-fold>
 
 //</editor-fold>
-
-
-
 
 
 /*

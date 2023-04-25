@@ -21,7 +21,7 @@ import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.wrapper.anim.SlideInLeftAnimation
-import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
+import com.kiylx.recyclerviewneko.wrapper.pagestate.config.IWrapper
 
 
 class MainActivity2 : AppCompatActivity() {
@@ -184,7 +184,7 @@ class MainActivity2 : AppCompatActivity() {
             asyncConfig = AsyncDifferConfig.Builder<String>(myDiffCallback).build()
         ) {
             //这部分代码跟上面一样
-        }.show()
+        }
 
         //添加StateHeader
         neko.withLoadStatus {
@@ -207,7 +207,7 @@ class MainActivity2 : AppCompatActivity() {
      * pagingDataAdapter
      */
     fun pagingTest() {
-        val pagingAdapter = paging3Neko(rv, object : DiffUtil.ItemCallback<String>() {
+        val pagingConfig = paging3Neko(rv, object : DiffUtil.ItemCallback<String>() {
             //这里指定了数据是否相同的判断。不明白的再去学一遍pagingDataAdapter。
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
                 TODO("Not yet implemented")
@@ -218,21 +218,22 @@ class MainActivity2 : AppCompatActivity() {
             }
         }) {
             //这里跟其他的几种情况一模一样，不再重复写
-        }
-        //给pagingAdapter添加header和footer
-        pagingAdapter.withHeader {
-            addItemDelegate(LoadState.Loading, R.layout.item_1) { holder, ls ->
 
+            //给pagingAdapter添加header和footer
+
+            withHeader {
+                addItemDelegate(LoadState.Loading, R.layout.item_1) { holder, ls ->
+
+                }
             }
-        }
-        pagingAdapter.withFooter {
-            addItemDelegate(LoadState.Loading, R.layout.item_2) { holder, ls ->
+            withFooter {
+                addItemDelegate(LoadState.Loading, R.layout.item_2) { holder, ls ->
 
+                }
             }
-        }
-
+        }.done()
         //刷新数据
-        pagingAdapter.nekoPagingAdapter.notifyItemChanged(3)
+        pagingConfig.nekoPagingAdapter.notifyItemChanged(3)
     }
 
     /**
@@ -266,7 +267,7 @@ class MainActivity2 : AppCompatActivity() {
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
         val concat = concatNeko(neko1, neko2) {
             // todo 自定义配置
-        }.show()
+        }.done()
 
         neko1.mDatas[2] = "ertt"
         //刷新数据
@@ -303,17 +304,16 @@ class MainActivity2 : AppCompatActivity() {
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
         val concat = concatNeko(neko1, neko2) {
             // todo 自定义配置
-        }.done()
+        }
 
-        val w = concat withPageState {
+        val w = concat.withPageState {
             //例如设置空布局
             setEmpty(R.layout.empty) {
                 it.setOnClickListener {
                     Log.d(tag, "被点击")
                 }
             }
-            doneAndShow()
-        }
+        }.showStatePage()
 
         handler.postDelayed(Runnable {
             w.showEmpty()
@@ -347,7 +347,9 @@ class MainActivity2 : AppCompatActivity() {
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
             }
             //设置动画，对于concat连接的adapter,可以分别设置不同的动画。
-//            itemAnimation = SlideInLeftAnimation()
+            configAnim {
+                itemAnimation = SlideInLeftAnimation()
+            }
         }
         val neko2 = neko<String>(rv) {
             mDatas = d2.toMutableList()//指定adapter的数据
@@ -361,9 +363,7 @@ class MainActivity2 : AppCompatActivity() {
             // 自定义配置
             //统一给所有adapter设置动画
             setAnim(SlideInLeftAnimation())
-        }.done()
-
-        var statePage: StateWrapperConfig? = null
+        }
 
         //给rv添加上header和footer，
         val loadStateWrapper = concat.withLoadStatus {
@@ -393,9 +393,10 @@ class MainActivity2 : AppCompatActivity() {
             whenScrollToTop {
 
             }
-            doneAndShow()
+
         }
-        statePage = loadStateWrapper.withPageState {
+
+        val statePage: IWrapper = loadStateWrapper.withPageState {
             //例如设置空布局
             setEmpty(R.layout.empty) {
                 it.setOnClickListener {
@@ -403,10 +404,11 @@ class MainActivity2 : AppCompatActivity() {
                 }
             }
 
-        }
-        statePage.doneAndShow()
+        }.showStatePage()//显示状态页
 
+        //显示被包装起来的content
         statePage.showContent()
+
         handler.postDelayed(Runnable {
             statePage.showEmpty()
 
