@@ -13,6 +13,7 @@ import com.kiylx.recyclerviewneko.nekoadapter.*
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegateManager
 import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.viewholder.DelegatePair
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.wrapper.anim.AlphaInAnimation
 import com.kiylx.recyclerviewneko.wrapper.anim.ItemAnimator
@@ -177,7 +178,7 @@ abstract class BaseConfig<T : Any>(
         isThisView: (data: T, position: Int) -> Boolean = { _, _ -> true },
         dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
     ) {
-        val itemview: ItemViewDelegate<T> = object : ItemViewDelegate<T>(type, layoutId) {
+        val itemview: ItemViewDelegate<T> = object : ItemViewDelegate<T>(layoutId) {
             override fun convert(holder: BaseViewHolder, data: T, position: Int) {
                 dataConvert(holder, data, position)
             }
@@ -193,10 +194,10 @@ abstract class BaseConfig<T : Any>(
     /**
      * 添加多种itemview类型
      */
-    open fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>) {
+    open fun addItemViews(vararg itemViewDelegates: DelegatePair<T>) {
         //将itemview添加进管理器
         itemViewDelegates.forEach {
-            mItemViewDelegateManager.addDelegate(it.type, it)
+            mItemViewDelegateManager.addDelegate(it.type, it.delegate)
         }
     }
 

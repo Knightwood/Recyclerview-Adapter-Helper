@@ -1,6 +1,6 @@
 package com.kiylx.recyclerviewneko.viewholder
 
-abstract class ItemViewDelegate<T>(var type:Int,var layoutId: Int) {
+abstract class ItemViewDelegate<T>(var layoutId: Int) {
     /**
      * 例如某类型数据里有个type字段，有四个取值:1，2，3，4.代表四种viewholder
      * 那么，可以通过 type==1 这样的判断，确定此ItemViewDelegate是否显示此数据，
@@ -16,4 +16,9 @@ abstract class ItemViewDelegate<T>(var type:Int,var layoutId: Int) {
      */
     abstract fun convert(holder: BaseViewHolder, data: T, position: Int)
 }
+
+data class DelegatePair<T>(val type: Int, val delegate: ItemViewDelegate<T>)
+
+infix fun <T : Any> Int.pack(that: ItemViewDelegate<T>): DelegatePair<T> = DelegatePair(this, that)
+
 

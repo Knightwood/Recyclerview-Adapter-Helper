@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.kiylx.recyclerviewneko.utils.RecyclerViewScrollListener
-import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 
 /**
  * 生成header和footer（其实就是持有一个itemview的LoadStateAdapter），
@@ -79,12 +78,24 @@ class NekoAdapterLoadStatusWrapperUtil(
             rv.addOnScrollListener(object : RecyclerViewScrollListener(rv) {
                 override fun onScrollToDataEnd() {
                     Log.d("tag", "scroll to onScrollToDataEnd")
-                    whenEnd?.invoke()
+                    footer?.let {
+                        if (it.config.autoLoading) {
+                            it.loadState = LoadState.Loading
+                        }
+                        finish(it, true, it.config.autoClose)//自动关闭状态
+                        whenEnd?.invoke()
+                    }
                 }
 
                 override fun onScrollToDataStart() {
 //                    Log.d("tag", "scroll to onScrollToDataStart")
-                    whenTop?.invoke()
+                    header?.let {
+                        if (it.config.autoLoading) {
+                            it.loadState = LoadState.Loading
+                        }
+                        finish(it, true, it.config.autoClose)//自动关闭状态
+                        whenTop?.invoke()
+                    }
                 }
 
                 override fun onDataNotFull() {
@@ -142,5 +153,23 @@ class NekoAdapterLoadStatusWrapperUtil(
         footer?.let {
             it.loadState = loadState
         } ?: throw Exception("footer does not exist")
+    }
+
+    /**
+     * @param b: 数据加载是否成功
+     * @param stateAdapter 要关闭状态的adapter
+     * @param time 多久后关闭
+     */
+    fun finish(stateAdapter: NekoPaging3LoadStatusAdapter, b: Boolean, time: Long) {
+        if (time > 0) {
+            rv.handler.postDelayed(Runnable {
+                stateAdapter.loadState =
+                    if (b) {
+                        LoadState.NotLoading(endOfPaginationReached = true)
+                    } else {
+                        LoadState.NotLoading(endOfPaginationReached = false)
+                    }
+            }, time)
+        }
     }
 }

@@ -41,7 +41,7 @@ class Paging3LoadStatusConfig() {
      * 如果值大于0.则在触发[LoadState.Loading]状态后，
      * 延迟[autoClose]毫秒后触发[LoadState.NotLoading]
      */
-    var autoClose=-1
+    var autoClose=-1L
 
     /**
      * true时自动触发[LoadState.Loading]状态

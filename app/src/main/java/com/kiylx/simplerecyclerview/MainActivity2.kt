@@ -20,6 +20,7 @@ import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
+import com.kiylx.recyclerviewneko.viewholder.pack
 import com.kiylx.recyclerviewneko.wrapper.anim.SlideInLeftAnimation
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.IWrapper
 
@@ -49,7 +50,7 @@ class MainActivity2 : AppCompatActivity() {
     /**
      * 代替viewholder
      */
-    inner class Delegate1 : ItemViewDelegate<String>(1, R.layout.item_1) {
+    inner class Delegate1 : ItemViewDelegate<String>(R.layout.item_1) {
         /**
          * 绑定数据到viewholder
          */
@@ -58,7 +59,7 @@ class MainActivity2 : AppCompatActivity() {
         }
     }
 
-    inner class Delegate2 : ItemViewDelegate<String>(2, R.layout.item_2) {
+    inner class Delegate2 : ItemViewDelegate<String>(R.layout.item_2) {
         //在有多种viewholder时，
         //此方法的作用是判断此viewholder是否应该显示某数据类型的数据
         //如果此viewholder应该显示此数据类型数据，就让他返回true
@@ -103,7 +104,10 @@ class MainActivity2 : AppCompatActivity() {
             mDatas = d.toMutableList()//指定adapter的数据。也可以现在不指定数据，在后面的show方法中传入数据
 
             //多种viewtype可以使用[addItemViews]将多种viewholder添加进去
-            addItemViews(item1, item2)
+            addItemViews(
+                1 pack item1,
+                2 pack item2
+            )
 
             //向上面批量添加或者像这样一个个添加
 //            addItemView(R.layout.item_1, 1, isThisView = { _, _ ->
@@ -335,7 +339,6 @@ class MainActivity2 : AppCompatActivity() {
         //预定义数据
         val d1: MutableList<String> = mutableListOf()
         d1.addAll(listOf("a", "b", "c", "item", "d", "e", "r", "ee", "a", "b", "c", "dd"))
-//        d1.addAll(listOf("a", "b", "c", "item"))
         //预定义数据
         val d2: MutableList<String> = mutableListOf()
         d2.addAll(listOf("a", "b", "c", "item"))
@@ -369,6 +372,7 @@ class MainActivity2 : AppCompatActivity() {
         val loadStateWrapper = concat.withLoadStatus {
             //配置footer
             withFooter {
+                autoLoading = true
                 //footer配置成一个跟loadstate没关联的itemview
                 setItemDelegate(com.kiylx.libx.R.layout.footer_item) { header, loadstate ->
                     //itemview绑定
@@ -376,11 +380,8 @@ class MainActivity2 : AppCompatActivity() {
                     Log.d(tag, "可见性：${m.visibility}")
                 }
             }
-            //当滑动到底部时
+            //当滑动到底部时，如果不配置footer，这里不会被调用
             whenScrollToEnd {
-                //Log.d(tag, "fuckk")
-                //改变footer的状态
-                footerState(LoadState.Loading)
                 handler.postDelayed(Runnable {
                     footerState(LoadState.NotLoading(false))
                 }, 3000)
@@ -389,13 +390,13 @@ class MainActivity2 : AppCompatActivity() {
             whenNotFull {
 
             }
-            //当滑动到顶时
+            //当滑动到顶时,如果不配置header，这里不会被调用
             whenScrollToTop {
 
             }
 
         }
-
+        //先设置header和footer，之后才可以用状态页包装
         val statePage: IWrapper = loadStateWrapper.withPageState {
             //例如设置空布局
             setEmpty(R.layout.empty) {
