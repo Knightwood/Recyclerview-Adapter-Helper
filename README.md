@@ -260,3 +260,28 @@ val statePage: IWrapper = loadStateWrapper.withPageState {
 //显示被包装起来的content
 statePage.showContent()
 ```
+
+## 拖拽和侧滑
+
+侧滑和拖拽对recyclerview生效
+
+```
+rv.attachDragListener {
+    //监听移动
+    this.dragSwapListener =
+        DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
+            Log.d(tag, "source1:$source,target1:$target")
+        }
+    //移动结束
+    this.clearViewListener =
+        DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
+            Log.d(tag, "source2:$source,target2:$target")
+        }
+    //监听侧滑
+    useSlideSwiped = true
+    this.slideSwipedListener =
+        SlideSwipedPosListener { target: Int, absoluteAdapterPosition: Int ->
+            Log.d(tag, "target3:$target")
+        }
+}
+```

@@ -18,6 +18,10 @@ import com.kiylx.recyclerviewneko.nekoadapter.ItemClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.ItemLongClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
+import com.kiylx.recyclerviewneko.utils.DragPosListener
+import com.kiylx.recyclerviewneko.utils.ItemTouchUtils
+import com.kiylx.recyclerviewneko.utils.SlideSwipedPosListener
+import com.kiylx.recyclerviewneko.utils.attachDragListener
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.viewholder.pack
@@ -409,6 +413,24 @@ class MainActivity2 : AppCompatActivity() {
 
         //显示被包装起来的content
         statePage.showContent()
+        rv.attachDragListener {
+            //监听移动
+            this.dragSwapListener =
+                DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
+                    Log.d(tag, "source1:$source,target1:$target")
+                }
+            //移动结束
+            this.clearViewListener =
+                DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
+                    Log.d(tag, "source2:$source,target2:$target")
+                }
+            //监听侧滑
+            useSlideSwiped = true
+            this.slideSwipedListener =
+                SlideSwipedPosListener { target: Int, absoluteAdapterPosition: Int ->
+                    Log.d(tag, "target3:$target")
+                }
+        }
 
         handler.postDelayed(Runnable {
             statePage.showEmpty()
