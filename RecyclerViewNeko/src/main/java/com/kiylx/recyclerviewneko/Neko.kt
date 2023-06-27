@@ -110,10 +110,14 @@ inline fun NekoAdapterLoadStatusWrapperUtil.withPageState(block: StateWrapperCon
 
 /**
  * 给rv添加stateHeader和stateFooter
+ * 对于Paging3Adapter，有自己的方法，不需要此方法。
  */
 inline fun IConfig.withLoadStatus(
     block: NekoAdapterLoadStatusWrapperUtil.() -> Unit
 ): NekoAdapterLoadStatusWrapperUtil {
+    if (this is NekoPagingAdapterConfig<*>){
+        throw Exception("nekoPagingAdapterConfig has it own function")
+    }
     return NekoAdapterLoadStatusWrapperUtil(this.rv, this.iNekoAdapter, context)
         .apply(block)
         .completeConfig()
@@ -176,16 +180,18 @@ inline fun <T : Any> Context.paging3Neko(
 
 
 //<editor-fold desc="自定义">
-
-inline fun <T : Any, N : BaseConfig<T>> Context.customNeko(
+/**
+ * @param recyclerView rv
+ * @param customAdapter recyclerview的adapter
+ * @param config 继承自[DefaultConfig]的配置类
+ */
+fun <T : Any, N : DefaultConfig<T>> Context.customNeko(
     recyclerView: RecyclerView,
     customAdapter: Adapter<BaseViewHolder>,
     config: N? = null,
-    configBlock: BaseConfig<T>.() -> Unit
-): BaseConfig<T> {
+): DefaultConfig<T> {
     val config2 = config ?: DefaultConfig<T>(this, recyclerView)
     config2.iNekoAdapter = customAdapter
-    config2.configBlock()
     recyclerView.layoutManager = config2.layoutManager
     return config2
 }

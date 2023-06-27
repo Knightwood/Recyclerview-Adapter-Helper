@@ -53,7 +53,8 @@ class NekoAdapterLoadStatusWrapperUtil(
      * 完成包装，且监听recyclerview的滑动，在滑动到底部时，触发[whenEnd]的回调
      *
      */
-    fun completeConfig(): NekoAdapterLoadStatusWrapperUtil {
+    @PublishedApi
+    internal fun completeConfig(): NekoAdapterLoadStatusWrapperUtil {
         if (this::concatAdapter.isInitialized) {
             throw Exception("已经初始化完成")
         } else {
@@ -82,7 +83,7 @@ class NekoAdapterLoadStatusWrapperUtil(
                         if (it.config.autoLoading) {
                             it.loadState = LoadState.Loading
                         }
-                        finish(it, true, it.config.autoClose)//自动关闭状态
+                        finish(it, time = it.config.autoClose)//自动关闭状态
                         whenEnd?.invoke()
                     }
                 }
@@ -93,7 +94,7 @@ class NekoAdapterLoadStatusWrapperUtil(
                         if (it.config.autoLoading) {
                             it.loadState = LoadState.Loading
                         }
-                        finish(it, true, it.config.autoClose)//自动关闭状态
+                        finish(it, time = it.config.autoClose)//自动关闭状态
                         whenTop?.invoke()
                     }
                 }
@@ -156,19 +157,14 @@ class NekoAdapterLoadStatusWrapperUtil(
     }
 
     /**
-     * @param b: 数据加载是否成功
+     * @param b: 还有更多数据要加载，传false。否则传true
      * @param stateAdapter 要关闭状态的adapter
      * @param time 多久后关闭
      */
-    fun finish(stateAdapter: NekoPaging3LoadStatusAdapter, b: Boolean, time: Long) {
+    fun finish(stateAdapter: NekoPaging3LoadStatusAdapter, time: Long, b: Boolean = false) {
         if (time > 0) {
             rv.handler.postDelayed(Runnable {
-                stateAdapter.loadState =
-                    if (b) {
-                        LoadState.NotLoading(endOfPaginationReached = true)
-                    } else {
-                        LoadState.NotLoading(endOfPaginationReached = false)
-                    }
+                stateAdapter.loadState = LoadState.NotLoading(endOfPaginationReached = b)
             }, time)
         }
     }

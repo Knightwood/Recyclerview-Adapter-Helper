@@ -1,6 +1,5 @@
 package com.kiylx.recyclerviewneko.nekoadapter.config
 
-import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.ViewGroup
@@ -15,7 +14,6 @@ import com.kiylx.recyclerviewneko.nekoadapter.Lm.linear
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.DelegatePair
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
-import com.kiylx.recyclerviewneko.wrapper.anim.AlphaInAnimation
 import com.kiylx.recyclerviewneko.wrapper.anim.ItemAnimator
 import com.kiylx.recyclerviewneko.wrapper.pagestate.PageStateWrapperAdapter
 
@@ -26,64 +24,7 @@ fun interface ViewTypeParser<T> {
     fun parse(data: T, pos: Int): Int
 }
 
-class AnimConfig {
-    /**
-     * Whether enable animation.
-     * 是否打开动画
-     */
-    var animationEnable: Boolean = false
-
-    /**
-     * Whether the animation executed only the first time.
-     * 动画是否仅第一次执行
-     */
-    var isAnimationFirstOnly = false
-
-    /**
-     * Set custom animation.
-     * 设置自定义动画
-     */
-    var itemAnimation: ItemAnimator? = null
-        set(value) {
-            animationEnable = true
-            field = value
-        }
-
-    /**
-     * 执行动画
-     */
-    internal fun runAnim(holder: RecyclerView.ViewHolder) {
-        if (animationEnable) {
-            if (!isAnimationFirstOnly) {
-                val animation: ItemAnimator = itemAnimation ?: AlphaInAnimation()
-                animation.animator(holder.itemView).apply {
-                    startItemAnimator(this, holder)
-                }
-            }
-        }
-    }
-
-    /**
-     * 自定义动画开始的配置
-     */
-    var startAnimBlock: ((anim: Animator, holder: RecyclerView.ViewHolder) -> Unit)? = null
-
-    /**
-     * start executing animation
-     * override this method to execute more actions
-     * 开始执行动画方法
-     * 可以配置[startAnimBlock],实行更多行为
-     *
-     * @param anim
-     * @param holder
-     */
-    private fun startItemAnimator(anim: Animator, holder: RecyclerView.ViewHolder) {
-        startAnimBlock?.invoke(anim, holder) ?: anim.start()
-    }
-
-}
-
-abstract class IConfig(
+sealed class IConfig(
     var context: Context,
     var rv: RecyclerView,
 ) {
@@ -93,7 +34,7 @@ abstract class IConfig(
 /**
  * adapter的配置，创建viewholder,判断viewtype等一系列的方法
  */
-abstract class BaseConfig<T : Any>(
+sealed class BaseConfig<T : Any>(
     context: Context,
     rv: RecyclerView,
 ) : IConfig(context, rv), LifecycleEventObserver {
@@ -222,7 +163,7 @@ abstract class BaseConfig<T : Any>(
      * 根据itemview类型，获取[ItemViewDelegate]
      */
     internal open fun getItemViewDelegate(viewType: Int): ItemViewDelegate<T> {
-        return mItemViewDelegateManager.getItemViewDelegate(viewType)!!;
+        return mItemViewDelegateManager.getItemViewDelegate(viewType)!!
     }
 
     /**
@@ -244,7 +185,7 @@ abstract class BaseConfig<T : Any>(
     internal fun bindData(holder: BaseViewHolder, position: Int) {
         mItemViewDelegateManager.convert(
             holder,
-            mDatas[position] as T,
+            mDatas[position],
             holder.bindingAdapterPosition
         )
     }

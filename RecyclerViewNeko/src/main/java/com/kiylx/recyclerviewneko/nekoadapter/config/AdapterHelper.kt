@@ -18,7 +18,7 @@ fun <T : Any> BaseConfig<T>.dataSize() = mDatas.size
 /**
  * 创建viewholder
  */
-fun <T : Any> BaseConfig<T>.createViewHolder(
+internal fun <T : Any> BaseConfig<T>.createViewHolder(
     parent: ViewGroup,
     viewType: Int
 ): BaseViewHolder {
@@ -33,7 +33,7 @@ fun <T : Any> BaseConfig<T>.createViewHolder(
 /**
  * 获取viewtype
  */
-fun <T : Any> BaseConfig<T>.parseItemViewType(position: Int): Int {
+internal fun <T : Any> BaseConfig<T>.parseItemViewType(position: Int): Int {
     return if (!useItemViewDelegateManager()) {
         throw Exception("没有类型信息")
     } else {
@@ -44,7 +44,7 @@ fun <T : Any> BaseConfig<T>.parseItemViewType(position: Int): Int {
 /**
  * 给itemview设置长按事件
  */
-fun <T : Any> BaseConfig<T>.setLongListener(
+internal fun <T : Any> BaseConfig<T>.setLongListener(
     parent: ViewGroup,
     holder: BaseViewHolder,
     viewType: Int
@@ -63,7 +63,7 @@ fun <T : Any> BaseConfig<T>.setLongListener(
 /**
  * 给itemview设置点击事件
  */
-fun <T : Any> BaseConfig<T>.setClickListener(
+internal fun <T : Any> BaseConfig<T>.setClickListener(
     parent: ViewGroup,
     holder: BaseViewHolder,
     viewType: Int

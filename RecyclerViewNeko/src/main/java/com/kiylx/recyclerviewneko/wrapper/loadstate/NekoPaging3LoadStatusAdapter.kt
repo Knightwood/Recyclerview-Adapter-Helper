@@ -8,6 +8,7 @@ import androidx.paging.LoadStateAdapter
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
 /**
+ * 用到的加载状态是paging3库中的，因此有此命名，并不是专为paging3设计。
  * 继承LoadStateAdapter，简化并统一构造LoadStateAdapter的方式
  */
 class NekoPaging3LoadStatusAdapter(var config: Paging3LoadStatusConfig) :

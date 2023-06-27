@@ -1,3 +1,9 @@
+@file:Suppress(
+    "unused",
+    "SpellCheckingInspection",
+    "UNUSED_ANONYMOUS_PARAMETER",
+    "UNUSED_VARIABLE",
+)
 package com.kiylx.simplerecyclerview
 
 import android.os.Bundle
@@ -19,7 +25,6 @@ import com.kiylx.recyclerviewneko.nekoadapter.ItemLongClickListener
 import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
 import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.utils.DragPosListener
-import com.kiylx.recyclerviewneko.utils.ItemTouchUtils
 import com.kiylx.recyclerviewneko.utils.SlideSwipedPosListener
 import com.kiylx.recyclerviewneko.utils.attachDragListener
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
@@ -59,7 +64,7 @@ class MainActivity2 : AppCompatActivity() {
          * 绑定数据到viewholder
          */
         override fun convert(holder: BaseViewHolder, data: String, position: Int) {
-            holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+            holder.getView<TextView>(R.id.tv1)?.text = data
         }
     }
 
@@ -74,7 +79,7 @@ class MainActivity2 : AppCompatActivity() {
         }
 
         override fun convert(holder: BaseViewHolder, data: String, position: Int) {
-            holder.getView<TextView>(R.id.tv2)?.text = data.toString()
+            holder.getView<TextView>(R.id.tv2)?.text = data
         }
 
     }
@@ -352,10 +357,16 @@ class MainActivity2 : AppCompatActivity() {
             //仅有一种viewHolder
             setSingleItemView(R.layout.item_1) { holder, data, position ->
                 holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+                holder.setOnClickListener(R.id.tv1) {
+                    //对某个view设置点击事件
+                }
             }
             //设置动画，对于concat连接的adapter,可以分别设置不同的动画。
             configAnim {
                 itemAnimation = SlideInLeftAnimation()
+            }
+            itemClickListener = ItemClickListener { view, holder, position ->
+                //对item设置点击事件
             }
         }
         val neko2 = neko<String>(rv) {
