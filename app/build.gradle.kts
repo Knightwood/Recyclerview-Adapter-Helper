@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk = 32
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.kiylx.SimpleRecyclerview"
@@ -34,7 +34,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildToolsVersion("30.0.3")
 }
 
 dependencies {

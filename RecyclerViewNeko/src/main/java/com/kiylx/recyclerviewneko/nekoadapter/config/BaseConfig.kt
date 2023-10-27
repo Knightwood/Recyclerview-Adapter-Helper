@@ -41,11 +41,11 @@ sealed class BaseConfig<T : Any>(
     //动画配置
     protected val animConfig: AnimConfig by lazy { AnimConfig() }
 
-    /**
-     * 使用concatAdapter连接多个adapter，同时用[PageStateWrapperAdapter]添加状态页时是否要监听数据变更
-     * 标记为true的，将会监听数据变更决定状态页变更
-     */
-    var canObserveDataChange = true
+//    /**
+//     * 使用concatAdapter连接多个adapter，同时用[PageStateWrapperAdapter]添加状态页时是否要监听数据变更
+//     * 标记为true的，将会监听数据变更决定状态页变更
+//     */
+//    var canObserveDataChange = true
 
     var layoutManager: RecyclerView.LayoutManager = context.linear()
     private var mItemViewDelegateManager = ItemViewDelegateManager<T>()//管理itemview相关配置
@@ -88,19 +88,19 @@ sealed class BaseConfig<T : Any>(
         )
     }
 
-    /**
-     * 监听数据变化
-     */
-    open fun observeDataLists(observer: AdapterDataObserver) {
-        rv.adapter?.registerAdapterDataObserver(observer)
-    }
-
-    /**
-     * 取消监听数据变化
-     */
-    open fun unObserveDataLists(observer: AdapterDataObserver) {
-        rv.adapter?.unregisterAdapterDataObserver(observer)
-    }
+//    /**
+//     * 监听数据变化
+//     */
+//    open fun observeDataLists(observer: AdapterDataObserver) {
+//        rv.adapter?.registerAdapterDataObserver(observer)
+//    }
+//
+//    /**
+//     * 取消监听数据变化
+//     */
+//    open fun unObserveDataLists(observer: AdapterDataObserver) {
+//        rv.adapter?.unregisterAdapterDataObserver(observer)
+//    }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
 
@@ -109,13 +109,11 @@ sealed class BaseConfig<T : Any>(
     /**
      * 添加多种itemview类型
      * @param layoutId viewHolder布局id
-     * @param type 标识viewHolder的类型，即vieType
      * @param isThisView 在多种viewHolder下，此方法用来识别某viewHolder是否应该显示data类型的数据，是的话，返回true
      * @param dataConvert 将data绑定到此viewHolder
      */
     open fun addItemView(
         layoutId: Int,
-        type: Int,
         isThisView: (data: T, position: Int) -> Boolean = { _, _ -> true },
         dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
     ) {
@@ -129,6 +127,25 @@ sealed class BaseConfig<T : Any>(
             }
 
         }
+        mItemViewDelegateManager.addDelegate(itemview)
+    }
+
+    /**
+     * 添加多种itemview类型
+     * @param layoutId viewHolder布局id
+     * @param type 标识viewHolder的类型，即vieType
+     * @param dataConvert 将data绑定到此viewHolder
+     */
+    open fun addItemView(
+        layoutId: Int,
+        type: Int,
+        dataConvert: (holder: BaseViewHolder, data: T, position: Int) -> Unit
+    ) {
+        val itemview: ItemViewDelegate<T> = object : ItemViewDelegate<T>(layoutId) {
+            override fun convert(holder: BaseViewHolder, data: T, position: Int) {
+                dataConvert(holder, data, position)
+            }
+        }
         mItemViewDelegateManager.addDelegate(type, itemview)
     }
 
@@ -139,6 +156,16 @@ sealed class BaseConfig<T : Any>(
         //将itemview添加进管理器
         itemViewDelegates.forEach {
             mItemViewDelegateManager.addDelegate(it.type, it.delegate)
+        }
+    }
+
+    /**
+     * 添加多种itemview类型
+     */
+    open fun addItemViews(vararg itemViewDelegates:ItemViewDelegate<T>) {
+        //将itemview添加进管理器
+        itemViewDelegates.forEach {
+            mItemViewDelegateManager.addDelegate(it)
         }
     }
 

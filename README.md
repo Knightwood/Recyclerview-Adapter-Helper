@@ -5,6 +5,7 @@
 * 支持状态页回调
 * 支持下拉显示header和上拉显示footer,下拉加载，上拉加载等
 * 内置动画
+* 支持viewbinding
 
 # 使用
 
@@ -20,32 +21,45 @@
 
 ```kotlin
 		//预定义数据
-        val d: MutableList<String> = mutableListOf()
-        d.addAll(listOf("a", "b", "c", "item"))
+val d: MutableList<String> = mutableListOf()
+d.addAll(listOf("a", "b", "c", "item"))
 
-        //泛型指定了此recyclerview显示什么类型的数据
-        val neko = neko<String>(rv) {
-            //内置默认LinearLayoutManager,可以在这里修改
-            //layoutManager=GridLayoutManager(this@MainActivity2,2) //替换默认的布局管理器
-            layoutManager.apply {
-                //修改布局管理器的配置
-            }
-            
-            //添加"viewholder"
-            addSingleItemView(R.layout.item_1) { holder, data, position ->
-            	//数据绑定到viewholder
-                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
-            }
-            //设置动画，对于concat连接的adapter,可以分别设置不同的动画。
-            configAnim {
-                itemAnimation = SlideInLeftAnimation()
-            }
-            // .....
-            
-        }.show(d)//调用show方法完成recycleview的显示
+//泛型指定了此recyclerview显示什么类型的数据
+val neko = neko<String>(rv) {
+    //内置默认LinearLayoutManager,可以在这里修改
+    //layoutManager=GridLayoutManager(this@MainActivity2,2) //替换默认的布局管理器
+    layoutManager.apply {
+        //修改布局管理器的配置
+    }
+    
+    //添加"viewholder"
+    addSingleItemView(R.layout.item_1) { holder, data, position ->
+    	//数据绑定到viewholder
+        holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+      //或者使用viewbinding
+      //holder.with<Item1Binding> {
+      //      //使用viewbinding
+      //  }
+    }
+    //设置动画，对于concat连接的adapter,可以分别设置不同的动画。
+    configAnim {
+        itemAnimation = SlideInLeftAnimation()
+    }
+    // .....
+    //给整个itemview设置点击事件
+  itemClickListener = ItemClickListener { view, holder, position ->
+    Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
+  }
+  //设置长按事件
+  itemLongClickListener = ItemLongClickListener { view, holder, position ->
+    Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
+    true
+  }          
+    
+}.show(d)//调用show方法完成recycleview的显示
        
-        //直接获取相应类型的adapter刷新数据
-        neko.nekoAdapter.notifyItemChanged(3)
+//直接获取相应类型的adapter刷新数据
+neko.nekoAdapter.notifyItemChanged(3)
 ```
 
 

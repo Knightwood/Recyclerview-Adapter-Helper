@@ -87,6 +87,9 @@ class ItemViewDelegateManager<T>() {
 
     }
 
+    /**
+     * 查找此holder所属的类型，并进行数据的绑定
+     */
     fun convert(holder: BaseViewHolder, data: T, position: Int) {
         //如果viewtype解析器存在，使用解析器返回viewtype。否则使用delegate.isForViewType方法
         viewTypeParser?.let {

@@ -57,8 +57,10 @@ class Paging3LoadStatusConfig() {
 
     /**
      * 是否以loadState区分不同的viewHolder
+     * 若是使用[addItemDelegate]添加viewholder，则此处为true
+     * [setItemDelegate]设置的单个viewholder则不修改此状态
      */
-    var useType = false
+    private var useType = false
 
     internal fun onBindViewHolder(holder: BaseViewHolder, loadState: LoadState) {
         val itemViewWrapper: Paging3LoadStatusItemViewWrapper? = if (useType) {

@@ -4,6 +4,7 @@
     "UNUSED_ANONYMOUS_PARAMETER",
     "UNUSED_VARIABLE",
 )
+
 package com.kiylx.simplerecyclerview
 
 import android.os.Bundle
@@ -32,6 +33,8 @@ import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.viewholder.pack
 import com.kiylx.recyclerviewneko.wrapper.anim.SlideInLeftAnimation
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.IWrapper
+import com.kiylx.simplerecyclerview.databinding.Item1Binding
+import com.kiylx.simplerecyclerview.databinding.Item2Binding
 
 
 class MainActivity2 : AppCompatActivity() {
@@ -85,6 +88,29 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     /**
+     * 仅有一种viewHolder的示例
+     */
+    fun nekoSingleTest() {
+        //预定义数据
+        val d: MutableList<String> = mutableListOf()
+        d.addAll(listOf("a", "b", "c", "item"))
+
+        //泛型指定了此recyclerview显示什么类型的数据
+        val neko = neko<String>(rv) {
+            // .....
+            //仅有一种viewHolder,
+            //不需要指定viewTypeParser
+            //不需要重写ItemViewDelegate中的isForViewType方法来判断ViewType
+            //仅添加"viewholder"
+            setSingleItemView(R.layout.item_1) { holder, data, position ->
+                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+            }
+            // .....
+        }.show(d)//调用show方法完成recycleview的显示
+
+    }
+
+    /**
      * 普通的adapter，多种viewtype
      */
     fun nekoTest() {
@@ -117,14 +143,29 @@ class MainActivity2 : AppCompatActivity() {
                 1 pack item1,
                 2 pack item2
             )
+            addItemViews(
+                item1, item2
+            )
 
             //向上面批量添加或者像这样一个个添加
-//            addItemView(R.layout.item_1, 1, isThisView = { _, _ ->
-//                像上面那样有viewTypeParser的话，isThisView参数可以不写
-//                return@addItemView true
-//            }) { holder, data, position ->
-//                数据绑定到viewholder
-//            }
+            addItemView(R.layout.item_1, 1) { holder, data, position ->
+                //数据绑定到viewholder
+                holder.with<Item1Binding> {
+                    //使用viewbinding
+                }
+
+            }
+            //向上面批量添加或者像这样一个个添加
+            addItemView(R.layout.item_1, isThisView = { data: String, pos: Int ->
+                //像上面那样有viewTypeParser的话，isThisView参数可以不写
+                return@addItemView true
+            }) { holder, data, position ->
+                //数据绑定到viewholder
+                holder.with<Item1Binding> {
+                    //使用viewbinding
+                }
+
+            }
 
             //给整个itemview设置点击事件
             itemClickListener = ItemClickListener { view, holder, position ->
@@ -145,29 +186,6 @@ class MainActivity2 : AppCompatActivity() {
         neko.refreshData(d)
         //刷新数据
         neko.nekoAdapter.notifyItemChanged(3)
-    }
-
-    /**
-     * 仅有一种viewHolder的示例
-     */
-    fun nekoSingleTest() {
-        //预定义数据
-        val d: MutableList<String> = mutableListOf()
-        d.addAll(listOf("a", "b", "c", "item"))
-
-        //泛型指定了此recyclerview显示什么类型的数据
-        val neko = neko<String>(rv) {
-            // .....
-            //仅有一种viewHolder,
-            //不需要指定viewTypeParser
-            //不需要重写ItemViewDelegate中的isForViewType方法来判断ViewType
-            //仅添加"viewholder"
-            setSingleItemView(R.layout.item_1) { holder, data, position ->
-                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
-            }
-            // .....
-        }.show(d)//调用show方法完成recycleview的显示
-
     }
 
     /**
@@ -279,7 +297,10 @@ class MainActivity2 : AppCompatActivity() {
 
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
         val concat = concatNeko(neko1, neko2) {
-            // todo 自定义配置
+            //自定义配置
+            this.concatAdapter.apply {
+
+            }
         }.done()
 
         neko1.mDatas[2] = "ertt"
@@ -351,12 +372,16 @@ class MainActivity2 : AppCompatActivity() {
         //预定义数据
         val d2: MutableList<String> = mutableListOf()
         d2.addAll(listOf("a", "b", "c", "item"))
-
         val neko1 = neko<String>(rv) {
             mDatas = d1.toMutableList()//指定adapter的数据
             //仅有一种viewHolder
             setSingleItemView(R.layout.item_1) { holder, data, position ->
-                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+                //使用with方法得到viewbinding实例
+                holder.with<Item1Binding> {
+                    tv1.text = data
+                }
+                //或者不使用viewbinding
+//                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
                 holder.setOnClickListener(R.id.tv1) {
                     //对某个view设置点击事件
                 }
@@ -373,7 +398,9 @@ class MainActivity2 : AppCompatActivity() {
             mDatas = d2.toMutableList()//指定adapter的数据
             //仅有一种viewHolder
             setSingleItemView(R.layout.item_2) { holder, data, position ->
-                holder.getView<TextView>(R.id.tv2)?.text = data.toString()
+                holder.with<Item2Binding> {
+                    tv2.text = data.toString()
+                }
             }
         }
         //将两个adapter合并，此方法可以传入更多的adapter进行合并

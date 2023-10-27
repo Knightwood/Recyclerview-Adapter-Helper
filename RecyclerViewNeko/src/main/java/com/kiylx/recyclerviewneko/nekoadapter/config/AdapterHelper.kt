@@ -17,6 +17,7 @@ fun <T : Any> BaseConfig<T>.dataSize() = mDatas.size
 
 /**
  * 创建viewholder
+ * 根据viewType得到itemViewDelegate,并使用布局id创建BaseViewHolder
  */
 internal fun <T : Any> BaseConfig<T>.createViewHolder(
     parent: ViewGroup,

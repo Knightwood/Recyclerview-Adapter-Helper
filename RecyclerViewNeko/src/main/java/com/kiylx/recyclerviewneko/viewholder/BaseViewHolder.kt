@@ -15,11 +15,26 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 
 class BaseViewHolder(private var mContext: Context, itemView: View) :
     RecyclerView.ViewHolder(itemView) {
     private var mViews: SparseArray<View> = SparseArray()
     private var mConvertView: View = itemView
+    var binding :Any?=null
+
+    /**
+     * viewbinding绑定itemview，传入的viewBinding类型需要与itemview匹配
+     */
+    inline fun <reified T : ViewBinding> with(block:T.()->Unit) {
+        val b= binding?.let {
+            it as T
+        }?:let {
+            binding =T::class.java.getMethod("bind", View::class.java).invoke(null, itemView) as T
+            binding as T
+        }
+        b.block()
+    }
 
     companion object {
         fun createViewHolder(
