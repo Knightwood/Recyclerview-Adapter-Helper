@@ -52,10 +52,10 @@ afterEvaluate {
 }
 
 dependencies {
-    implementation(AndroidX.Core.core)
-    implementation(AndroidX.appCompat)
-    implementation(AndroidX.recyclerView)
-    api(AndroidX.paging3)
+    implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.appcompat:appcompat:1.5.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    api("androidx.paging:paging-runtime:3.2.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

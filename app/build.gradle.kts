@@ -37,10 +37,12 @@ android {
 }
 
 dependencies {
-    implementation(AndroidX.Core.core)
-    implementation(AndroidX.appCompat)
-    implementation(AndroidX.material)
-    implementation(AndroidX.constraintLayout)
+    implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.appcompat:appcompat:1.5.0")
+
+    implementation("com.google.android.material:material:1.7.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.4")
+
     implementation(project(":RecyclerViewNeko")){
         exclude(group = "androidx.lifecycle", module = "lifecycle-viewmodel-ktx")
     }

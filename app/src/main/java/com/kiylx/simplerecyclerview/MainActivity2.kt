@@ -130,42 +130,46 @@ class MainActivity2 : AppCompatActivity() {
                 //修改布局管理器的配置
             }
 
+            mDatas = d.toMutableList()//指定adapter的数据。也可以现在不指定数据，在后面的show方法中传入数据
+
+//使用ViewTypeParser
             //在有多种viewholder时，根据数据类型返回不同的viewtype
             //当不指定这个解析器时，就得重写ItemViewDelegate中的isForViewType方法来判断viewtype
             viewTypeParser = ViewTypeParser<String> { data, pos ->
                 if (data == "item") 1 else 2
             }
 
-            mDatas = d.toMutableList()//指定adapter的数据。也可以现在不指定数据，在后面的show方法中传入数据
-
             //多种viewtype可以使用[addItemViews]将多种viewholder添加进去
             addItemViews(
                 1 pack item1,
                 2 pack item2
             )
-            addItemViews(
-                item1, item2
-            )
 
             //向上面批量添加或者像这样一个个添加
-            addItemView(R.layout.item_1, 1) { holder, data, position ->
-                //数据绑定到viewholder
-                holder.with<Item1Binding> {
-                    //使用viewbinding
-                }
+//            addItemView(R.layout.item_1, 1) { holder, data, position ->
+//                //数据绑定到viewholder
+//                holder.with<Item1Binding> {
+//                    //使用viewbinding
+//                }
+//
+//            }
 
-            }
+//不使用ViewTypeParser
+//            addItemViews(
+//                item1, item2
+//            )
+
             //向上面批量添加或者像这样一个个添加
-            addItemView(R.layout.item_1, isThisView = { data: String, pos: Int ->
-                //像上面那样有viewTypeParser的话，isThisView参数可以不写
-                return@addItemView true
-            }) { holder, data, position ->
-                //数据绑定到viewholder
-                holder.with<Item1Binding> {
-                    //使用viewbinding
-                }
-
-            }
+//            addItemView(R.layout.item_1, isThisView = { data: String, pos: Int ->
+//                //像上面那样有viewTypeParser的话，isThisView参数可以不写
+//                return@addItemView true
+//            }) { holder, data, position ->
+//                //数据绑定到viewholder
+//                holder.with<Item1Binding> {
+//                    //使用viewbinding
+//                }
+//
+//            }
 
             //给整个itemview设置点击事件
             itemClickListener = ItemClickListener { view, holder, position ->
