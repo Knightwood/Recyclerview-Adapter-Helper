@@ -102,7 +102,7 @@ val neko = neko<String>(rv) {
                 }
             }
     
-   //或者用写viewtype和 viewTypeParser
+   //或者不写viewtype和 viewTypeParser
     addItemView(R.layout.item_1,isThisView = { data: String, pos: Int ->
         //像上面那样，判断此数据是否有该ItemViewDelegate显示
         return@addItemView data == "item1"
