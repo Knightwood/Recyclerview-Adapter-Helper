@@ -2,7 +2,7 @@
 
 ## 一个只具有单个viewholder种类的rv，各种用法的示例
 
-```
+```kotlin
 /**
  * 仅有一种viewHolder的示例
  */
@@ -64,7 +64,7 @@ fun nekoSingleTest() {
 
 ### 情况一：使用viewTypeParser区分viewtype
 
-```
+```kotlin
     /**
      * 代替viewholder的ItemViewDelegate。
      * 使用：在neko方法的块中调用addItemViews方法将类型和ItemViewDelegate传入
@@ -125,7 +125,7 @@ fun nekoSingleTest() {
 ```
 
 ### 情况二：使用ItemViewDelegate中的isForViewType方法来判断viewtype
-
+```kotlin
     inner class Delegate1 : ItemViewDelegate<String>(R.layout.item_1) {
         // 绑定数据到viewholder
         override fun convert(holder: BaseViewHolder, data: String, position: Int) {
@@ -186,9 +186,11 @@ fun nekoSingleTest() {
         }.show()//调用show方法完成recycleview的显示
     
     }
+```
+
 ## 利用concatAdapter连接多种adapter
 
-```
+```kotlin
 /**
  * concatAdapter
  */
@@ -234,8 +236,20 @@ fun concatTest() {
 
 
 ##  状态页
+状态页可以用于任意的adapter，例如上面的最普通的adapter，listAdapter，paging3Adapter，以及concatAdapter
 
-```
+```kotlin
+1. 状态页的可以全局配置：
+ GlobalWrapperConfig.configStateView {
+        this[PageStateTypes.Empty] = PageStateWrapperView(android.R.id.edit) {
+
+        }
+        this[PageStateTypes.Error] = PageStateWrapperView(android.R.id.edit){
+            
+        }
+    }
+    
+2. 也可以在adapter中单独配置
   /**
      * concatAdapter
      */
@@ -267,16 +281,20 @@ fun concatTest() {
         val concat = concatNeko(neko1, neko2) {
             // todo 自定义配置
         }
-
+        //---------------------上面还是一些adapter的配置-----------------------
+        
+        //单独配置空布局状态页
         val w = concat.withPageState {
             //例如设置空布局
             setEmpty(R.layout.empty) {
+                //对布局的控制
                 it.setOnClickListener {
                     Log.d(tag, "被点击")
                 }
             }
         }.showStatePage()
 
+        //调用方法以展示不同状态页
         handler.postDelayed(Runnable {
             w.showEmpty()
         }, 1000)
@@ -285,9 +303,6 @@ fun concatTest() {
             w.showContent()
         }, 2000)
 
-        neko1.mDatas[1] = "olskdfbsf"
-        neko1.nekoAdapter.notifyItemChanged(1)
-
     }
 ```
 
@@ -295,7 +310,11 @@ fun concatTest() {
 
 ## header和footer
 
-```
+对于Paging3Adapter来说，官方有header和footer的配置，内部是用的concatAdapter。
+因此，除了可以包装一下状态适配器，方便在使用paging3Neko方法时配置状态页，
+还可以通过concatAdapter将头尾布局和加载状态连接到其余的adapter。
+
+```kotlin
 
     /**
      * header和footer
@@ -332,12 +351,12 @@ fun concatTest() {
             //统一给所有adapter设置动画
             setAnim(SlideInLeftAnimation())
         }
-//======================以上面的连接后的持有adapter的config为例，给rv加上header和footer
+//======================以上面的连接后的持有adapter的config为例，给rv加上header和footer==============
         //给rv添加上header和footer，
         val loadStateWrapper = concat.withLoadStatus {
             //配置footer
             withFooter {
-                autoLoading = true
+                autoLoading = true //在滑动到底部或顶部时，自动改变状态以展示头尾布局
                 //footer配置成一个跟loadstate没关联的itemview
                 setItemDelegate(com.kiylx.libx.R.layout.footer_item) { header, loadstate ->
                     //itemview绑定
@@ -347,6 +366,12 @@ fun concatTest() {
             }
             //当滑动到底部时，如果不配置footer，这里不会被调用
             whenScrollToEnd {
+            
+            //1. 如果autoLoading是false //在滑动到底部或顶部时，需要自己手动改变状态以展示头尾布局
+            handler.postDelayed(Runnable {
+                    footerState(LoadState.Loading)
+                }, 3000)
+            //2. 当处理结束后，例如请求完网络数据，则可以手动改变状态，以关闭头尾布局的展示
                 handler.postDelayed(Runnable {
                     footerState(LoadState.NotLoading(false))
                 }, 3000)
@@ -361,7 +386,10 @@ fun concatTest() {
             }
 
         }
-        //先设置header和footer，之后才可以用状态页包装
+        //这里需要注意的是，由于设置状态页包装是获取内容的adapter
+        //而这里的loadStateWrapper是将头尾布局通过concatAdapter连接到内容adapter，
+        //因此，这里对loadStateWrapper的状态页包装，拿到的内容adapter其实是添加头尾布局的concatAdapter
+        //所以需要先设置好header和footer，之后才可以用状态页包装，否则会出现意想不到的问题
         val statePage: IWrapper = loadStateWrapper.withPageState {
             //例如设置空布局
             setEmpty(R.layout.empty) {
@@ -374,24 +402,6 @@ fun concatTest() {
 
         //显示被包装起来的content
         statePage.showContent()
-        rv.attachDragListener {
-            //监听移动
-            this.dragSwapListener =
-                DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
-                    Log.d(tag, "source1:$source,target1:$target")
-                }
-            //移动结束
-            this.clearViewListener =
-                DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
-                    Log.d(tag, "source2:$source,target2:$target")
-                }
-            //监听侧滑
-            useSlideSwiped = true
-            this.slideSwipedListener =
-                SlideSwipedPosListener { target: Int, absoluteAdapterPosition: Int ->
-                    Log.d(tag, "target3:$target")
-                }
-        }
 
         handler.postDelayed(Runnable {
             statePage.showEmpty()
@@ -410,18 +420,41 @@ fun concatTest() {
 ```
 
 
+## 拖拽和侧滑
 
+侧滑和拖拽对recyclerview生效
+
+```kotlin
+rv.attachDragListener {
+    //监听移动
+    this.dragSwapListener =
+        DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
+            Log.d(tag, "source1:$source,target1:$target")
+        }
+    //移动结束
+    this.clearViewListener =
+        DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
+            Log.d(tag, "source2:$source,target2:$target")
+        }
+    //监听侧滑
+    useSlideSwiped = true
+    this.slideSwipedListener =
+        SlideSwipedPosListener { target: Int, absoluteAdapterPosition: Int ->
+            Log.d(tag, "target3:$target")
+        }
+}
+```
 
 
 ## paging3adapter
 
-```
+```kotlin
 /**
  * pagingDataAdapter
  */
 fun pagingTest() {
     val pagingConfig = paging3Neko(rv, object : DiffUtil.ItemCallback<String>() {
-        //这里指定了数据是否相同的判断。不明白的再去学一遍pagingDataAdapter。
+        //这里指定了数据是否相同的判断。
         override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
             TODO("Not yet implemented")
         }
@@ -432,7 +465,7 @@ fun pagingTest() {
     }) {
         //这里跟其他的几种情况一模一样，不再重复写
 
-        //给pagingAdapter添加header和footer
+        //给paging3Adapter添加header和footer
 
         withHeader {
             addItemDelegate(LoadState.Loading, R.layout.item_1) { holder, ls ->
@@ -456,7 +489,7 @@ fun pagingTest() {
 
 ## listadapter
 
-```
+```kotlin
 /**
  * listadapter，多种viewtype
  */

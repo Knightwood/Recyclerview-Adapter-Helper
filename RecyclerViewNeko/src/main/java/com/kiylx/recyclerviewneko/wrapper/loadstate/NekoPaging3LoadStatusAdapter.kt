@@ -52,7 +52,7 @@ class Paging3LoadStatusConfig() {
 
     private val stateHashMap: HashMap<LoadState, Paging3LoadStatusItemViewWrapper> = hashMapOf()
 
-    //内部使用，用于添加状态页
+    //内部用于添加公共状态状态页
     var innerDelegates: Paging3LoadStatusItemViewWrapper? = null
 
     /**

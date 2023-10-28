@@ -25,6 +25,7 @@ class NekoAdapter(//配置
         config.bindData(holder, position)
 
     override fun getItemViewType(position: Int): Int = config.parseItemViewType(position)
+
     override fun onViewAttachedToWindow(holder: BaseViewHolder) {
         config.runAnim(holder)
     }

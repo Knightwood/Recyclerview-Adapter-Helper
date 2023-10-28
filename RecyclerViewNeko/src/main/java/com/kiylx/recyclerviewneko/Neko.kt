@@ -130,29 +130,6 @@ inline fun IConfig.withLoadStatus(
 
 
 //<editor-fold desc="PagingAdapter">
-//<editor-fold desc="给PagingAdapter添加header和footer">
-/**
- * 给pagingAdapter添加状态加载状态item
- */
-inline fun <T : Any> NekoPagingAdapterConfig<T>.withHeader(block: Paging3LoadStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
-    val tmp = Paging3LoadStatusConfig()
-    tmp.block()
-    val header = NekoPaging3LoadStatusAdapter(tmp)
-    this.header = header
-    return this
-}
-
-/**
- * 给pagingAdapter添加状态加载状态item
- */
-inline fun <T : Any> NekoPagingAdapterConfig<T>.withFooter(block: Paging3LoadStatusConfig.() -> Unit): NekoPagingAdapterConfig<T> {
-    val tmp = Paging3LoadStatusConfig()
-    tmp.block()
-    val footer = NekoPaging3LoadStatusAdapter(tmp)
-    this.footer = footer
-    return this
-}
-//</editor-fold>
 //<editor-fold desc="创建PagingAdapter">
 
 /**

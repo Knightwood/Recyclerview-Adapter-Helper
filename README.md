@@ -9,18 +9,21 @@
 
 # 使用
 
-* 版本 [![](https://jitpack.io/v/Knightwood/RecyclerViewNeko.svg)](https://jitpack.io/#Knightwood/RecyclerViewNeko)
+**更详细的使用去看wiki**
 
-  ```css
-  dependencies {
-  	   implementation 'com.github.Knightwood:RecyclerViewNeko:Tag'
-  }
-  ```
+*
+版本 [![](https://jitpack.io/v/Knightwood/RecyclerViewNeko.svg)](https://jitpack.io/#Knightwood/RecyclerViewNeko)
+
+```css
+dependencies {
+       implementation 'com.github.Knightwood:RecyclerViewNeko:Tag'
+}
+```
 
 ## 快速开始
 
 ```kotlin
-		//预定义数据
+//预定义数据
 val d: MutableList<String> = mutableListOf()
 d.addAll(listOf("a", "b", "c", "item"))
 
@@ -31,15 +34,15 @@ val neko = neko<String>(rv) {
     layoutManager.apply {
         //修改布局管理器的配置
     }
-    
+
     //添加"viewholder"
     addSingleItemView(R.layout.item_1) { holder, data, position ->
-    	//数据绑定到viewholder
+        //数据绑定到viewholder
         holder.getView<TextView>(R.id.tv1)?.text = data.toString()
-      //或者使用viewbinding
-      //holder.with<Item1Binding> {
-      //      //使用viewbinding
-      //  }
+        //或者使用viewbinding
+        holder.with<Item1Binding> {
+            //使用viewbinding
+        }
     }
     //设置动画，对于concat连接的adapter,可以分别设置不同的动画。
     configAnim {
@@ -47,47 +50,48 @@ val neko = neko<String>(rv) {
     }
     // .....
     //给整个itemview设置点击事件
-  itemClickListener = ItemClickListener { view, holder, position ->
-    Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
-  }
-  //设置长按事件
-  itemLongClickListener = ItemLongClickListener { view, holder, position ->
-    Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
-    true
-  }          
-    
+    itemClickListener = ItemClickListener { view, holder, position ->
+        Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
+    }
+    //设置长按事件
+    itemLongClickListener = ItemLongClickListener { view, holder, position ->
+        Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
+        true
+    }
+
 }.show(d)//调用show方法完成recycleview的显示
-       
+
 //直接获取相应类型的adapter刷新数据
 neko.nekoAdapter.notifyItemChanged(3)
+
 ```
-
-
 
 # 文档
 
 ## 关于viewholder
 
-使用此库不在自定义adapter和viewholder，对于描述viewholder类型，数据绑定，事件绑定的是实现ItemViewDelegate。
+使用此库不再自定义adapter和viewholder，对于描述viewholder类型，数据绑定，事件绑定的是实现ItemViewDelegate。
 
-例如：这是一个ItemViewDelegate的实现（viewTypeParser马上讲到）
+例如：这是一个ItemViewDelegate的实现
+对于区分不同的viewType，一个是实现ItemViewDelegate类中的isForViewType方法，另一种是在配置rv方法的dsl块中指定viewTypeParser
 
 ```kotlin
 class Delegate2 : ItemViewDelegate<String>(R.layout.item_2) {
-        //在有多种viewholder时，
-        //此方法的作用是判断此viewholder是否应该显示某数据类型的数据
-        //如果此viewholder应该显示此数据类型数据，就让他返回true
-        //如果指定viewTypeParser，则这里不起作用,因此指定了viewTypeParser可以不重写此方法
-        override fun isForViewType(data: String, position: Int): Boolean {
-            //此类型的viewholder显示字符串是"item"的
-            return data == "item"
-        }
-		//这里是数据绑定
-        override fun convert(holder: BaseViewHolder, data: String, position: Int) {
-            holder.getView<TextView>(R.id.tv2)?.text = data.toString()
-        }
-
+    //在有多种viewholder时，
+    //此方法的作用是判断此viewholder是否应该显示某数据类型的数据
+    //如果此viewholder应该显示此数据类型数据，就让他返回true
+    //如果指定viewTypeParser，则这里不起作用,因此指定了viewTypeParser可以不重写此方法
+    override fun isForViewType(data: String, position: Int): Boolean {
+        //此类型的viewholder显示字符串是"item"的
+        return data == "item"
     }
+
+    //这里是数据绑定
+    override fun convert(holder: BaseViewHolder, data: String, position: Int) {
+        holder.getView<TextView>(R.id.tv2)?.text = data.toString()
+    }
+
+}
 ```
 
 ## 通过ItemViewDelegate等一系列东西组装adapter和viewholder，展示rv
@@ -97,44 +101,47 @@ class Delegate2 : ItemViewDelegate<String>(R.layout.item_2) {
 先来看最普通的RecyclerView.Adapter显示rv
 
 ```kotlin
-		//两个viewholder类型，即上面的ItemViewDelegate
-        val item1 = Delegate1()
-        val item2 = Delegate2()		
-		//预定义rv数据
-        val d1: MutableList<String> = mutableListOf()
-        d1.addAll(listOf("a", "b", "c", "item", "d", "e", "r", "ee", "a", "b", "c"))
-        val neko1 = context.neko<String>(rv) {
-           //这里是block块，用于构造adapter，viewholder
-            
-            
-            //在有多种viewholder时，根据数据类型返回不同的viewtype
-            //当不指定这个解析器时，就得重写ItemViewDelegate中的isForViewType方法来判断viewtype
-            viewTypeParser = ViewTypeParser<String> { data, pos ->
-                if (data == "item") 1 else 2
-            }
-            
-            mDatas = d1.toMutableList()//指定adapter的数据
-            
-            //更换调默认的LinearLayoutManager
-            //layoutManager= 
-            
-            //仅有一种viewHolder
-            setSingleItemView(R.layout.item_1) { holder, data, position ->
-                //数据绑定到viewholder
-                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
-            }
-            
-            //多种viewtype可以使用[addItemViews]将多种viewholder添加进去
-            //setSingleItemView和addItemViews不要同时使用
-            addItemViews(
-                1 pack item1, //类型和ItemViewDelegate打包放进去
-                2 pack item2
-            )
-            //设置动画
-            configAnim {
-                itemAnimation = SlideInLeftAnimation()
-            }
-        }.show()
+//两个viewholder类型，即上面的ItemViewDelegate
+val item1 = Delegate1()
+val item2 = Delegate2()
+//预定义rv数据
+val d1: MutableList<String> = mutableListOf()
+d1.addAll(listOf("a", "b", "c", "item", "d", "e", "r", "ee", "a", "b", "c"))
+val neko1 = context.neko<String>(rv) {
+    //这里是block块，用于构造adapter，viewholder
+
+    mDatas = d1.toMutableList()//指定adapter的数据
+
+    //更换调默认的LinearLayoutManager
+    //layoutManager= //todo
+
+    //仅有一种viewHolder
+    setSingleItemView(R.layout.item_1) { holder, data, position ->
+        //数据绑定到viewholder
+        holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+    }
+
+    //在有多种viewholder时，根据数据类型返回不同的viewtype
+    //当不指定这个解析器时，就得重写ItemViewDelegate中的isForViewType方法来判断viewtype
+    viewTypeParser = ViewTypeParser<String> { data, pos ->
+        if (data == "item") 1 else 2
+    }
+
+    //多种viewtype可以使用[addItemViews]将多种viewholder添加进去
+    //setSingleItemView和addItemViews不要同时使用
+    addItemViews(
+        1 pack item1, //类型和ItemViewDelegate打包放进去
+        2 pack item2
+    )
+
+    //如果不使用viewTypeParser，可以不要viewtype
+    addItemViews(item1, item2)
+
+    //设置动画
+    configAnim {
+        itemAnimation = SlideInLeftAnimation()
+    }
+}.show()
 ```
 
 调用context.neko()方法构造一个用于显示rv的配置，block块中用于配置rv需要显示的viewholder类型，还可以配置layoutmanager，动画等。
@@ -144,7 +151,6 @@ class Delegate2 : ItemViewDelegate<String>(R.layout.item_2) {
 对于添加viewholder：
 
 * 在上面的block块中调用setSingleItemView添加单一的viewholder
-
 * 在上面的block块中调用addItemViews方法添加多种类型的viewholder
 
 对于多种viewtype：
@@ -163,15 +169,13 @@ class Delegate2 : ItemViewDelegate<String>(R.layout.item_2) {
 例如：
 
 ```kotlin
-context.neko方法得到的config中有最基本的iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>和一个对应的nekoAdapter: NekoAdapter类型
+context.neko方法得到的config中有最基本的iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder> 和一个对应的nekoAdapter : NekoAdapter类型
 
-context.listNeko方法得到的config中有最基本的iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>和一个对应的nekoListAdapter: NekoListAdapter<T>
+        context.listNeko方法得到的config中有最基本的iNekoAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder> 和一个对应的nekoListAdapter : NekoListAdapter < T >
 对于后面添加了header和footer后还可以得到head和footer相应的adapter 
 ```
 
 因此对于数据更新，是从neko方法返回的config中得到adapter，更新数据
-
-
 
 ## 连接不同的adapter
 
@@ -215,8 +219,6 @@ context.listNeko方法得到的config中有最基本的iNekoAdapter: RecyclerVie
             setAnim(SlideInLeftAnimation())
         }
 ```
-
-
 
 ## header和footer
 

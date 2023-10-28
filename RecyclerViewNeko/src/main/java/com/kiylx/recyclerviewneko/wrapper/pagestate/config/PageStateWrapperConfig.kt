@@ -16,7 +16,10 @@ import com.kiylx.recyclerviewneko.wrapper.pagestate.base.*
  */
 fun test() {
     GlobalWrapperConfig.configStateView {
-        this[PageStateTypes.Empty] = WrapperView(9) {
+        this[PageStateTypes.Empty] = PageStateWrapperView(android.R.id.edit) {
+
+        }
+        this[PageStateTypes.Error] = PageStateWrapperView(android.R.id.edit){
 
         }
     }
@@ -27,9 +30,9 @@ fun test() {
  */
 interface IWrapper {
 
-    fun setEmpty(layoutId: Int, block: StatePageViewHolder): IWrapper
-    fun setLoading(layoutId: Int, block: StatePageViewHolder): IWrapper
-    fun setError(layoutId: Int, block: StatePageViewHolder): IWrapper
+    fun setEmpty(layoutId: Int, block: PageStateItemDelegate): IWrapper
+    fun setLoading(layoutId: Int, block: PageStateItemDelegate): IWrapper
+    fun setError(layoutId: Int, block: PageStateItemDelegate): IWrapper
 
     fun showLoading(): IWrapper
     fun showEmpty(): IWrapper
@@ -40,7 +43,7 @@ interface IWrapper {
 
 class StateWrapperConfig(val context: Context) : IWrapper {
 
-    private val statusViewArr: SparseArrayCompat<WrapperView> = SparseArrayCompat()
+    private val statusViewArr: SparseArrayCompat<PageStateWrapperView> = SparseArrayCompat()
 
     init {
         //添加全局设置的默认值
@@ -69,18 +72,18 @@ class StateWrapperConfig(val context: Context) : IWrapper {
      */
     internal var mDatas: MutableList<PageStateTypes> = mutableListOf(PageStateTypes.Empty)
 
-    override fun setEmpty(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        statusViewArr[PageStateTypes.Empty] = WrapperView(layoutId, block)
+    override fun setEmpty(layoutId: Int, block: PageStateItemDelegate): IWrapper {
+        statusViewArr[PageStateTypes.Empty] = PageStateWrapperView(layoutId, block)
         return this
     }
 
-    override fun setLoading(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        statusViewArr[PageStateTypes.Loading] = WrapperView(layoutId, block)
+    override fun setLoading(layoutId: Int, block: PageStateItemDelegate): IWrapper {
+        statusViewArr[PageStateTypes.Loading] = PageStateWrapperView(layoutId, block)
         return this
     }
 
-    override fun setError(layoutId: Int, block: StatePageViewHolder): IWrapper {
-        statusViewArr[PageStateTypes.Error] = WrapperView(layoutId, block)
+    override fun setError(layoutId: Int, block: PageStateItemDelegate): IWrapper {
+        statusViewArr[PageStateTypes.Error] = PageStateWrapperView(layoutId, block)
         return this
     }
 
@@ -95,7 +98,7 @@ class StateWrapperConfig(val context: Context) : IWrapper {
         val type = mDatas[0]
 
             val data = statusViewArr[type]
-            data?.statePageViewHolder?.convert(holder.itemView)
+            data?.pageStateItemDelegate?.convert(holder.itemView)
                 ?: throw Exception("找不到view")
     }
 

@@ -9,7 +9,7 @@ object GlobalWrapperConfig {
     /**
      * 全局的view列表
      */
-    val wrappedViewArr: SparseArrayCompat<WrapperView> = SparseArrayCompat()
+    val wrappedViewArr: SparseArrayCompat<PageStateWrapperView> = SparseArrayCompat()
 
     init {
         //todo 内置添加默认的状态页
@@ -18,7 +18,7 @@ object GlobalWrapperConfig {
     /**
      * dsl配置状态页
      */
-    fun configStateView(block: SparseArrayCompat<WrapperView>.() -> Unit): GlobalWrapperConfig {
+    fun configStateView(block: SparseArrayCompat<PageStateWrapperView>.() -> Unit): GlobalWrapperConfig {
         wrappedViewArr.block()
         return this
     }
@@ -27,11 +27,11 @@ object GlobalWrapperConfig {
 /**
  * 如果某[PageStateTypes]类型的值已存在，则进行替换
  */
-operator fun SparseArrayCompat<WrapperView>.set(pageStateTypes: PageStateTypes, wrapperView: WrapperView) {
+operator fun SparseArrayCompat<PageStateWrapperView>.set(pageStateTypes: PageStateTypes, wrapperView: PageStateWrapperView) {
     wrapperView.type=pageStateTypes
     put(pageStateTypes.i, wrapperView)
 }
 
-operator fun SparseArrayCompat<WrapperView>.get(pageStateTypes: PageStateTypes): WrapperView? {
+operator fun SparseArrayCompat<PageStateWrapperView>.get(pageStateTypes: PageStateTypes): PageStateWrapperView? {
    return get(pageStateTypes.i)
 }
