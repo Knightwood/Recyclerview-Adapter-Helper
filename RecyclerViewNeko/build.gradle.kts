@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.kiylx.libx"
+    namespace = "com.kiylx.recyclerviewneko"
     compileSdk = 32
 
     defaultConfig {
