@@ -22,7 +22,7 @@ class NekoPagingAdapter<T : Any>(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder =
         config.createViewHolder(parent, viewType)
 
-    override fun getItemCount(): Int = config.dataSize()
+    //override fun getItemCount(): Int = config.dataSize()
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) =
         config.bindData(holder, position)
