@@ -2,7 +2,6 @@ package com.kiylx.recyclerviewneko.nekoadapter.config
 
 import android.view.View
 import android.view.ViewGroup
-import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
 /**
@@ -26,8 +25,6 @@ internal fun <T : Any> BaseConfig<T>.createViewHolder(
     val itemViewDelegate = getItemViewDelegate(viewType)
     val layoutId: Int = itemViewDelegate.layoutId
     val holder: BaseViewHolder = createHolderInternal(parent, layoutId)
-    setClickListener(parent, holder, viewType)
-    setLongListener(parent, holder, viewType)
     return holder
 }
 
@@ -41,20 +38,30 @@ internal fun <T : Any> BaseConfig<T>.parseItemViewType(position: Int): Int {
         getItemViewType(position)
     }
 }
+/**
+ * 获取viewtype
+ */
+internal fun <T :Any> BaseConfig<T>.parseItemViewType(position: Int,data:T): Int {
+    return if (!useItemViewDelegateManager()) {
+        throw Exception("没有类型信息")
+    } else {
+        getItemViewType(position,data)
+    }
+}
 
 /**
  * 给itemview设置长按事件
  */
 internal fun <T : Any> BaseConfig<T>.setLongListener(
-    parent: ViewGroup,
     holder: BaseViewHolder,
-    viewType: Int
+    position: Int,
+    data: T
 ) {
     if (longClickEnable) {
         holder.getConvertView().setOnLongClickListener(View.OnLongClickListener { v ->
             return@OnLongClickListener itemLongClickListener?.let {
                 val pos = holder.bindingAdapterPosition
-                it.onItemLongClick(v, holder, pos)
+                it.onItemLongClick(v, holder, pos,position,data)
                 true
             } ?: false
         })
@@ -65,15 +72,15 @@ internal fun <T : Any> BaseConfig<T>.setLongListener(
  * 给itemview设置点击事件
  */
 internal fun <T : Any> BaseConfig<T>.setClickListener(
-    parent: ViewGroup,
     holder: BaseViewHolder,
-    viewType: Int
+    position: Int,
+    data: T
 ) {
     if (clickEnable) {
         holder.getConvertView().setOnClickListener(View.OnClickListener { v ->
             itemClickListener?.let {
                 val pos = holder.bindingAdapterPosition
-                it.onItemClick(v, holder, pos)
+                it.onItemClick(v, holder, pos,position, data)
             }
         })
     }

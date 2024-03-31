@@ -66,6 +66,58 @@ neko.nekoAdapter.notifyItemChanged(3)
 
 ```
 
+### 对于pagingadapter和listadapter
+他们内部维护有数据列表，不用传递mDatas给show方法
+例如：
+```
+rv = view.findViewById<RecyclerView>(R.id.rv)
+        requireActivity().run {
+            neko = paging3Neko<MediaResourceEntity>(rv,
+                object : DiffUtil.ItemCallback<MediaResourceEntity>() {
+                    override fun areItemsTheSame(
+                        oldItem: MediaResourceEntity,
+                        newItem: MediaResourceEntity
+                    ): Boolean {
+                        return oldItem.id == newItem.id
+                    }
+
+                    override fun areContentsTheSame(
+                        oldItem: MediaResourceEntity,
+                        newItem: MediaResourceEntity
+                    ): Boolean {
+                        return oldItem == newItem
+                    }
+
+                }) {
+                addItemView(layoutId = R.layout.sample_item) { holder, data, position ->
+                    holder.with<SampleItemBinding> {
+                        nameText.setText(data.title)
+                        descriptionText.setText(data.content)
+                    }
+                }
+
+                itemClickListener =
+                    ItemClickListener { view, holder, bindingAdapterPosition, position, data ->
+                        //todo 点击跳转不同的activity预览文件
+                        Log.d(TAG, "onViewCreated: ${data.content}")
+                    }
+            }
+        }
+        neko.done()//done方法是NekoPagingAdapterConfig中的，不需要使用show方法
+        neko.nekoPagingAdapter.addLoadStateListener {
+
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
+//                viewModel.getPagingData(queryParam.toString())
+                viewModel.datas.collect { pagingData ->
+                    neko.nekoPagingAdapter.submitData(pagingData)//提交数据
+                }
+            }
+        }
+
+```
+
 ## 多种viewtype
 
 ```kotlin

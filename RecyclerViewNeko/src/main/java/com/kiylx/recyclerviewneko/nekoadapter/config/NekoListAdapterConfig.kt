@@ -10,13 +10,22 @@ import com.kiylx.recyclerviewneko.nekoadapter.NekoListAdapter
 class NekoListAdapterConfig<T : Any>(context: Context, rv: RecyclerView) : BaseConfig<T>(context, rv) {
    lateinit var nekoListAdapter: NekoListAdapter<T>
 
+    override var mDatas: MutableList<T>
+        get() = throw IllegalArgumentException("cannot use mDatas")
+        set(value) {
+            throw IllegalArgumentException("list adapter cannot use mDatas")
+        }
+
     /**
      * 刷新recyclerview
      * 仅限listadapter类型
      */
     fun submitList(datas: MutableList<T>, commitCallback: Runnable? = null) {
-        mDatas.clear()
-        mDatas.addAll(datas)
         nekoListAdapter.submitList(datas, commitCallback)
+    }
+
+    fun done():NekoListAdapterConfig<T>{
+         rv.adapter = nekoListAdapter
+        return this
     }
 }

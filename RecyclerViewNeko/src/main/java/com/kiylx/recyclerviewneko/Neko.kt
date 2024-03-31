@@ -6,13 +6,20 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import com.kiylx.recyclerviewneko.nekoadapter.*
-import com.kiylx.recyclerviewneko.nekoadapter.config.*
-import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
+import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
+import com.kiylx.recyclerviewneko.nekoadapter.NekoListAdapter
+import com.kiylx.recyclerviewneko.nekoadapter.NekoPagingAdapter
+import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.ConcatConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.DefaultConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.IConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.NekoAdapterConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.NekoListAdapterConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.NekoPagingAdapterConfig
+import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.wrapper.loadstate.NekoAdapterLoadStatusWrapperUtil
-import com.kiylx.recyclerviewneko.wrapper.loadstate.NekoPaging3LoadStatusAdapter
-import com.kiylx.recyclerviewneko.wrapper.loadstate.Paging3LoadStatusConfig
 import com.kiylx.recyclerviewneko.wrapper.pagestate.PageStateWrapperAdapter
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 import kotlinx.coroutines.CoroutineDispatcher
@@ -72,6 +79,9 @@ inline fun <T : Any> Context.listNeko(
  * 完成rv的创建
  */
 fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf()): N {
+    if (this is NekoPagingAdapterConfig<*>){
+        throw IllegalArgumentException("paging3 adapter has it own function : done()")
+    }
     if (datas.isNotEmpty()) {
         mDatas.clear()
         mDatas.addAll(datas)
