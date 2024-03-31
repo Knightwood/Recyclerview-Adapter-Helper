@@ -172,11 +172,11 @@ class MainActivity2 : AppCompatActivity() {
 //            }
 
             //给整个itemview设置点击事件
-            itemClickListener = ItemClickListener { view, holder, position ->
+            itemClickListener = ItemClickListener { view, holder, bindingAdapterPosition, position, data ->
                 Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
             }
             //设置长按事件
-            itemLongClickListener = ItemLongClickListener { view, holder, position ->
+            itemLongClickListener = ItemLongClickListener { view, holder, bindingAdapterPosition, position, data ->
                 Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
                 true
             }
@@ -394,7 +394,7 @@ class MainActivity2 : AppCompatActivity() {
             configAnim {
                 itemAnimation = SlideInLeftAnimation()
             }
-            itemClickListener = ItemClickListener { view, holder, position ->
+            itemClickListener = ItemClickListener { view, holder, bindingAdapterPosition, position, data ->
                 //对item设置点击事件
             }
         }
