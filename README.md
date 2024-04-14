@@ -101,9 +101,7 @@ val neko1 = createNormalAdapterConfig<String> {
     
     //添加一种viewHolder
     addItemView(R.layout.item_1,type=1) { //这里传入了viewholder的type
-        isThisType{data, position ->
-            //只有一种ViewHolder 或 使用ViewTypeParser就不需要调用此方法判断viewtype
-        }
+
     }
 
 }
