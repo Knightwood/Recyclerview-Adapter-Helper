@@ -1,7 +1,7 @@
 package com.kiylx.recyclerviewneko.viewholder
 
 import androidx.collection.SparseArrayCompat
-import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
+import com.kiylx.recyclerviewneko.myadapter.config.ViewTypeParser
 
 class ItemViewDelegateManager<T>() {
     /**
@@ -94,7 +94,7 @@ class ItemViewDelegateManager<T>() {
         //如果viewtype解析器存在，使用解析器返回viewtype。否则使用delegate.isForViewType方法
         viewTypeParser?.let {
             val type = it.parse(data, position)
-            delegates[type]?.convert(holder, data, position)
+            delegates[type]?.convert?.invoke(holder, data, position)
                 ?: throw IllegalArgumentException(
                     "No ItemViewDelegateManager added that matches position=$position in data source"
                 )

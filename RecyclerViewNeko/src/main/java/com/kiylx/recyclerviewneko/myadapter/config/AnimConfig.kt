@@ -1,4 +1,4 @@
-package com.kiylx.recyclerviewneko.nekoadapter.config
+package com.kiylx.recyclerviewneko.myadapter.config
 
 import android.animation.Animator
 import androidx.recyclerview.widget.RecyclerView

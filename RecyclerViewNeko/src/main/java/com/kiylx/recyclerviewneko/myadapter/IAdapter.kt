@@ -1,4 +1,4 @@
-package com.kiylx.recyclerviewneko.nekoadapter
+package com.kiylx.recyclerviewneko.myadapter
 
 import android.content.Context
 import android.view.View
@@ -25,23 +25,23 @@ object Lm {
 }
 
 /** 整个itemView的单击事件 */
-fun interface ItemClickListener<T> {
+fun interface ItemClickListener {
+    /**
+     * On item click
+     *
+     * @param view 被点击的view，可以根据id判断哪个view
+     * @param holder
+     */
     fun onItemClick(
         view: View,
         holder: BaseViewHolder,
-        bindingAdapterPosition: Int,
-        position: Int,
-        data: T
     )
 }
 
 /** 整个itemView的长按事件 */
-fun interface ItemLongClickListener<T> {
+fun interface ItemLongClickListener {
     fun onItemLongClick(
         view: View,
         holder: BaseViewHolder,
-        bindingAdapterPosition: Int,
-        position: Int,
-        data: T
     ): Boolean
 }

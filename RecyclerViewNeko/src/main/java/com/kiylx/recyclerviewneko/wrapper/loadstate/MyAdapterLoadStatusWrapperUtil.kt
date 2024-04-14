@@ -6,55 +6,53 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.kiylx.recyclerviewneko.utils.RecyclerViewScrollListener
 
 /**
  * 生成header和footer（其实就是持有一个itemview的LoadStateAdapter），
  * 通过ConcatAdapter包装给普通Adapter
  */
-class NekoAdapterLoadStatusWrapperUtil(
+class MyAdapterLoadStatusWrapperUtil(
     val rv: RecyclerView,
     //需要添加footer或header的原始adapter
     val adapter: Adapter<out RecyclerView.ViewHolder>,
     val context: Context
 ) {
-    internal var header: NekoPaging3LoadStatusAdapter? = null
-    internal var footer: NekoPaging3LoadStatusAdapter? = null
+    internal var header: MyPaging3LoadStatusAdapter? = null
+    internal var footer: MyPaging3LoadStatusAdapter? = null
 
     //给普通adapter通过使用concatAdapter的方式添加header和footer
     lateinit var concatAdapter: ConcatAdapter
-    var whenEnd: (() -> Unit)? = null
-    var whenTop: (() -> Unit)? = null
-    var whenNotFull: (() -> Unit)? = null
+    internal var whenEnd: (() -> Unit)? = null
+    internal var whenTop: (() -> Unit)? = null
+    internal var whenNotFull: (() -> Unit)? = null
 
     /**
-     * 给pagingAdapter添加状态加载状态item
-     * 生成一个包含itemview的NekoPaging3LoadStatusAdapter
+     * 给pagingAdapter添加状态加载状态item 生成一个包含itemview的NekoPaging3LoadStatusAdapter
+     *
      * @param block 配置NekoPaging3LoadStatusAdapter，添加itemview
      */
     fun withFooter(block: Paging3LoadStatusConfig.() -> Unit) {
         val tmp = Paging3LoadStatusConfig()
         tmp.block()
-        footer = NekoPaging3LoadStatusAdapter(tmp)
+        footer = MyPaging3LoadStatusAdapter(tmp)
     }
 
     /**
-     * 给pagingAdapter添加状态加载状态item
-     * 生成一个包含itemview的NekoPaging3LoadStatusAdapter
+     * 给pagingAdapter添加状态加载状态item 生成一个包含itemview的NekoPaging3LoadStatusAdapter
+     *
      * @param block 配置NekoPaging3LoadStatusAdapter，添加itemview
      */
     fun withHeader(block: Paging3LoadStatusConfig.() -> Unit) {
         val tmp = Paging3LoadStatusConfig()
         tmp.block()
-        header = NekoPaging3LoadStatusAdapter(tmp)
+        header = MyPaging3LoadStatusAdapter(tmp)
     }
 
-    /**
-     * 完成包装，且监听recyclerview的滑动，在滑动到底部时，触发[whenEnd]的回调
-     *
-     */
+    /** 完成包装，且监听recyclerview的滑动，在滑动到底部时，触发[whenEnd]的回调 */
     @PublishedApi
-    internal fun completeConfig(): NekoAdapterLoadStatusWrapperUtil {
+    internal fun completeConfig(): MyAdapterLoadStatusWrapperUtil {
         if (this::concatAdapter.isInitialized) {
             throw Exception("已经初始化完成")
         } else {
@@ -107,49 +105,40 @@ class NekoAdapterLoadStatusWrapperUtil(
         return this
     }
 
-    /**
-     * 为rv设置adapter
-     */
-    fun done(): NekoAdapterLoadStatusWrapperUtil {
+    /** 为rv设置adapter */
+    fun done(layoutManager: LayoutManager? = null): MyAdapterLoadStatusWrapperUtil {
         rv.adapter = concatAdapter
+        layoutManager?.let {
+            rv.layoutManager = it
+        }
         return this
     }
 
 
-    /**
-     * 设置当滑动到底部时的回调监听
-     */
+    /** 设置当滑动到底部时的回调监听 */
     fun whenScrollToEnd(block: () -> Unit) {
         this.whenEnd = block
     }
 
-    /**
-     * 设置当滑动到顶部时的回调监听
-     */
+    /** 设置当滑动到顶部时的回调监听 */
     fun whenScrollToTop(block: () -> Unit) {
 
         this.whenTop = block
     }
 
-    /**
-     * 当数据不满一屏，手指滑动时触发
-     */
+    /** 当数据不满一屏，手指滑动时触发 */
     fun whenNotFull(block: () -> Unit) {
         this.whenNotFull = block
     }
 
-    /**
-     * 通过此方法改变header的itemview状态
-     */
+    /** 通过此方法改变header的itemview状态 */
     fun headerState(loadState: LoadState) {
         header?.let {
             it.loadState = loadState
         } ?: throw Exception("header does not exist")
     }
 
-    /**
-     * 通过此方法改变footer的itemview状态
-     */
+    /** 通过此方法改变footer的itemview状态 */
     fun footerState(loadState: LoadState) {
         footer?.let {
             it.loadState = loadState
@@ -157,11 +146,11 @@ class NekoAdapterLoadStatusWrapperUtil(
     }
 
     /**
-     * @param b: 还有更多数据要加载，传false。否则传true
      * @param stateAdapter 要关闭状态的adapter
      * @param time 多久后关闭
+     * @param b: 还有更多数据要加载，传false。否则传true
      */
-    fun finish(stateAdapter: NekoPaging3LoadStatusAdapter, time: Long, b: Boolean = false) {
+    fun finish(stateAdapter: MyPaging3LoadStatusAdapter, time: Long, b: Boolean = false) {
         if (time > 0) {
             rv.handler.postDelayed(Runnable {
                 stateAdapter.loadState = LoadState.NotLoading(endOfPaginationReached = b)

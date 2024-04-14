@@ -1,25 +1,23 @@
-package com.kiylx.recyclerviewneko.nekoadapter
+package com.kiylx.recyclerviewneko.myadapter
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.createViewHolder
-import com.kiylx.recyclerviewneko.nekoadapter.config.parseItemViewType
+import com.kiylx.recyclerviewneko.myadapter.config.ListAdapterConfig
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 
-class NekoListAdapter<T : Any> : ListAdapter<T, BaseViewHolder>, INekoAdapter {
-    var config: BaseConfig<T>
+class MyListAdapter<T : Any> : ListAdapter<T, BaseViewHolder>, INekoAdapter {
+    var config: ListAdapterConfig<T>
 
     constructor(
-        config: BaseConfig<T>,
+        config: ListAdapterConfig<T>,
         diffCallback: DiffUtil.ItemCallback<T>
     ) : super(diffCallback) {
         this.config = config
     }
 
-    constructor(config: BaseConfig<T>, asyncConfig: AsyncDifferConfig<T>) : super(asyncConfig) {
+    constructor(config: ListAdapterConfig<T>, asyncConfig: AsyncDifferConfig<T>) : super(asyncConfig) {
         this.config = config
     }
 
@@ -34,7 +32,7 @@ class NekoListAdapter<T : Any> : ListAdapter<T, BaseViewHolder>, INekoAdapter {
 
     override fun getItemViewType(position: Int): Int {
         val data = getItem(position)
-        return config.parseItemViewType(position, data)
+        return config.getItemViewType(position, data)
     }
 
     override fun onViewAttachedToWindow(holder: BaseViewHolder) {

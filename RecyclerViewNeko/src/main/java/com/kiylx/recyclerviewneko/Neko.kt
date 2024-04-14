@@ -6,20 +6,21 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import com.kiylx.recyclerviewneko.nekoadapter.NekoAdapter
-import com.kiylx.recyclerviewneko.nekoadapter.NekoListAdapter
-import com.kiylx.recyclerviewneko.nekoadapter.NekoPagingAdapter
-import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.ConcatConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.DefaultConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.IConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.NekoAdapterConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.NekoListAdapterConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.NekoPagingAdapterConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.ViewTypeParser
+import com.kiylx.recyclerviewneko.myadapter.Lm.linear
+import com.kiylx.recyclerviewneko.myadapter.MyListAdapter
+import com.kiylx.recyclerviewneko.myadapter.MyPaging3Adapter
+import com.kiylx.recyclerviewneko.myadapter.NormalAdapter
+import com.kiylx.recyclerviewneko.myadapter.config.BaseConfig
+import com.kiylx.recyclerviewneko.myadapter.config.ConcatConfig
+import com.kiylx.recyclerviewneko.myadapter.config.DefaultConfig
+import com.kiylx.recyclerviewneko.myadapter.config.IConfig
+import com.kiylx.recyclerviewneko.myadapter.config.ListAdapterConfig
+import com.kiylx.recyclerviewneko.myadapter.config.NormalAdapterConfig
+import com.kiylx.recyclerviewneko.myadapter.config.Paging3AdapterConfig
+import com.kiylx.recyclerviewneko.myadapter.config.ViewTypeParser
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
-import com.kiylx.recyclerviewneko.wrapper.loadstate.NekoAdapterLoadStatusWrapperUtil
+import com.kiylx.recyclerviewneko.wrapper.loadstate.MyAdapterLoadStatusWrapperUtil
 import com.kiylx.recyclerviewneko.wrapper.pagestate.PageStateWrapperAdapter
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.StateWrapperConfig
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,16 +41,14 @@ import kotlinx.coroutines.Dispatchers
  * * 若使用了方式二,则方式一不起作用。
  *
  */
-inline fun <T : Any> Context.neko(
-    recyclerView: RecyclerView,
-    configBlock: NekoAdapterConfig<T>.() -> Unit
-): NekoAdapterConfig<T> {
-    val config = NekoAdapterConfig<T>(this, recyclerView)
-    val a = NekoAdapter(config)
-    config.iNekoAdapter = a
-    config.nekoAdapter = a
+inline fun <T : Any> createNormalAdapterConfig(
+    configBlock: NormalAdapterConfig<T>.() -> Unit
+): NormalAdapterConfig<T> {
+    val config = NormalAdapterConfig<T>()
+    val a = NormalAdapter(config)
+    config.iRecyclerViewAdapter = a
+    config.normalAdapter = a
     config.configBlock()
-    recyclerView.layoutManager = config.layoutManager
     return config
 }
 
@@ -58,45 +57,29 @@ inline fun <T : Any> Context.neko(
  * 若没有指定[asyncConfig]，则用[diffCallback]参数创建NekoListAdapter
  * 若指定了[asyncConfig]，则[diffCallback]参数不起作用
  */
-inline fun <T : Any> Context.listNeko(
-    recyclerView: RecyclerView,
+inline fun <T : Any> createListAdapterConfig(
     asyncConfig: AsyncDifferConfig<T>? = null,
     diffCallback: DiffUtil.ItemCallback<T>,
-    configBlock: NekoListAdapterConfig<T>.() -> Unit
-): NekoListAdapterConfig<T> {
-    val config = NekoListAdapterConfig<T>(this, recyclerView)
-    val a = asyncConfig?.let { NekoListAdapter(config, it) }
-        ?: NekoListAdapter(config, diffCallback)
-    config.iNekoAdapter = a
-    config.nekoListAdapter = a
+    configBlock: ListAdapterConfig<T>.() -> Unit
+): ListAdapterConfig<T> {
+    val config = ListAdapterConfig<T>()
+    val a = asyncConfig?.let { MyListAdapter(config, it) }
+        ?: MyListAdapter(config, diffCallback)
+    config.iRecyclerViewAdapter = a
+    config.myListAdapter = a
     config.configBlock()
-    recyclerView.layoutManager = config.layoutManager
     return config
 }
 
-/**
- * 普通adapter
- * 完成rv的创建
- */
-fun <T : Any, N : BaseConfig<T>> N.show(datas: MutableList<T> = mutableListOf()): N {
-    if (this is NekoPagingAdapterConfig<*>){
-        throw IllegalArgumentException("paging3 adapter has it own function : done()")
-    }
-    if (datas.isNotEmpty()) {
-        mDatas.clear()
-        mDatas.addAll(datas)
-    }
-    rv.adapter = iNekoAdapter
-    return this
-}
+
 //</editor-fold>
 //<editor-fold desc="给Adapter,ListAdapter,Paging3Adapter添加状态页回调">
 
 /**
  * 调用此方法将已有的adapter包装成带状态页的adapter
  */
-inline infix fun IConfig.withPageState(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
-    val wrapperConfig = StateWrapperConfig(this)
+inline fun IConfig.withPageState(rv: RecyclerView,block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+    val wrapperConfig = StateWrapperConfig(this,rv)
     val stateWrappedAdapter = PageStateWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
     wrapperConfig.block()
@@ -106,7 +89,7 @@ inline infix fun IConfig.withPageState(block: StateWrapperConfig.() -> Unit): St
 /**
  * 包装状态页
  */
-inline fun NekoAdapterLoadStatusWrapperUtil.withPageState(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
+inline fun MyAdapterLoadStatusWrapperUtil.withPageState(block: StateWrapperConfig.() -> Unit): StateWrapperConfig {
     val wrapperConfig = StateWrapperConfig(concatAdapter, context, rv)
     val stateWrappedAdapter = PageStateWrapperAdapter(wrapperConfig)
     wrapperConfig.stateWrapperAdapter = stateWrappedAdapter
@@ -123,12 +106,13 @@ inline fun NekoAdapterLoadStatusWrapperUtil.withPageState(block: StateWrapperCon
  * 对于Paging3Adapter，有自己的方法，不需要此方法。
  */
 inline fun IConfig.withLoadStatus(
-    block: NekoAdapterLoadStatusWrapperUtil.() -> Unit
-): NekoAdapterLoadStatusWrapperUtil {
-    if (this is NekoPagingAdapterConfig<*>){
+    rv:RecyclerView,
+    block: MyAdapterLoadStatusWrapperUtil.() -> Unit
+): MyAdapterLoadStatusWrapperUtil {
+    if (this is Paging3AdapterConfig<*>){
         throw Exception("nekoPagingAdapterConfig has it own function")
     }
-    return NekoAdapterLoadStatusWrapperUtil(this.rv, this.iNekoAdapter, context)
+    return MyAdapterLoadStatusWrapperUtil(rv, this.iRecyclerViewAdapter,rv.context)
         .apply(block)
         .completeConfig()
 }
@@ -145,19 +129,18 @@ inline fun IConfig.withLoadStatus(
 /**
  * 根据配置，生成NekoPagingAdapter
  */
-inline fun <T : Any> Context.paging3Neko(
-    recyclerView: RecyclerView,
+inline fun <T : Any> createPaging3AdapterConfig(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    configBlock: NekoPagingAdapterConfig<T>.() -> Unit
-): NekoPagingAdapterConfig<T> {
-    val config = NekoPagingAdapterConfig<T>(this, recyclerView)
-    val a = NekoPagingAdapter(config, diffCallback, mainDispatcher, workerDispatcher)
-    config.iNekoAdapter = a
-    config.nekoPagingAdapter = a
+    configBlock: Paging3AdapterConfig<T>.() -> Unit
+): Paging3AdapterConfig<T> {
+    val config = Paging3AdapterConfig<T>()
+    val a = MyPaging3Adapter(config, diffCallback, mainDispatcher, workerDispatcher)
+    config.iRecyclerViewAdapter = a
+    config.myPaging3Adapter = a
     config.configBlock()
-    recyclerView.layoutManager = config.layoutManager
+    config.complete()
     return config
 }
 
@@ -172,14 +155,14 @@ inline fun <T : Any> Context.paging3Neko(
  * @param customAdapter recyclerview的adapter
  * @param config 继承自[DefaultConfig]的配置类
  */
-fun <T : Any, N : DefaultConfig<T>> Context.customNeko(
+fun <T : Any, N : DefaultConfig<T>> customAdapter(
     recyclerView: RecyclerView,
     customAdapter: Adapter<BaseViewHolder>,
     config: N? = null,
 ): DefaultConfig<T> {
-    val config2 = config ?: DefaultConfig<T>(this, recyclerView)
-    config2.iNekoAdapter = customAdapter
-    recyclerView.layoutManager = config2.layoutManager
+    val config2 = config ?: DefaultConfig<T>()
+    config2.iRecyclerViewAdapter = customAdapter
+    recyclerView.layoutManager = config2.layoutManager?: recyclerView.context.linear()
     return config2
 }
 //</editor-fold>
@@ -193,13 +176,13 @@ fun <T : Any, N : DefaultConfig<T>> Context.customNeko(
  * @param nekoConfigs 构建出来的多个adapter。注：传入的nekoConfigs不应调用BaseConfig的done方法
  * @param configBlock 配置[ConcatAdapter.Config]
  */
-inline fun <T : Any, N : BaseConfig<T>> Context.concatNeko(
+inline fun <T : Any, N : BaseConfig<T>> concatMultiAdapter(
     vararg nekoConfigs: N,
     configBlock: ConcatConfig<T, N>.() -> Unit = {},
 ): ConcatConfig<T, N> {
-    val c = ConcatConfig(configList = nekoConfigs, this, nekoConfigs[0].rv)
+    val c = ConcatConfig(configList = nekoConfigs)
     c.configBlock()
-    c.completeConfig()
+    c.complete()
     return c
 }
 //</editor-fold>

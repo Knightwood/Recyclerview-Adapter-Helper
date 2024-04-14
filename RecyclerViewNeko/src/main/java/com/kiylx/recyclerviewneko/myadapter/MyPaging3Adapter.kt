@@ -1,17 +1,15 @@
-package com.kiylx.recyclerviewneko.nekoadapter
+package com.kiylx.recyclerviewneko.myadapter
 
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import com.kiylx.recyclerviewneko.nekoadapter.config.BaseConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.NekoPagingAdapterConfig
-import com.kiylx.recyclerviewneko.nekoadapter.config.createViewHolder
+import com.kiylx.recyclerviewneko.myadapter.config.Paging3AdapterConfig
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
-class NekoPagingAdapter<T : Any>(
-    var config: BaseConfig<T>,
+class MyPaging3Adapter<T : Any>(
+    var config: Paging3AdapterConfig<T>,
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -22,11 +20,11 @@ class NekoPagingAdapter<T : Any>(
         config.createViewHolder(parent, viewType)
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
-        (config as NekoPagingAdapterConfig).paging3bindData(holder, position, getItem(position))
+        config.paging3bindData(holder, position, getItem(position))
     }
 
     override fun getItemViewType(position: Int): Int {
-        return (config as NekoPagingAdapterConfig).paging3ItemViewType(position,getItem(position))
+        return config.paging3GetItemViewType(position,getItem(position))
     }
 
     override fun onViewAttachedToWindow(holder: BaseViewHolder) {

@@ -21,16 +21,23 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
     RecyclerView.ViewHolder(itemView) {
     private var mViews: SparseArray<View> = SparseArray()
     private var mConvertView: View = itemView
-    var binding :Any?=null
+    var binding: Any? = null
 
-    /**
-     * viewbinding绑定itemview，传入的viewBinding类型需要与itemview匹配
-     */
-    inline fun <reified T : ViewBinding> with(block:T.()->Unit) {
-        val b= binding?.let {
+    //在绑定数据时将更新这里的内容
+   internal var _data: Any? = null
+   internal var _pos: Int = -1
+
+
+    /** 返回绑定的数据*/
+    fun <T> getBindData(): T = _data as T
+    fun getPos(): Int = _pos
+
+    /** viewbinding绑定itemview，传入的viewBinding类型需要与itemview匹配 */
+    inline fun <reified T : ViewBinding> withBinding(block: T.() -> Unit) {
+        val b = binding?.let {
             it as T
-        }?:let {
-            binding =T::class.java.getMethod("bind", View::class.java).invoke(null, itemView) as T
+        } ?: let {
+            binding = T::class.java.getMethod("bind", View::class.java).invoke(null, itemView) as T
             binding as T
         }
         b.block()
@@ -44,15 +51,29 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
             return BaseViewHolder(context, itemView)
         }
 
+        /**
+         * Create view holder
+         *
+         * @param context
+         * @param parent
+         * @param layoutId
+         * @param block
+         *     可以做一些初始化的事情，例如itemview是个rv，就可以在创建vh的时候初始化rv，这样，在绑定的时候，就可以只做数据的刷新
+         * @return
+         * @receiver
+         */
         fun createViewHolder(
             context: Context,
-            parent: ViewGroup, layoutId: Int
+            parent: ViewGroup, layoutId: Int,
+            block: BaseViewHolder.() -> Unit = {},
         ): BaseViewHolder {
             val itemView = LayoutInflater.from(context).inflate(
                 layoutId, parent,
                 false
             )
-            return BaseViewHolder(context, itemView)
+            return BaseViewHolder(context, itemView).apply {
+                this.block()
+            }
         }
     }
 
@@ -77,7 +98,7 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
     }
 
 
-    /****以下为辅助方法 */
+    /** **以下为辅助方法 */
     /**
      * 设置TextView的值
      *
@@ -244,33 +265,31 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
         return this
     }
 
-    /**
-     * 关于事件的
-     */
+    /** 关于事件的 */
     fun setOnClickListener(
         viewId: Int,
-        listener: View.OnClickListener?
+        listener: View.OnClickListener
     ): BaseViewHolder {
-        val view = getView<View>(viewId)!!
-        view.setOnClickListener(listener)
+        val view = getView<View>(viewId)
+        view?.setOnClickListener(listener)
         return this
     }
 
     fun setOnTouchListener(
         viewId: Int,
-        listener: View.OnTouchListener?
+        listener: View.OnTouchListener
     ): BaseViewHolder {
-        val view = getView<View>(viewId)!!
-        view.setOnTouchListener(listener)
+        val view = getView<View>(viewId)
+        view?.setOnTouchListener(listener)
         return this
     }
 
     fun setOnLongClickListener(
         viewId: Int,
-        listener: View.OnLongClickListener?
+        listener: View.OnLongClickListener
     ): BaseViewHolder {
-        val view = getView<View>(viewId)!!
-        view.setOnLongClickListener(listener)
+        val view = getView<View>(viewId)
+        view?.setOnLongClickListener(listener)
         return this
     }
 

@@ -12,7 +12,7 @@ android {
         minSdk = 21
         targetSdk = 32
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -57,7 +57,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     api("androidx.paging:paging-runtime:3.2.1")
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+//    testImplementation("junit:junit:4.13.2")
+//    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+//    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }

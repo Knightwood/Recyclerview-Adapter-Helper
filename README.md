@@ -9,9 +9,6 @@
 
 # 使用
 
-**更详细的使用去看wiki**
-
-
 版本 [![](https://jitpack.io/v/Knightwood/RecyclerViewNeko.svg)](https://jitpack.io/#Knightwood/RecyclerViewNeko)
 
 ```css
@@ -27,44 +24,98 @@ dependencies {
 val d: MutableList<String> = mutableListOf()
 d.addAll(listOf("a", "b", "c", "item"))
 
-//泛型指定了此recyclerview显示什么类型的数据
-val neko = neko<String>(rv) {
-    //内置默认LinearLayoutManager,可以在这里修改
-    //layoutManager=GridLayoutManager(this@MainActivity2,2) //替换默认的布局管理器
-    layoutManager.apply {
-        //修改布局管理器的配置
-    }
-
-    //添加"viewholder"
-    addSingleItemView(R.layout.item_1) { holder, data, position ->
-        //数据绑定到viewholder
-        holder.getView<TextView>(R.id.tv1)?.text = data.toString()
-        //或者使用viewbinding
-        holder.with<Item1Binding> {
-            //使用viewbinding
+val neko1 = createNormalAdapterConfig<String> {
+    mDatas = d1.toMutableList()//指定adapter的数据
+    //仅有一种viewHolder
+    addItemView(R.layout.item_1) {
+        onCreate { holder ->
+            //干预创建过程
+            //例如itemview是一个recyclerview，希望在oncreateviewholder时，初始化recyclerview
+            //如果不需要，可以不调用此函数
+        }
+        onBind { holder, data, position ->
+            //使用with方法得到viewbinding实例
+            holder.withBinding<Item1Binding> {
+                tv1.text = data
+            }
+            //或者不使用viewbinding
+//                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+            //不要在绑定中使用此方法，因为每绑定一次数据就会调用添加一次点击事件
+//                holder.setOnClickListener(R.id.tv1) {
+//                    //对某个view设置点击事件
+//                }
+        }
+        onClick(R.id.tv1, R.id.tv0) { v, holder ->
+            Toast.makeText(application, holder.getBindData<String>(), Toast.LENGTH_SHORT)
+                .show()
         }
     }
+
     //设置动画，对于concat连接的adapter,可以分别设置不同的动画。
     configAnim {
         itemAnimation = SlideInLeftAnimation()
     }
-    // .....
-    //给整个itemview设置点击事件
-    itemClickListener = ItemClickListener { view, holder, position ->
-        Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
-    }
-    //设置长按事件
-    itemLongClickListener = ItemLongClickListener { view, holder, position ->
-        Toast.makeText(applicationContext, mDatas[position], Toast.LENGTH_LONG).show()
-        true
-    }
-
-}.show(d)//调用show方法完成recycleview的显示
-
-//直接获取相应类型的adapter刷新数据
-neko.nekoAdapter.notifyItemChanged(3)
+}
+neko1.done(rv)
+neko1.normalAdapter.notifyItemChanged(3)//直接获取相应类型的adapter刷新数据
 
 ```
+
+除了使用`createNormalAdapterConfig`创建普通的adapter 还可以使用：
+* createListAdapterConfig 创建ListAdapter
+* createPaging3AdapterConfig 创建Paging3Adapter
+
+例如paging
+
+```kotlin
+rv = view.findViewById<RecyclerView>(R.id.rv)
+config = createPaging3AdapterConfig<MediaResourceEntity>(object :
+            DiffUtil.ItemCallback<MediaResourceEntity>() {
+            override fun areItemsTheSame(
+                oldItem: MediaResourceEntity,
+                newItem: MediaResourceEntity
+            ): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(
+                oldItem: MediaResourceEntity,
+                newItem: MediaResourceEntity
+            ): Boolean {
+                return oldItem == newItem
+            }
+
+        }) {
+            //与上面实例一样，在这里添加了viewholder
+            addItemView(R.layout.item_1,
+                isThisView = { data, position ->
+                    data.fileType ==2
+                }) {
+                // 。。。
+            }
+            //再添加一种新的viewholder
+            addItemView(R.layout.item_2,
+                isThisView = { data, position ->
+                    data.fileType != 2
+                }) {
+                // 。。。
+            }
+        }
+
+        config.done(rv)
+        //提交数据
+        viewLifecycleOwner.lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                viewModel.datas.collect { pagingData ->
+                    config.myPaging3Adapter.submitData(pagingData)
+                }
+            }
+        }
+
+```
+
+
+# 下面都不用看了，需要重写文档
 
 ### 对于pagingadapter和listadapter
 他们内部维护有数据列表，不用传递mDatas给show方法
