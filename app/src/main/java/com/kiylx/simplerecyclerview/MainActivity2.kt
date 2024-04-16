@@ -13,25 +13,20 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.res.ResourcesCompat.ThemeCompat
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.*
-import com.kiylx.recyclerviewneko.myadapter.ItemClickListener
-import com.kiylx.recyclerviewneko.myadapter.ItemLongClickListener
 import com.kiylx.recyclerviewneko.myadapter.Lm.linear
-import com.kiylx.recyclerviewneko.myadapter.config.ViewTypeParser
-import com.kiylx.recyclerviewneko.utils.DragPosListener
-import com.kiylx.recyclerviewneko.utils.SlideSwipedPosListener
-import com.kiylx.recyclerviewneko.utils.attachDragListener
-import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
+import com.kiylx.recyclerviewneko.myadapter.config.ListAdapterConfig
+import com.kiylx.recyclerviewneko.utils.drag
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
-import com.kiylx.recyclerviewneko.viewholder.pack
 import com.kiylx.recyclerviewneko.wrapper.anim.SlideInLeftAnimation
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.IWrapper
 import com.kiylx.simplerecyclerview.databinding.Item1Binding
@@ -50,23 +45,26 @@ class MainActivity2 : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        handler.postDelayed(Runnable {
-            //这里延迟5s是为了测试时避免出问题时闪退太快收集不到日志
+//        handler.postDelayed(Runnable {
+        //这里延迟是为了测试时避免出问题时闪退太快收集不到日志
 //            nekoTest()
 //            concatTest()
 //            wrapperTest()
-            loadStateTest()
-        }, 3000)
+//            loadStateTest()
+//            rvSingleViewHolderTest()
+//            listNekoTest()
+        rvSingleCollapseViewHolderTest()
+//        }, 1500)
 
     }
 
-//    /** 代替viewholder */
-//    inner class Delegate1 : ItemViewDelegate<String>(R.layout.item_1) {
-//        /** 绑定数据到viewholder */
-//        override fun convert(holder: BaseViewHolder, data: String, position: Int) {
-//            holder.getView<TextView>(R.id.tv1)?.text = data
-//        }
-//    }
+    //    /** 代替viewholder */
+    val delegate1 = ItemViewDelegate<String>(R.layout.item_1).onBind { holder, data, pos ->
+        holder.getView<TextView>(R.id.tv1)?.text = data
+    }
+        .onClick(R.id.tv1) { v, h ->
+            Toast.makeText(applicationContext, "pos:${h.layoutPosition}", Toast.LENGTH_SHORT).show()
+        }
 //
 //    inner class Delegate2 : ItemViewDelegate<String>(R.layout.item_2) {
 //        //在有多种viewholder时，
@@ -84,26 +82,87 @@ class MainActivity2 : AppCompatActivity() {
 //
 //    }
 //
-//    /** 仅有一种viewHolder的示例 */
-//    fun nekoSingleTest() {
-//        //预定义数据
-//        val d: MutableList<String> = mutableListOf()
-//        d.addAll(listOf("a", "b", "c", "item"))
-//
-//        //泛型指定了此recyclerview显示什么类型的数据
-//        val normalAdapter = createNormalAdapterConfig<String> {
-//            // .....
-//            //仅有一种viewHolder,
-//            //不需要指定viewTypeParser
-//            //不需要重写ItemViewDelegate中的isForViewType方法来判断ViewType
-//            //仅添加"viewholder"
-//            setSingleItemView(R.layout.item_1) { holder, data, position ->
-//                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
-//            }
-//            // .....
-//        }.done(rv, d)//调用show方法完成recycleview的显示
-//
-//    }
+    /** 仅有一种viewHolder的示例 */
+    fun rvSingleViewHolderTest() {
+        //预定义数据
+        val d: MutableList<String> = mutableListOf()
+        for (i in 0..100) {
+            d.add(RandomUtil.generateByRandom(9))
+        }
+
+        //泛型指定了此recyclerview显示什么类型的数据
+        val config = createNormalAdapterConfig<String> {
+            layoutManager = LinearLayoutManager(this@MainActivity2)
+            // .....
+            //仅有一种viewHolder,
+            //不需要指定viewTypeParser
+            //不需要重写ItemViewDelegate中的isForViewType方法来判断ViewType
+            //仅添加"viewholder"
+            addItemView(R.layout.item_1) {
+                onBind { holder, data, position ->
+                    holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+                }
+                onClick(R.id.tv1) { v1, h ->
+                    val v = h.getView<LinearLayout>(R.id.collapse_layout)!!
+                    if (v.visibility == View.VISIBLE) {
+                        v.visibility = View.GONE
+                        h.setIsRecyclable(true)
+                    } else {
+                        v.visibility = View.VISIBLE
+                        h.setIsRecyclable(false)
+                    }
+                }
+            }
+            // .....
+        }.done(rv, d)//调用show方法完成recycleview的显示
+
+        config.drag(rv)
+    }
+
+    class CollapseData(var collapse: Boolean = true, var s: String)
+
+    /** 仅有一种viewHolder的示例 可折叠 */
+    fun rvSingleCollapseViewHolderTest() {
+        //预定义数据
+        val d: MutableList<CollapseData> = mutableListOf()
+        for (i in 0..100) {
+            d.add(CollapseData(s = RandomUtil.generateByRandom(9)))
+        }
+
+        //泛型指定了此recyclerview显示什么类型的数据
+        val config = createNormalAdapterConfig<CollapseData> {
+            // .....
+            //仅有一种viewHolder,
+            //不需要指定viewTypeParser
+            //不需要重写ItemViewDelegate中的isForViewType方法来判断ViewType
+            //仅添加"viewholder"
+            addItemView(R.layout.item_1) {
+                onBind { holder, data, position ->
+                    holder.getView<TextView>(R.id.tv1)?.text = data.s
+                    val v = holder.getView<LinearLayout>(R.id.collapse_layout)!!
+                    if (data.collapse) {
+                        v.visibility = View.GONE
+                    } else {
+                        v.visibility = View.VISIBLE
+                    }
+                }
+                onClick(R.id.tv1) { v1, h ->
+                    //点击时显示和隐藏折叠菜单
+                    val v = h.getView<LinearLayout>(R.id.collapse_layout)!!
+                    if (v.visibility == View.VISIBLE) {
+                        v.visibility = View.GONE
+                        h.getBindData<CollapseData>().collapse = true
+                    } else {
+                        v.visibility = View.VISIBLE
+                        h.getBindData<CollapseData>().collapse = false
+                    }
+                }
+            }
+            // .....
+        }
+            .done(rv, d)//调用show方法完成recycleview的显示
+        config.drag(rv)
+    }
 //
 //    /** 普通的adapter，多种viewtype */
 //    fun nekoTest() {
@@ -187,37 +246,38 @@ class MainActivity2 : AppCompatActivity() {
 //        neko.normalAdapter.notifyItemChanged(3)
 //    }
 //
-//    /** listadapter，多种viewtype */
-//    fun listNekoTest() {
-//        val d: MutableList<String> = mutableListOf<String>()
-//        d.add("eee")
-//        d.add("ee3e")
-//        d.add("eee2")
-//        d.add("e1ee")
-//        val item1 = Delegate1()
-//        val item2 = Delegate2()
-//        val myDiffCallback = object : DiffUtil.ItemCallback<String>() {
-//            //指定diffCallback
-//            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-//                return oldItem == newItem
-//            }
-//
-//            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-//                return oldItem == newItem
-//            }
-//        }
-//
-//        val neko = createListAdapterConfig<String>(
-//            // 若没有指定[asyncConfig]，则用[diffCallback]参数创建NekoListAdapter
-//            // 若指定了[asyncConfig]，则[diffCallback]参数不起作用
-//            //diffCallback和asyncConfig是listAdapter的构造函数参数，不明白去看下ListAdapter
-//            diffCallback = myDiffCallback,
-//            asyncConfig = AsyncDifferConfig.Builder<String>(myDiffCallback).build()
-//        ) {
-//            //这部分代码跟上面一样
-//        }
-//
-//        //添加StateHeader
+    /** listadapter，多种viewtype */
+    fun listNekoTest() {
+        val d: MutableList<String> = mutableListOf<String>()
+        d.add("0000")
+        d.add("1111")
+        d.add("2222")
+        d.add("3333")
+        val item1 = delegate1
+        val myDiffCallback = object : DiffUtil.ItemCallback<String>() {
+            //指定diffCallback
+            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                return oldItem == newItem
+            }
+        }
+
+        val listAdapterConfig: ListAdapterConfig<String> = createListAdapterConfig<String>(
+            // 若没有指定[asyncConfig]，则用[diffCallback]参数创建NekoListAdapter
+            // 若指定了[asyncConfig]，则[diffCallback]参数不起作用
+            //diffCallback和asyncConfig是listAdapter的构造函数参数，不明白去看下ListAdapter
+            diffCallback = myDiffCallback,
+            asyncConfig = AsyncDifferConfig.Builder<String>(myDiffCallback).build()
+        ) {
+            //这部分代码跟上面一样
+            addItemView(delegate1)
+        }.done(rv)
+        listAdapterConfig.drag(rv, true)
+
+        //添加StateHeader
 //        neko.withLoadStatus(rv) {
 //            withHeader {
 //                setItemDelegate(R.layout.item_2) { holder, ls ->
@@ -226,13 +286,13 @@ class MainActivity2 : AppCompatActivity() {
 //            }
 //
 //        }.done()
-//
+
 //        d[0] = "eee"
-//        //刷新数据
-//        neko.submitList(d)
-//        //刷新数据
+        //刷新数据
+        listAdapterConfig.submitList(d)
+        //刷新数据
 //        neko.myListAdapter.submitList(null)
-//    }
+    }
 //
 //    /** pagingDataAdapter */
 //    fun pagingTest() {
@@ -380,11 +440,11 @@ class MainActivity2 : AppCompatActivity() {
                         tv1.text = data
                     }
                     //或者不使用viewbinding
-//                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
+                    //                holder.getView<TextView>(R.id.tv1)?.text = data.toString()
                     //不要在绑定中使用此方法，因为每绑定一次数据就会调用添加一次点击事件
-//                holder.setOnClickListener(R.id.tv1) {
-//                    //对某个view设置点击事件
-//                }
+                    //                holder.setOnClickListener(R.id.tv1) {
+                    //                    //对某个view设置点击事件
+                    //                }
                 }
                 onClick(R.id.tv1, R.id.tv0) { v, holder ->
                     Toast.makeText(application, holder.getBindData<String>(), Toast.LENGTH_SHORT)
@@ -457,25 +517,6 @@ class MainActivity2 : AppCompatActivity() {
 
         //显示被包装起来的content
         statePage.showContent()
-        rv.attachDragListener {
-            //监听移动
-            this.dragSwapListener =
-                DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
-                    Log.d(tag, "source1:$source,target1:$target")
-                }
-            //移动结束
-            this.clearViewListener =
-                DragPosListener { source: Int, target: Int, sourceAbsolutePosition: Int, targetAbsolutePosition: Int ->
-                    Log.d(tag, "source2:$source,target2:$target")
-                }
-            //监听侧滑
-            useSlideSwiped = true
-            this.slideSwipedListener =
-                SlideSwipedPosListener { target: Int, absoluteAdapterPosition: Int ->
-                    Log.d(tag, "target3:$target")
-                }
-        }
-
         handler.postDelayed(Runnable {
             statePage.showEmpty()
 

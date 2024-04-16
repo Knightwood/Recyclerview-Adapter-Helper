@@ -1,9 +1,7 @@
 package com.kiylx.recyclerviewneko.myadapter.config
 
+import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
 import com.kiylx.recyclerviewneko.viewholder.DelegatePair
@@ -21,7 +19,7 @@ sealed class IConfig() {
 }
 
 /** adapter的配置，创建viewholder,判断viewtype等一系列的方法 */
-sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
+sealed class BaseConfig<T : Any> : IConfig() {
     //动画配置
     protected val animConfig: AnimConfig by lazy { AnimConfig() }
 
@@ -47,8 +45,23 @@ sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
 
 
     //指定此匿名函数，可以手动创建viewholder
-    var createHolder: ((parent: ViewGroup, layoutId: Int, viewType: Int) -> BaseViewHolder)? = null
+    private var createHolder: ((parent: ViewGroup, layoutId: Int, viewType: Int) -> BaseViewHolder)? =
+        null
 
+    /**
+     * Custom create holder
+     *
+     * 使用此函数可以自行创建viewholder，而不是用默认的创建过程，当使用此函数后，[ItemViewDelegate.onCreate]不再起作用
+     * 对于添加viewholder时，传入的是view而不是布局id的，此函数无用
+     *
+     * 与[ItemViewDelegate.onCreate]区分：
+     * 使用默认的创建过程创建viewholder，创建viewholder时给与一个干预的机会。
+     *
+     * @param block
+     */
+    fun customCreateHolder(block: ((parent: ViewGroup, layoutId: Int, viewType: Int) -> BaseViewHolder)? = null) {
+        this.createHolder = block
+    }
 
 //    /**
 //     * 监听数据变化
@@ -64,15 +77,21 @@ sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
 //        rv.adapter?.unregisterAdapterDataObserver(observer)
 //    }
 
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
 
-    }
-
-    fun addItemView(layoutId: Int,block:ItemViewDelegate<T>.()->Unit) {
+    fun addItemView(layoutId: Int, block: ItemViewDelegate<T>.() -> Unit) {
         if (viewTypeParser != null) {
             throw IllegalArgumentException("viewTypeParser should be null")
         }
         val itemview = ItemViewDelegate<T>(layoutId)
+        itemview.block()
+        mItemViewDelegateManager.addDelegate(itemview)
+    }
+
+    fun addItemView(v: View, block: ItemViewDelegate<T>.() -> Unit) {
+        if (viewTypeParser != null) {
+            throw IllegalArgumentException("viewTypeParser should be null")
+        }
+        val itemview = ItemViewDelegate<T>(v = v)
         itemview.block()
         mItemViewDelegateManager.addDelegate(itemview)
     }
@@ -86,7 +105,7 @@ sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
     open fun addItemView(
         layoutId: Int,
         type: Int,
-        block:ItemViewDelegate<T>.()->Unit
+        block: ItemViewDelegate<T>.() -> Unit
     ) {
         if (viewTypeParser == null) {
             throw NullPointerException("viewTypeParser cannot be null")
@@ -96,8 +115,27 @@ sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
         mItemViewDelegateManager.addDelegate(type, itemview)
     }
 
+    /**
+     * 添加多种itemview类型
+     *
+     * @param type 标识viewHolder的类型，即vieType
+     * @param layoutId viewHolder布局id
+     */
+    open fun addItemView(
+        v: View,
+        type: Int,
+        block: ItemViewDelegate<T>.() -> Unit
+    ) {
+        if (viewTypeParser == null) {
+            throw NullPointerException("viewTypeParser cannot be null")
+        }
+        val itemview: ItemViewDelegate<T> = ItemViewDelegate<T>(v = v)
+        itemview.block()
+        mItemViewDelegateManager.addDelegate(type, itemview)
+    }
+
     /** 添加多种itemview类型 */
-    open fun addItemViews(vararg itemViewDelegates: DelegatePair<T>) {
+    open fun addItemView(vararg itemViewDelegates: DelegatePair<T>) {
         if (viewTypeParser == null) {
             throw NullPointerException("viewTypeParser cannot be null")
         }
@@ -108,7 +146,7 @@ sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
     }
 
     /** 添加多种itemview类型 */
-    open fun addItemViews(vararg itemViewDelegates: ItemViewDelegate<T>) {
+    open fun addItemView(vararg itemViewDelegates: ItemViewDelegate<T>) {
         if (viewTypeParser != null) {
             throw IllegalArgumentException("viewTypeParser should be null")
         }
@@ -147,21 +185,26 @@ sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
     ): BaseViewHolder {
         val itemViewDelegate = getItemViewDelegate(viewType)
         val layoutId: Int = itemViewDelegate.layoutId
-        val vh = createHolder?.let {
-            //让createHolder接管创建过程
-            it(parent, layoutId, viewType)
-        } ?: BaseViewHolder.createViewHolder(
-            parent.context,
-            parent,
-            layoutId
-        ) {
-            //干预创建过程
-            itemViewDelegate.createConvert(this)
+        val vh = if (layoutId == -1) {
+            BaseViewHolder.createViewHolder(
+                parent.context,
+                itemViewDelegate.v!!,
+                itemViewDelegate.createConvert //干预创建过程
+            )
+        } else {
+            createHolder?.invoke(parent, layoutId, viewType) //让createHolder接管创建过程
+                ?: BaseViewHolder.createViewHolder(
+                    parent.context,
+                    parent,
+                    layoutId,
+                    itemViewDelegate.createConvert //干预创建过程
+                )
         }
         setClickListener(vh, itemViewDelegate)
         setLongListener(vh, itemViewDelegate)
         return vh
     }
+
 
 
     /** 将数据绑定到viewholder */
@@ -171,10 +214,7 @@ sealed class BaseConfig<T : Any> : IConfig(), LifecycleEventObserver {
             data,
             holder.bindingAdapterPosition
         )
-
         holder._data = data
-        holder._pos = position
-
     }
 
 

@@ -13,4 +13,24 @@ import com.kiylx.simplerecyclerview.databinding.Item1Binding
 
 /** 使用最普通的适配器为例； 1，ItemViewDelegate代理了各种不同的ViewHolder实现 2，快速构建一个适配器 */
 class NormalAdapterExample(val application: Application) {
+
+    fun c2() {
+        val createConvert: (s: String) -> Unit = {}
+        c3(createConvert)
+    }
+
+    fun c3(
+        block: String.() -> Unit = {},
+    ) {
+        val s = ""
+
+        s.block()
+        block(s)
+        block.invoke(s)
+
+        var b: (s: String) -> Unit = {}
+        val b2: String.() -> Unit = {}
+        b=b2
+    }
+
 }

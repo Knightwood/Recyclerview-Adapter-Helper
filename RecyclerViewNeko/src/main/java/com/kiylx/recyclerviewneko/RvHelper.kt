@@ -1,6 +1,5 @@
 package com.kiylx.recyclerviewneko
 
-import android.content.Context
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -33,7 +32,7 @@ import kotlinx.coroutines.Dispatchers
  * # 根据配置，生成recyclerview
  * ## 一、添加viewholder
  * 1. 单一viewholder：使用[BaseConfig.addItemView]方法
- * 2. 多种类型的viewholder：使用[BaseConfig.addItemViews]方法
+ * 2. 多种类型的viewholder：使用[BaseConfig.addItemView]方法
  *
  * ## 二、 若有多种viewholder,，指定不同的viewtype方式
  * * 方式一：重写[ItemViewDelegate]中的[ItemViewDelegate.isForViewType]方法

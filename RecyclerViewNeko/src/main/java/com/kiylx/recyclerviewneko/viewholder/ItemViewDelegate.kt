@@ -1,10 +1,11 @@
 package com.kiylx.recyclerviewneko.viewholder
 
 import android.util.SparseArray
+import android.view.View
 import com.kiylx.recyclerviewneko.myadapter.ItemClickListener
 import com.kiylx.recyclerviewneko.myadapter.ItemLongClickListener
 
-class ItemViewDelegate<T>(var layoutId: Int) {
+class ItemViewDelegate<T>(var layoutId: Int =-1,var v: View?=null) {
     /** 将数据绑定到viewholder */
     internal var convert: (holder: BaseViewHolder, data: T, position: Int) -> Unit = { _, _, _ -> }
 

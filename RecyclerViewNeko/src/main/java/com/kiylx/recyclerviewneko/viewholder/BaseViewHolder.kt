@@ -24,13 +24,10 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
     var binding: Any? = null
 
     //在绑定数据时将更新这里的内容
-   internal var _data: Any? = null
-   internal var _pos: Int = -1
+    internal var _data: Any? = null
 
-
-    /** 返回绑定的数据*/
+    /** 返回绑定的数据 */
     fun <T> getBindData(): T = _data as T
-    fun getPos(): Int = _pos
 
     /** viewbinding绑定itemview，传入的viewBinding类型需要与itemview匹配 */
     inline fun <reified T : ViewBinding> withBinding(block: T.() -> Unit) {
@@ -46,9 +43,12 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
     companion object {
         fun createViewHolder(
             context: Context,
-            itemView: View
-        ): BaseViewHolder {
-            return BaseViewHolder(context, itemView)
+            itemView: View,
+            block: (vh: BaseViewHolder) -> Unit = {},
+            ): BaseViewHolder {
+            val vh = BaseViewHolder(context, itemView)
+            block.invoke(vh)
+            return vh
         }
 
         /**
@@ -65,15 +65,15 @@ class BaseViewHolder(private var mContext: Context, itemView: View) :
         fun createViewHolder(
             context: Context,
             parent: ViewGroup, layoutId: Int,
-            block: BaseViewHolder.() -> Unit = {},
+            block: (vh: BaseViewHolder) -> Unit = {},
         ): BaseViewHolder {
             val itemView = LayoutInflater.from(context).inflate(
                 layoutId, parent,
                 false
             )
-            return BaseViewHolder(context, itemView).apply {
-                this.block()
-            }
+            val vh = BaseViewHolder(context, itemView)
+            block.invoke(vh)
+            return vh
         }
     }
 

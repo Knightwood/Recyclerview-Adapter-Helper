@@ -43,6 +43,19 @@ class NormalAdapterConfig<T : Any> :
         mDatas.removeAt(pos)
     }
 
+    /**
+     * 移动item和数据位置
+     *
+     * @param source
+     * @param target
+     */
+    fun moveData(source:Int,target:Int){
+        val old = mDatas[source]
+        mDatas[source] = mDatas[target]
+        mDatas[target] = old
+        normalAdapter.notifyItemMoved(source, target)
+    }
+
     fun removeRangeData(pos: Int, endPos: Int) {
         val i = mDatas.size - endPos
         normalAdapter.notifyItemRangeRemoved(pos, endPos)
