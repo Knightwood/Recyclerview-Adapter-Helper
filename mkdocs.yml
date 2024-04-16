@@ -9,7 +9,7 @@ docs_dir: 'docs'
 
 theme:
   # name: bootstrap386
-  name: material
+   name: material
 
 # markdown_extensions:
 #   - toc:
