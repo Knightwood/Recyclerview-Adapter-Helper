@@ -9,13 +9,13 @@
 
 # 使用
 
-# [文档](https://knightwood.github.io/RecyclerViewNeko/)
+# [文档](https://knightwood.github.io/Recyclerview-Adapter-Helper/)
 
-版本 [![](https://jitpack.io/v/Knightwood/RecyclerViewNeko.svg)](https://jitpack.io/#Knightwood/RecyclerViewNeko)
+版本 [![](https://jitpack.io/v/Knightwood/Recyclerview-Adapter-Helper.svg)](https://jitpack.io/#Knightwood/Recyclerview-Adapter-Helper)
 
 ```css
 dependencies {
-       implementation 'com.github.Knightwood:RecyclerViewNeko:Tag'
+       implementation 'com.github.Knightwood:Recyclerview-Adapter-Helper:Tag'
 }
 ```
 
