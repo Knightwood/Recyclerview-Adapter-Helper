@@ -10,20 +10,39 @@
 | SlideInLeftAnimation   | 从左侧滑入 |
 | SlideInRightAnimation  | 从右侧滑入 |
 
-## 使用：
+## 使用
 
 ```kotlin
 val config = createNormalAdapterConfig<CollapseData> {
-    addItemView(R.layout.item_1) {
-        //...其余无关代码
-        //设置动画
-        setAnim(SlideInLeftAnimation())
+    //...其余无关代码
+    addItemView(R.layout.item_1) {}
+    //设置动画
+    setAnim(SlideInLeftAnimation())
+    // .....
+}
+config.done(rv, d)//调用show方法完成recycleview的显示
+```
+## 配置
+```kotlin
+val config = createNormalAdapterConfig<CollapseData> {
+    //...其余无关代码
+    addItemView(R.layout.item_1) {}
+    configAnim {
+        //更详细的配置动画
+        startAnimBlock = { anim: Animator, holder: RecyclerView.ViewHolder ->
+
+        }
+        //作用同 setAnim(SlideInLeftAnimation())
+        itemAnimation = SlideInLeftAnimation()
+        // 是否打开动画
+        animationEnable = false
+        // 动画是否仅第一次执行
+        isAnimationFirstOnly = false
     }
     // .....
 }
 config.done(rv, d)//调用show方法完成recycleview的显示
 ```
-
 ## 自定义动画
 参考示例实现动画类，然后如上面那样 调用 setAnim() 设置动画
 

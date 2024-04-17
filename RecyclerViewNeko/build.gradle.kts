@@ -1,5 +1,5 @@
 /*
- * build.gradle.kts, 2024/4/16 下午8:50
+ * build.gradle.kts
  *
  * Copyright [2023-2024] [KnightWood]
  *
@@ -20,7 +20,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-        id("maven-publish")
+    id("maven-publish")
 }
 
 android {
@@ -61,7 +61,7 @@ afterEvaluate {
         publications {
             create<MavenPublication>("maven") {
                 groupId = "com.github.knightwood"
-                artifactId = "recyclerviewNeko"
+                artifactId = "Recyclerview-Adapter-Helper"
                 version = "1.0"
                 from(components.getByName("release"))
                 //artifact(tasks.getByName("bundleReleaseAar"))

@@ -1,5 +1,5 @@
 /*
- * MainActivity2.kt, 2024/4/16 下午8:50
+ * MainActivity2.kt
  *
  * Copyright [2023-2024] [KnightWood]
  *
@@ -43,7 +43,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.*
 import com.kiylx.recyclerviewneko.myadapter.Lm.linear
+import com.kiylx.recyclerviewneko.myadapter.config.BaseConfig
+import com.kiylx.recyclerviewneko.myadapter.config.ConcatConfig
 import com.kiylx.recyclerviewneko.myadapter.config.ListAdapterConfig
+import com.kiylx.recyclerviewneko.myadapter.config.NormalAdapterConfig
 import com.kiylx.recyclerviewneko.utils.drag
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.wrapper.anim.SlideInLeftAnimation
@@ -110,7 +113,7 @@ class MainActivity2 : AppCompatActivity() {
         }
 
         //泛型指定了此recyclerview显示什么类型的数据
-        val config = createNormalAdapterConfig<String> {
+        val config: NormalAdapterConfig<String> = createNormalAdapterConfig<String> {
             layoutManager = LinearLayoutManager(this@MainActivity2)
             // .....
             //仅有一种viewHolder,
@@ -486,10 +489,9 @@ class MainActivity2 : AppCompatActivity() {
                     }
                 }
             }
-
         }
         //将两个adapter合并，此方法可以传入更多的adapter进行合并
-        val concat = concatMultiAdapter(neko1, neko2) {
+        val concat: ConcatConfig<String, BaseConfig<String>> = concatMultiAdapter(neko1, neko2) {
             // 自定义配置
             //统一给所有adapter设置动画
             setAnim(SlideInLeftAnimation())
@@ -506,6 +508,9 @@ class MainActivity2 : AppCompatActivity() {
                     val m = header.getView<Button>(com.kiylx.recyclerviewneko.R.id.retry_button)!!
                     Log.d(tag, "可见性：${m.visibility}")
                 }
+            }
+            withHeader {
+
             }
             //当滑动到底部时，如果不配置footer，这里不会被调用
             whenScrollToEnd {

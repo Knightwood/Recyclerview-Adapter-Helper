@@ -1,13 +1,14 @@
 # 基本使用
 
-支持的Adapter有:
 
-- Adapter
-- ListAdapter
-- PagingDataAdapter
-- ConcatAdapter
+!!! note "前言"
+    支持的Adapter有:  
+    - Adapter  
+    - ListAdapter  
+    - PagingDataAdapter  
+    - ConcatAdapter  
 
-快速使用：
+示例：
 
 ```kotlin
 //模拟数据

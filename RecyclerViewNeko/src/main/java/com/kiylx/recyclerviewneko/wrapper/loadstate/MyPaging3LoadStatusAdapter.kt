@@ -1,5 +1,5 @@
 /*
- * MyPaging3LoadStatusAdapter.kt, 2024/4/16 下午8:50
+ * MyPaging3LoadStatusAdapter.kt
  *
  * Copyright [2023-2024] [KnightWood]
  *
@@ -41,33 +41,25 @@ class MyPaging3LoadStatusAdapter(var config: Paging3LoadStatusConfig) :
         return config.onCreateViewHolder(parent, loadState)
     }
 
-    /**
-     * 内部自动切换状态
-     */
-   internal fun autoLoadStateChange(newLoadState: LoadState){
-        if (config.autoLoading){
-            loadState=newLoadState
+    /** 内部自动切换状态 */
+    internal fun autoLoadStateChange(newLoadState: LoadState) {
+        if (config.autoLoading) {
+            loadState = newLoadState
         }
     }
 
 }
 
-/**
- * NekoPagingStatusAdapter中的创建和绑定ViewHolder委托给此类
- * 此类带承担着添加不同的itemview的职责
- */
+/** NekoPagingStatusAdapter中的创建和绑定ViewHolder委托给此类 此类带承担着添加不同的itemview的职责 */
 class Paging3LoadStatusConfig() {
     /**
      * 如果值大于0.则在触发[LoadState.Loading]状态后，
      * 延迟[autoClose]毫秒后触发[LoadState.NotLoading]
      */
-    var autoClose=-1L
+    var autoClose = -1L
 
-    /**
-     * true时自动触发[LoadState.Loading]状态
-     * false时手动切换[LoadState]状态
-     */
-    var autoLoading=false
+    /** true时自动触发[LoadState.Loading]状态 false时手动切换[LoadState]状态 */
+    var autoLoading = false
 
     private val stateHashMap: HashMap<LoadState, Paging3LoadStatusItemViewWrapper> = hashMapOf()
 
@@ -75,8 +67,7 @@ class Paging3LoadStatusConfig() {
     var innerDelegates: Paging3LoadStatusItemViewWrapper? = null
 
     /**
-     * 是否以loadState区分不同的viewHolder
-     * 若是使用[addItemDelegate]添加viewholder，则此处为true
+     * 是否以loadState区分不同的viewHolder 若是使用[addItemDelegate]添加viewholder，则此处为true
      * [setItemDelegate]设置的单个viewholder则不修改此状态
      */
     private var useType = false
@@ -87,15 +78,14 @@ class Paging3LoadStatusConfig() {
         } else {
             innerDelegates
         }
-        Log.d("Paging3LoadStateAdapter","onBindViewHolder方法被调用")
-        itemViewWrapper?.itemViewDelegate?.convert(holder, loadState) ?:throw Exception("没有与状态相关的itemview且没有默认itemview")
+        Log.d("Paging3LoadStateAdapter", "onBindViewHolder方法被调用")
+        itemViewWrapper?.itemViewDelegate?.convert(holder, loadState)
+            ?: throw Exception("没有与状态相关的itemview且没有默认itemview")
     }
 
-    /**
-     * 如果有添加根loadState关联的视图，
-     */
+    /** 如果有添加根loadState关联的视图， */
     internal fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): BaseViewHolder {
-        Log.d("Paging3LoadStateAdapter","onCreateViewHolder方法被调用")
+        Log.d("Paging3LoadStateAdapter", "onCreateViewHolder方法被调用")
         val itemViewWrapper: Paging3LoadStatusItemViewWrapper? = if (useType) {
             stateHashMap[loadState] ?: innerDelegates
         } else {
@@ -106,7 +96,7 @@ class Paging3LoadStatusConfig() {
                 LayoutInflater.from(parent.context).inflate(itemViewWrapper.layoutId, parent, false)
             val holder = BaseViewHolder(parent.context, view)
             return holder
-        }?: throw Exception("没有与状态相关的itemview且没有默认itemview")
+        } ?: throw Exception("没有与状态相关的itemview且没有默认itemview")
 
     }
 
@@ -129,9 +119,7 @@ class Paging3LoadStatusConfig() {
             }
     }
 
-    /**
-     * 添加没有loadState关联的ItemViewDelegate
-     */
+    /** 添加没有loadState关联的ItemViewDelegate */
     fun setItemDelegate(
         layoutId: Int,
         dataConvert: (holder: BaseViewHolder, loadState: LoadState) -> Unit
@@ -152,9 +140,7 @@ data class Paging3LoadStatusItemViewWrapper(
     val itemViewDelegate: Paging3LoadStatusItemViewDelegate
 )
 
-/**
- * 抽象然后取代bindViewHolder
- */
+/** 抽象然后取代bindViewHolder */
 fun interface Paging3LoadStatusItemViewDelegate {
     fun convert(holder: BaseViewHolder, loadState: LoadState)
 }

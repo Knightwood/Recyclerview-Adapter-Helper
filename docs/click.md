@@ -7,6 +7,9 @@
 
 点击事件和长按事件都被局限于ItemViewDelegate，因此，即使两个ViewHolder中的view id一致，也不会被覆盖
 
+!!! warning
+    尽量避免在onBind方法中设置点击事件，这回因为rv反复绑定数据造成不必要的开销
+
 ## 点击事件
 
 ```kotlin
@@ -14,7 +17,6 @@ val config = createNormalAdapterConfig<String> {
     //添加ViewHolder
     addItemView(R.layout.item_1) {
         //...其余代码省略
-
         //配置ViewHolder的点击事件，可传入多个视图的id设置点击事件
         onClick(R.id.tv1, R.id.tv2) { v: View, holder: BaseViewHolder ->
             //点击事件处理

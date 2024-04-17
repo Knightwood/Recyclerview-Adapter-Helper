@@ -1,5 +1,5 @@
 /*
- * BaseConfig.kt, 2024/4/16 下午8:50
+ * BaseConfig.kt
  *
  * Copyright [2023-2024] [KnightWood]
  *
@@ -225,7 +225,6 @@ sealed class BaseConfig<T : Any> : IConfig() {
     }
 
 
-
     /** 将数据绑定到viewholder */
     internal fun bindData(holder: BaseViewHolder, position: Int, data: T) {
         mItemViewDelegateManager.convert(
@@ -242,8 +241,12 @@ sealed class BaseConfig<T : Any> : IConfig() {
         animConfig.block()
     }
 
+    fun setAnim(anim: ItemAnimator) {
+        itemAnimation = anim
+    }
+
     /** 设置自定义动画，使用默认的动画配置 若调用[configAnim]方法，可以直接在block中设置动画，这种情况下没必要一定在这里设置动画 */
-    var itemAnimation: ItemAnimator?
+    internal var itemAnimation: ItemAnimator?
         set(value) {
             animConfig.itemAnimation = value
         }

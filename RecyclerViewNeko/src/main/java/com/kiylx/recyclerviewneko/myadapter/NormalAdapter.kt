@@ -1,5 +1,5 @@
 /*
- * NormalAdapter.kt, 2024/4/16 下午8:50
+ * NormalAdapter.kt
  *
  * Copyright [2023-2024] [KnightWood]
  *

@@ -8,38 +8,54 @@ repo_name: GitHub
 docs_dir: 'docs'
 
 theme:
-  # name: bootstrap386
-   name: material
+#  name: bootstrap386
+  name: material
+  language: zh
+  features:
+    - navigation.top
+    - navigation.prune
+    - navigation.footer
+    - navigation.instant
+    - search.highlight
+    - search.suggest
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+plugins:
+#  - offline
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+      lang:
+        - en
+        - zh
 
-# markdown_extensions:
-#   - toc:
-#       permalink: true
-#   - pymdownx.tasklist:
-#       custom_checkbox: true
-#   - pymdownx.tabbed:
-#       alternate_style: true
-#   - pymdownx.highlight:
-#       anchor_linenums: true
-#       line_spans: __span
-#       pygments_lang_class: true
-#   - pymdownx.inlinehilite
-#   - pymdownx.snippets
-#   - pymdownx.superfences
-#   - attr_list
-#   - def_list
-#   - md_in_html
-#   - admonition
-#   - pymdownx.highlight
-#   - pymdownx.details
-#   - pymdownx.caret
-#   - pymdownx.keys
-#   - pymdownx.mark
-#   - pymdownx.tilde
-#   - pymdownx.emoji:
-#       emoji_index: !!python/name:materialx.emoji.twemoji
-#       emoji_generator: !!python/name:materialx.emoji.to_svg
-
-
+markdown_extensions:
+  - smarty
+  - toc:
+      permalink: true
+  - footnotes
+  - tables
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - attr_list
+  - def_list
+  - md_in_html
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.details
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
 nav:
   - 简单使用: index.md
   - 多种Viewholder: multi-type.md
@@ -47,9 +63,10 @@ nav:
   - 拖拽与侧滑: drag.md
   - 列表动画: animation.md
   - ViewBinding: view-binding.md
-  # - 更新数据: refresh-data.md
-  - 刷新预加载: header_footer.md
-  - 缺省页: state.md
+  - 更新数据: refresh-data.md
+  - 下拉header与上拉footer: header_footer.md
+  - 状态页: state.md
   - concatAdapter.md
   - listAdapter.md
   - paging3.md
+  - ItemViewDelegate.md

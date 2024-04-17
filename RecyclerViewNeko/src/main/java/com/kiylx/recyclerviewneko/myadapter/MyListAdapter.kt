@@ -1,5 +1,5 @@
 /*
- * MyListAdapter.kt, 2024/4/16 下午8:50
+ * MyListAdapter.kt
  *
  * Copyright [2023-2024] [KnightWood]
  *
