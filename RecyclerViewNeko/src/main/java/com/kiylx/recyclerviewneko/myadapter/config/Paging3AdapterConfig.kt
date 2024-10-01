@@ -77,9 +77,12 @@ class Paging3AdapterConfig<T : Any> :
     }
 
     /** 有header或footer时，给pagingAdapter添加上header或footer， 然后设置给recyclerview */
-    fun done(rv: RecyclerView): Paging3AdapterConfig<T> {
+    fun done(
+        rv: RecyclerView,
+        layoutManager: RecyclerView.LayoutManager = rv.context.linear(),
+    ): Paging3AdapterConfig<T> {
         rv.adapter = concatAdapter ?: myPaging3Adapter
-        rv.layoutManager = layoutManager?: rv.context.linear()
+        rv.layoutManager = layoutManager
         return this
     }
 

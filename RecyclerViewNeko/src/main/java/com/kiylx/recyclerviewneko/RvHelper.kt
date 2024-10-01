@@ -176,11 +176,12 @@ inline fun <T : Any> createPaging3AdapterConfig(
 fun <T : Any, N : DefaultConfig<T>> customAdapter(
     recyclerView: RecyclerView,
     customAdapter: Adapter<BaseViewHolder>,
+    layoutManager: RecyclerView.LayoutManager =recyclerView.context.linear(),
     config: N? = null,
 ): DefaultConfig<T> {
     val config2 = config ?: DefaultConfig<T>()
     config2.iRecyclerViewAdapter = customAdapter
-    recyclerView.layoutManager = config2.layoutManager?: recyclerView.context.linear()
+    recyclerView.layoutManager = layoutManager
     return config2
 }
 //</editor-fold>

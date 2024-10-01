@@ -21,6 +21,7 @@ package com.kiylx.recyclerviewneko.myadapter.config
 
 import android.annotation.SuppressLint
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.kiylx.recyclerviewneko.myadapter.Lm.linear
 import com.kiylx.recyclerviewneko.myadapter.NormalAdapter
 import com.kiylx.recyclerviewneko.viewholder.BaseViewHolder
@@ -48,7 +49,7 @@ class NormalAdapterConfig<T : Any> :
 
     /** 刷新recyclerview */
     @SuppressLint("NotifyDataSetChanged")
-    open fun refreshData(datas: MutableList<T>) {
+    fun refreshData(datas: MutableList<T>) {
         mDatas.clear()
         mDatas.addAll(datas)
         iRecyclerViewAdapter.notifyDataSetChanged()
@@ -68,7 +69,7 @@ class NormalAdapterConfig<T : Any> :
      * @param source
      * @param target
      */
-    fun moveData(source:Int,target:Int){
+    fun moveData(source: Int, target: Int) {
         val old = mDatas[source]
         mDatas[source] = mDatas[target]
         mDatas[target] = old
@@ -86,12 +87,16 @@ class NormalAdapterConfig<T : Any> :
 
 
     /** 普通adapter 完成rv的创建 */
-    fun done(rv: RecyclerView, datas: List<T> = emptyList()): NormalAdapterConfig<T> {
+    fun done(
+        rv: RecyclerView,
+        datas: List<T> = emptyList(),
+        layoutManager: LayoutManager =rv.context.linear(),
+    ): NormalAdapterConfig<T> {
         if (datas.isNotEmpty()) {
             mDatas.clear()
             mDatas.addAll(datas)
         }
-        rv.layoutManager = layoutManager ?: rv.context.linear()
+        rv.layoutManager = layoutManager
         rv.adapter = iRecyclerViewAdapter
         return this
     }

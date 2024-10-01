@@ -29,7 +29,7 @@ ItemViewDelegate和不同种类的ViewHolder一一对应，因此，在文档中
 使用isThisType方法判断viewtype时，不需要指定类型解析器ViewTypeParser  
 在isThisType方法中，判断数据是否由此Viewholder显示，如果是，返回true即可
 
-```kotlin
+```kotlin hl_lines="12-15"
 val config = createNormalAdapterConfig<SampleData> {
     //添加一种viewHolder
     addItemView(R.layout.item_1) {
@@ -56,7 +56,7 @@ val config = createNormalAdapterConfig<SampleData> {
 1. 指定viewTypeParser，并根据数据返回不同viewType
 2. 在addItemView方法中，指定该ViewHolder的viewType
 
-```kotlin
+```kotlin  hl_lines="2-10"
 val neko1 = createNormalAdapterConfig<String> {
     viewTypeParser = object : ViewTypeParser<String> {
         override fun parse(data: String, pos: Int): Int {

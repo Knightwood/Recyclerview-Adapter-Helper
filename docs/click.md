@@ -12,7 +12,7 @@
 
 ## 点击事件
 
-```kotlin
+```kotlin  hl_lines="6-8"
 val config = createNormalAdapterConfig<String> {
     //添加ViewHolder
     addItemView(R.layout.item_1) {
@@ -28,7 +28,7 @@ val config = createNormalAdapterConfig<String> {
 
 ## 长按事件
 
-```kotlin
+```kotlin  hl_lines="6-8"
 val config = createNormalAdapterConfig<String> {
     //添加ViewHolder
     addItemView(R.layout.item_1) {

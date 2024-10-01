@@ -48,6 +48,7 @@ import com.kiylx.recyclerviewneko.myadapter.config.ConcatConfig
 import com.kiylx.recyclerviewneko.myadapter.config.ListAdapterConfig
 import com.kiylx.recyclerviewneko.myadapter.config.NormalAdapterConfig
 import com.kiylx.recyclerviewneko.utils.drag
+import com.kiylx.recyclerviewneko.utils.scrollTo
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
 import com.kiylx.recyclerviewneko.wrapper.anim.SlideInLeftAnimation
 import com.kiylx.recyclerviewneko.wrapper.pagestate.config.IWrapper
@@ -114,7 +115,6 @@ class MainActivity2 : AppCompatActivity() {
 
         //泛型指定了此recyclerview显示什么类型的数据
         val config: NormalAdapterConfig<String> = createNormalAdapterConfig<String> {
-            layoutManager = LinearLayoutManager(this@MainActivity2)
             // .....
             //仅有一种viewHolder,
             //不需要指定viewTypeParser
@@ -546,6 +546,7 @@ class MainActivity2 : AppCompatActivity() {
 
             handler.postDelayed(Runnable {
                 statePage.showContent()
+                rv.scrollTo(10)
             }, 1000)
 
         }, 2000)

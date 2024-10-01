@@ -48,7 +48,7 @@ sealed class BaseConfig<T : Any> : IConfig() {
 //     */
 //    var canObserveDataChange = true
 
-    var layoutManager: RecyclerView.LayoutManager? = null
+    //var layoutManager: RecyclerView.LayoutManager? = null
     internal var mItemViewDelegateManager = ItemViewDelegateManager<T>()//管理itemview相关配置
 
     /**

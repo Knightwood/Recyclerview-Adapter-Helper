@@ -34,9 +34,12 @@ class ListAdapterConfig<T : Any> : BaseConfig<T>() {
         myListAdapter.submitList(datas, commitCallback)
     }
 
-    fun done(rv: RecyclerView): ListAdapterConfig<T> {
+    fun done(
+        rv: RecyclerView,
+        layoutManager: RecyclerView.LayoutManager = rv.context.linear(),
+    ): ListAdapterConfig<T> {
         rv.adapter = myListAdapter
-        rv.layoutManager = layoutManager ?: rv.context.linear()
+        rv.layoutManager = layoutManager
         return this
     }
 
