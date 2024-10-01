@@ -70,3 +70,9 @@ nav:
   - listAdapter.md
   - paging3.md
   - ItemViewDelegate.md
+  - 分隔线:
+      - 介绍: ./divider/intro.md
+      - 线性列表: ./divider/divider-linear.md
+      - 网格列表: ./divider/divider-grid.md
+      - 瀑布流列表: ./divider/divider-staggerd.md
+      - 自定义: ./divider/divider-customize.md

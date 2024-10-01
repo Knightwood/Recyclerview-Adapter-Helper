@@ -39,14 +39,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kiylx.recyclerviewneko.*
+import com.kiylx.recyclerviewneko.ext.divider
 import com.kiylx.recyclerviewneko.myadapter.Lm.linear
 import com.kiylx.recyclerviewneko.myadapter.config.BaseConfig
 import com.kiylx.recyclerviewneko.myadapter.config.ConcatConfig
 import com.kiylx.recyclerviewneko.myadapter.config.ListAdapterConfig
 import com.kiylx.recyclerviewneko.myadapter.config.NormalAdapterConfig
+import com.kiylx.recyclerviewneko.utils.addOnScrollListener
 import com.kiylx.recyclerviewneko.utils.drag
 import com.kiylx.recyclerviewneko.utils.scrollTo
 import com.kiylx.recyclerviewneko.viewholder.ItemViewDelegate
@@ -57,6 +61,7 @@ import com.kiylx.simplerecyclerview.databinding.Item2Binding
 
 
 class MainActivity2 : AppCompatActivity() {
+    val TAG = "TestActivity"
     lateinit var handler: Handler
     lateinit var rv: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,10 +78,10 @@ class MainActivity2 : AppCompatActivity() {
 //            nekoTest()
 //            concatTest()
 //            wrapperTest()
-//            loadStateTest()
+        loadStateTest()
 //            rvSingleViewHolderTest()
 //            listNekoTest()
-        rvSingleCollapseViewHolderTest()
+//        rvSingleCollapseViewHolderTest()
 //        }, 1500)
 
     }
@@ -548,10 +553,8 @@ class MainActivity2 : AppCompatActivity() {
                 statePage.showContent()
                 rv.scrollTo(10)
             }, 1000)
-
         }, 2000)
-
-
+        rv.divider(R.drawable.divider_horizontal)
         neko1.mDatas[1] = "olskdfbsf"
         neko1.normalAdapter.notifyItemChanged(1)
 
